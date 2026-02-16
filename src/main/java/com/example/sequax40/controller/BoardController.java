@@ -13,7 +13,7 @@ public class BoardController {
     private GridPane boardGrid;
 
     public void initialize() {
-        board = new Board(5, 5); // example 5x5 board
+        board = new Board(11, 11); // example 5x5 board
         // populate GridPane with buttons or tiles
     }
 
