@@ -1,4 +1,6 @@
 package com.example.sequax40.enums;
 
 public enum ShapeEnum {
-}
+    OCTAGON,
+    RHOMBUS
+};
