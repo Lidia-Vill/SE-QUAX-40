@@ -7,4 +7,8 @@ module com.example.sequax40 {
 
     opens com.example.sequax40 to javafx.fxml;
     exports com.example.sequax40;
+    exports com.example.sequax40.app;
+    opens com.example.sequax40.app to javafx.fxml;
+    exports com.example.sequax40.controller;
+    opens com.example.sequax40.controller to javafx.fxml;
 }

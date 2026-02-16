@@ -1,4 +1,4 @@
-package com.example.sequax40;
+package com.example.sequax40.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

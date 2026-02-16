@@ -1,4 +1,4 @@
-package com.example.sequax40;
+package com.example.sequax40.app;
 
 import javafx.application.Application;
 
