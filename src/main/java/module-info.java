@@ -5,8 +5,7 @@ module com.example.sequax40 {
     requires org.controlsfx.controls;
     requires org.kordamp.ikonli.javafx;
 
-    opens com.example.sequax40 to javafx.fxml;
-    exports com.example.sequax40;
+
     exports com.example.sequax40.app;
     opens com.example.sequax40.app to javafx.fxml;
     exports com.example.sequax40.controller;
