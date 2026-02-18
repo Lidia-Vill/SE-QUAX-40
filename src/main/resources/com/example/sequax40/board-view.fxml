@@ -11,7 +11,7 @@
 <?import javafx.scene.text.Font?>
 
 <BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.sequax40.controller.BoardController">
-   <center>
+   <center>//changes
       <StackPane style="-fx-background-color: linear-gradient(to bottom, #2b2b2b 0%, #2b2b2b 6%, white 6%, white 94%, #2b2b2b 94%, #2b2b2b 100%);">
          <children>
             <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1050.0" prefWidth="1050.0" style="-fx-border-color: #2b2b2b white #2b2b2b white; -fx-border-width: 15; -fx-border-style: solid;">
