@@ -20,7 +20,7 @@ public class BoardController {
 
 
     public void initialize() {
-        board = new Board(11, 11); // example 5x5 board
+        board = new Board(11, 11);
         // populate GridPane with buttons or tiles
     }
     @FXML
