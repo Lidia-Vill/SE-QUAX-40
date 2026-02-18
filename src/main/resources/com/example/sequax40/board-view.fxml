@@ -56,7 +56,7 @@
                         <Double fx:value="100.0" />
                      </points>
                   </Polygon>
-                  <Polygon fill="#4d44ff" layoutX="-26.0" layoutY="-26.0" scaleX="0.75" scaleY="0.75" scaleZ="0.75" stroke="BLACK" strokeType="INSIDE">
+                  <Polygon fx:id="polygon" fill="#4d44ff" layoutX="-26.0" layoutY="-26.0" onMouseClicked="#handleCellClick" scaleX="0.75" scaleY="0.75" scaleZ="0.75" stroke="BLACK" strokeType="INSIDE">
                     <points>
                         <Double fx:value="75.1" />
                         <Double fx:value="40.0" />
@@ -109,7 +109,7 @@
                         <Double fx:value="75.1" />
                      </points>
                   </Polygon>
-                  <Polygon fill="#4d44ff" layoutX="64.0" layoutY="-26.0" scaleX="0.75" scaleY="0.75" scaleZ="0.75" stroke="BLACK" strokeType="INSIDE">
+                  <Polygon fill="#4d44ff" layoutX="64.0" layoutY="-26.0" onMouseClicked="#handleCellClick" scaleX="0.75" scaleY="0.75" scaleZ="0.75" stroke="BLACK" strokeType="INSIDE">
                      <points>
                         <Double fx:value="75.1" />
                         <Double fx:value="40.0" />
