@@ -4,6 +4,8 @@ module com.example.sequax40 {
 
     requires org.controlsfx.controls;
     requires org.kordamp.ikonli.javafx;
+    requires junit;
+    requires org.junit.jupiter.api;
 
 
     exports com.example.sequax40.app;
