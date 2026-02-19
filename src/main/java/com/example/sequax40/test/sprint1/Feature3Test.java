@@ -2,10 +2,20 @@ package com.example.sequax40.test.sprint1;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class Feature3Test {
+
+    private Board board;
+
+    @BeforeEach
+    void setUp() {
+        // Create an 11x11 board for testing
+        board = new Board(11, 11);
+    }
 
     @Test
     void testTwoTilesClickable() {
@@ -28,6 +38,4 @@ public class Feature3Test {
         tile1.toggleSelected();
         assertFalse(tile1.isSelected());
     }
-
-
 }
