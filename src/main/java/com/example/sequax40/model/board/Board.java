@@ -1,5 +1,7 @@
 package com.example.sequax40.model.board;
 
+import com.example.sequax40.enums.ShapeEnum;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,52 +9,24 @@ public class Board {
 
     private final int rows;
     private final int cols;
-    private final Map<String, Tile> tiles; // Logical coordinates map
+    private final Map<String, Tile> tiles;
 
     public Board(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
         this.tiles = new HashMap<>();
+
+        for (int row = 0; row < rows; row++) {
+            char rowChar = (char) ('A' + row); // A, B, C...
+            for (int col = 1; col <= cols; col++) {
+                String id = rowChar + String.valueOf(col); // "A1", "B2"
+                tiles.put(id, new Tile(id, ShapeEnum.OCTAGON)); // or your concrete Tile subclass
+            }
+        }
+
     }
 
-    /** Add a tile to the board */
-    public void addTile(Tile tile) {
-        tiles.put(tile.getCoord(), tile);
-    }
-
-    /** Get tile by logical coordinate like "A1" or "DIA_A1_B1" */
     public Tile getTile(String coord) {
-        Tile tile = tiles.get(coord);
-        if (tile == null) {
-            throw new IllegalArgumentException("No tile at coordinate: " + coord);
-        }
-        return tile;
-    }
-
-    /** Toggle selection for a tile by coordinate */
-    public boolean toggleTileSelection(String coord) {
-        Tile tile = getTile(coord);
-        tile.toggleSelected();
-        return tile.isSelected();
-    }
-
-    /** Reset all tiles */
-    public void resetBoard() {
-        for (Tile tile : tiles.values()) {
-            tile.reset();
-        }
-    }
-
-    /** Get all tiles */
-    public Map<String, Tile> getTiles() {
-        return tiles;
-    }
-
-    public int getRows() {
-        return rows;
-    }
-
-    public int getCols() {
-        return cols;
+        return tiles.get(coord);
     }
 }

@@ -1,20 +1,16 @@
 package com.example.sequax40.model.board;
 
 import com.example.sequax40.enums.PlayerEnum;
+import com.example.sequax40.enums.ShapeEnum;
 
-public abstract class Tile {
-
-    public enum ShapeType {
-        OCTAGON,
-        DIAMOND
-    }
+public class Tile {
 
     private final String coord;      // e.g., "A1" or "DIA_A1_B1"
-    private final ShapeType shape;
+    private final ShapeEnum shape;
     private PlayerEnum owner;
     private boolean selected;
 
-    public Tile(String coord, ShapeType shape) {
+    public Tile(String coord, ShapeEnum shape) {
         this.coord = coord;
         this.shape = shape;
         this.owner = PlayerEnum.EMPTY; // empty by default
@@ -51,9 +47,5 @@ public abstract class Tile {
     // --- Getters ---
     public String getCoord() {
         return coord;
-    }
-
-    public ShapeType getShape() {
-        return shape;
     }
 }

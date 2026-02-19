@@ -11,7 +11,7 @@
 <?import javafx.scene.shape.Polygon?>
 <?import javafx.scene.text.Font?>
 
-<StackPane fx:id="mainContainer" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.sequax40.controller.BoardController">
+<StackPane fx:id="mainContainer" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.sequax40.controller.BoardController">
    <children>
       <Group fx:id="masterGroup">
          <children>
