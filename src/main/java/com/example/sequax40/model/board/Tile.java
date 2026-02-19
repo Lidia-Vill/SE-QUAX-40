@@ -2,43 +2,58 @@ package com.example.sequax40.model.board;
 
 import com.example.sequax40.enums.PlayerEnum;
 
-public class Tile {
-    private PlayerEnum owner;
-    private final int row;
-    private final int col;
+public abstract class Tile {
 
-    public Tile(int row, int col) {
-        this.row = row;
-        this.col = col;
-        this.owner = PlayerEnum.EMPTY; // empty by default
+    public enum ShapeType {
+        OCTAGON,
+        DIAMOND
     }
 
-    // Check if the tile is empty
+    private final String coord;      // e.g., "A1" or "DIA_A1_B1"
+    private final ShapeType shape;
+    private PlayerEnum owner;
+    private boolean selected;
+
+    public Tile(String coord, ShapeType shape) {
+        this.coord = coord;
+        this.shape = shape;
+        this.owner = PlayerEnum.EMPTY; // empty by default
+        this.selected = false;
+    }
+
+    // --- Owner methods ---
     public boolean isEmpty() {
         return owner == PlayerEnum.EMPTY;
     }
 
-    // Set the owner of the tile
-    public void setOwner(PlayerEnum owner) {
-        this.owner = owner;
-    }
-
-    // Get the owner of the tile
     public PlayerEnum getOwner() {
         return owner;
     }
 
-    // Get tile position
-    public int getRow() {
-        return row;
+    public void setOwner(PlayerEnum owner) {
+        this.owner = owner;
     }
 
-    public int getCol() {
-        return col;
-    }
-
-    // Optional: reset tile to empty
     public void reset() {
-        owner = PlayerEnum.EMPTY;
+        this.owner = PlayerEnum.EMPTY;
+        this.selected = false;
+    }
+
+    // --- Selection methods ---
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void toggleSelected() {
+        selected = !selected;
+    }
+
+    // --- Getters ---
+    public String getCoord() {
+        return coord;
+    }
+
+    public ShapeType getShape() {
+        return shape;
     }
 }
