@@ -1,6 +1,7 @@
 package com.example.sequax40.controller;
 
 
+import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Tile;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
@@ -32,7 +33,7 @@ public class BoardController {
     @FXML
     private StackPane gameBoardStackPane;
     @FXML
-    private Group boardGroup;
+    public Group boardGroup;
 
     //setting original board width to calculate scaling
     private final double DESIGN_WIDTH = 900.0;
@@ -42,8 +43,9 @@ public class BoardController {
     // --- Board model ---
     public Board board;
 
-    // Map from fx:id to Polygon for easy access
-    public final Map<String, Polygon> tileMap = new HashMap<>();
+    public Map<String, Tile> tileMap = new HashMap<>();
+    public Map<String, Polygon> polygonMap = new HashMap<>();
+
 
     //initialise method 
     @FXML
@@ -75,73 +77,76 @@ public class BoardController {
 
         // BOARD LOGIC
         board = new Board(11, 11);
-        setupOctagonTiles();
+        setupTiles();
     }
 
-    private void setupOctagonTiles() {
-        // Iterate over all children in boardGroup (Scene Builder polygons)
+    public void setupTiles() {
         for (var node : boardGroup.getChildren()) {
-            if (node instanceof Polygon polygon) {
-                String fxId = polygon.getId(); // fx:id from Scene Builder, e.g., "A1", "B2"
-                if (fxId != null && !fxId.isBlank()) {
-                    Tile tile = board.getTile(fxId); // get corresponding Tile
-                    polygon.setUserData(tile);       // store model in polygon
-                    polygon.setFill(DEFAULT_COLOR);  // initial color
+            if (!(node instanceof Polygon polygon)) continue;
 
-                    polygon.setOnMouseClicked(this::handleCellClick);
+            String fxId = polygon.getId();
+            if (fxId == null || fxId.isBlank()) continue;
 
-                    tileMap.put(fxId, polygon);      // save for future use
-                }
+            // Determine tile type by fxId pattern or length
+            ShapeEnum shapeType = (fxId.length() <= 2) ? ShapeEnum.OCTAGON : ShapeEnum.RHOMBUS;
+
+            // Create or get Tile from the board
+            Tile tile = board.getTile(fxId); // assumes Board can return a Tile for any ID
+            if (tile == null) {
+                tile = new Tile(fxId, shapeType); // for rhombuses or missing ones
+                board.addTile(tile);              // if your Board supports dynamic addition
             }
+
+            // Store Tile in polygon's userData for easy access in clicks
+            polygon.setUserData(tile);
+
+            // Set initial color
+            polygon.setFill(DEFAULT_COLOR);
+
+            // Set click handler
+            polygon.setOnMouseClicked(this::handleTileClick);
+
+            // Save in maps
+            tileMap.put(fxId, tile);
+            polygonMap.put(fxId, polygon);
         }
     }
 
-
-    //method to make the cells in the board clickable to then implement rules and enforce player turns later
     @FXML
-    public void handleCellClick(MouseEvent event) {
+    public void handleTileClick(MouseEvent event) {
         Object source = event.getSource();
         if (!(source instanceof Polygon clicked)) return;
 
-        // Get the model Tile associated with this polygon
+        // Get the associated Tile model, if any
+        Tile tile = null;
         Object userData = clicked.getUserData();
-        com.example.sequax40.model.board.Tile tile = null;
-
-        if (userData instanceof com.example.sequax40.model.board.Tile t) {
+        if (userData instanceof Tile t) {
             tile = t;
         }
 
-        // Get original color stored in polygon
-        Color originalColor = (Color) clicked.getProperties().getOrDefault("originalColor", clicked.getFill());
+        // Determine the default color based on tile type
+        Color defaultColor;
+        if (tile != null) {
+            defaultColor = (tile.getShape() == ShapeEnum.OCTAGON) ? Color.web("#4d44ff") : Color.web("#9e9bec");
+            // You can adjust hex codes for octagon/rhombus
+        } else {
+            defaultColor = Color.LIGHTGRAY; // fallback if no Tile
+        }
 
-        // Store original color if not already stored
-        clicked.getProperties().putIfAbsent("originalColor", originalColor);
-
-        // Toggle selection
+        // Toggle selection and set fill
         if (tile != null) {
             tile.toggleSelected();
-            clicked.setFill(tile.isSelected() ? SELECTED_COLOR : originalColor);
+            clicked.setFill(tile.isSelected() ? SELECTED_COLOR : defaultColor);
         } else {
-            // fallback: just toggle color if no tile
-            if (clicked.getFill().equals(SELECTED_COLOR)) {
-                clicked.setFill(originalColor);
-            } else {
-                clicked.setFill(SELECTED_COLOR);
-            }
+            // Fallback for polygons without a Tile
+            Object stored = clicked.getProperties().getOrDefault("originalColor", clicked.getFill());
+            Color originalColor = (stored instanceof Color c) ? c : defaultColor;
+
+            clicked.getProperties().putIfAbsent("originalColor", originalColor);
+            clicked.setFill(clicked.getFill().equals(SELECTED_COLOR) ? originalColor : SELECTED_COLOR);
         }
     }
 
-    // Add this inside BoardController
-    public void handleTileClick(MouseEvent event) {
-        Polygon clicked = (Polygon) event.getSource();
-        Tile tile = (Tile) clicked.getUserData();
-
-        // Toggle the model
-        tile.toggleSelected();
-
-        // Update the UI color
-        clicked.setFill(tile.isSelected() ? SELECTED_COLOR : DEFAULT_COLOR);
-    }
 
 
 }

@@ -48,4 +48,8 @@ public class Tile {
     public String getCoord() {
         return coord;
     }
+
+    public ShapeEnum getShape() {
+        return shape;
+    }
 }
