@@ -31,20 +31,25 @@ public class Feature3Test {
     void setUp() {
         controller = new BoardController();
 
-        // Manually mock FXML-injected fields
+        // Mock FXML-injected fields
         controller.masterGroup = new Group();
         controller.mainContainer = new StackPane();
         controller.boardGroup = new Group();
 
-        // Add some mock polygons
-        Polygon octagon = new Polygon();
-        octagon.setId("A1");
+        // Assign to class fields (IMPORTANT FIX)
+        octagonPolygon = new Polygon();
+        octagonPolygon.setId("A1");
 
-        Polygon rhombus = new Polygon();
-        rhombus.setId("AB10_11");
+        rhombusPolygon = new Polygon();
+        rhombusPolygon.setId("AB10_11");
 
-        controller.boardGroup.getChildren().addAll(octagon, rhombus);
+        controller.boardGroup.getChildren().addAll(octagonPolygon, rhombusPolygon);
+
+        // Create board and setup tiles so userData is set
+        controller.board = new Board(11, 11);
+        controller.setupTiles();
     }
+
 
 
     @Test
