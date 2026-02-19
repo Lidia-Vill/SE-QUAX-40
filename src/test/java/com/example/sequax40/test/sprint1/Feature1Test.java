@@ -36,6 +36,9 @@ class Feature1Test extends ApplicationTest{
         BoardController controller = new BoardController(); //create new controller
         controller.masterGroup = new Group(); //initialise javafx components
         controller.mainContainer = new StackPane();
+        controller.boardGroup = new Group();
+       
+        
         controller.initialize();  //run setup 
         
         long endTime = System.currentTimeMillis(); //record time after setup 

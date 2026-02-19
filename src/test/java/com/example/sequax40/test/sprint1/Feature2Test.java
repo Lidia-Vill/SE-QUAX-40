@@ -30,6 +30,7 @@ public class Feature2Test {
 
         controller.masterGroup = new Group();
         controller.mainContainer = new StackPane(); 
+        controller.boardGroup = new Group();
         
         // call initialise method 
         controller.initialize();
