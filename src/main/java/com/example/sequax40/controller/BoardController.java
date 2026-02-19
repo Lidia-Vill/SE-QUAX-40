@@ -17,8 +17,8 @@ public class BoardController {
     private static final Color SELECTED_COLOR = Color.WHITE;
 
     //setting up the ids of the stackpane container, and group to help with scaling
-    @FXML private StackPane mainContainer; 
-    @FXML private Group masterGroup; 
+    @FXML public StackPane mainContainer; 
+    @FXML public Group masterGroup; 
     
     //setting up ids of the board stack pane and group to format shape of game
     @FXML private StackPane gameBoardStackPane;
