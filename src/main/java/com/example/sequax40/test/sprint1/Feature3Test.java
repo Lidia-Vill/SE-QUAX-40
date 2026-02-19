@@ -1,5 +1,7 @@
 package com.example.sequax40.test.sprint1;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.example.sequax40.model.board.Tile;
 import org.junit.jupiter.api.Test;
 
