@@ -16,17 +16,33 @@ public class Board {
         this.cols = cols;
         this.tiles = new HashMap<>();
 
+        // Initialize octagon tiles
         for (int row = 0; row < rows; row++) {
             char rowChar = (char) ('A' + row); // A, B, C...
             for (int col = 1; col <= cols; col++) {
-                String id = rowChar + String.valueOf(col); // "A1", "B2"
-                tiles.put(id, new Tile(id, ShapeEnum.OCTAGON)); // or your concrete Tile subclass
+                String id = rowChar + String.valueOf(col); // e.g., "A1"
+                tiles.put(id, new Tile(id, ShapeEnum.OCTAGON));
             }
         }
 
+        // Optionally initialize rhombus tiles
+        // Example: AB1_2, BC2_3 etc.
+        // You can loop or generate based on your board layout
+        String[] rhombusIds = {"A_B_1_2", "BC2_3"}; // placeholder example
+        for (String id : rhombusIds) {
+            tiles.put(id, new Tile(id, ShapeEnum.RHOMBUS));
+        }
     }
 
     public Tile getTile(String coord) {
         return tiles.get(coord);
+    }
+
+    public void addTile(Tile tile) {
+        if (tile != null) tiles.put(tile.getCoord(), tile);
+    }
+
+    public Map<String, Tile> getAllTiles() {
+        return tiles;
     }
 }
