@@ -57,3 +57,4 @@ public class Feature2Test {
         assertEquals(1.0, controller.masterGroup.getScaleY(), 0.001);
     }
 }
+//hi
