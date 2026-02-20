@@ -54,7 +54,7 @@ public class BoardController {
         masterGroup.setManaged(true); //consider the groups bounds when calculating the layout
         //masterGroup.setTranslateY(-100); //hardcoded as the board displays in the center of the window, this removes the padding
 
-        StackPane.setAlignment(masterGroup, javafx.geometry.Pos.TOP_CENTER); //position the main stackpain
+        StackPane.setAlignment(masterGroup, javafx.geometry.Pos.CENTER); //position the main stackpane
 
         NumberBinding scaleBinding = Bindings.createDoubleBinding(() -> {
             double containerWidth = mainContainer.getWidth(); //find width of window
