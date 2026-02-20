@@ -16,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.MouseButton;
 
-
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class Feature3Test {
@@ -48,6 +46,9 @@ public class Feature3Test {
         // Create board and setup tiles so userData is set
         controller.board = new Board(11, 11);
         controller.setupTiles();
+
+        // create board for Board Tests
+        board = new Board(11, 11);
     }
 
 
@@ -144,7 +145,121 @@ public class Feature3Test {
         assertEquals(Color.web("#4d44ff"), octagonPolygon.getFill());
     }
 
-    
-    
-   
+
+    // Constructor validation
+    @Test
+    void constructor_shouldThrowExceptionIfCoordIsNull() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Tile(null, ShapeEnum.OCTAGON));
+    }
+
+    @Test
+    void constructor_shouldThrowExceptionIfCoordIsBlank() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Tile("   ", ShapeEnum.RHOMBUS));
+    }
+
+    @Test
+    void constructor_shouldThrowExceptionIfShapeIsNull() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Tile("A1", null));
+    }
+
+    @Test
+    void constructor_shouldCreateTileWithValidInput() {
+        Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
+
+        assertEquals("A1", tile.getCoord());
+        assertEquals(ShapeEnum.OCTAGON, tile.getShape());
+    }
+
+    // Default state Tests
+
+    @Test
+    void tile_shouldNotBeSelectedByDefault() {
+        Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
+
+        assertFalse(tile.isSelected());
+    }
+
+    // Selection logic
+
+    @Test
+    void toggleSelected_shouldSetSelectedToTrue() {
+        Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
+
+        tile.toggleSelected();
+
+        assertTrue(tile.isSelected());
+    }
+
+    @Test
+    void toggleSelected_shouldToggleBackToFalse() {
+        Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
+
+        tile.toggleSelected();
+        tile.toggleSelected();
+
+        assertFalse(tile.isSelected());
+    }
+
+    @Test
+    void reset_shouldClearSelection() {
+        Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
+
+        tile.toggleSelected();
+        tile.reset();
+
+        assertFalse(tile.isSelected());
+    }
+
+    // addTile tests
+    @Test
+    void addTile_shouldStoreTileCorrectly() {
+        Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
+
+        board.addTile(tile);
+
+        Tile result = board.getTile("A1");
+
+        assertNotNull(result);
+        assertEquals("A1", result.getCoord());
+        assertEquals(ShapeEnum.OCTAGON, result.getShape());
+        assertFalse(result.isSelected()); // default selection
+    }
+
+    @Test
+    void addTile_shouldStoreRhombusTile() {
+        Tile tile = new Tile("B2", ShapeEnum.RHOMBUS);
+
+        board.addTile(tile);
+
+        Tile result = board.getTile("B2");
+
+        assertNotNull(result);
+        assertEquals(ShapeEnum.RHOMBUS, result.getShape());
+    }
+
+    // getTile tests
+    @Test
+    void getTile_shouldReturnTileIfExists() {
+        Tile tile = new Tile("D4", ShapeEnum.OCTAGON);
+        board.addTile(tile);
+
+        Tile result = board.getTile("D4");
+
+        assertNotNull(result);
+        assertEquals(tile, result); // reference equality
+    }
+
+    @Test
+    void getTile_shouldReturnNullIfTileDoesNotExist() {
+        Tile result = board.getTile("Z9");
+
+        assertNull(result);
+    }
+
+
+
+
 }
