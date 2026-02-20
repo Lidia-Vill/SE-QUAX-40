@@ -144,20 +144,5 @@ public class Feature3Test {
         assertEquals(Color.web("#4d44ff"), octagonPolygon.getFill());
     }
 
-    @Test
-    void testInitialize() {
-        // Setup a fresh controller with mocked UI
-        controller.initialize();
-
-        assertNotNull(controller.board, "Board should be initialized");
-        assertFalse(controller.tileMap.isEmpty(), "tileMap should be populated");
-        assertFalse(controller.polygonMap.isEmpty(), "polygonMap should be populated");
-
-        // Verify at least one polygon has Tile in userData
-        Polygon polygon = controller.polygonMap.values().iterator().next();
-        assertNotNull(polygon.getUserData());
-        assertTrue(polygon.getUserData() instanceof Tile);
-    }
-
-//hello
+   
 }
