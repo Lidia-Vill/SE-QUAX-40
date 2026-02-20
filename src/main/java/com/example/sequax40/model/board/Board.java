@@ -1,6 +1,5 @@
 package com.example.sequax40.model.board;
 import com.example.sequax40.enums.ShapeEnum;
-
 import java.util.HashMap;
 import java.util.Map;
 
