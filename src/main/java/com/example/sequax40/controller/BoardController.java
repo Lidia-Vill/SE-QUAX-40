@@ -24,23 +24,18 @@ public class BoardController {
     private static final Color DEFAULT_COLOR = Color.web("#4d44ff");
 
     //setting up the ids of the stackpane container, and group to help with scaling
-    @FXML
-    public StackPane mainContainer;
-    @FXML
-    public Group masterGroup;
+    @FXML public StackPane mainContainer;
+    @FXML public Group masterGroup;
 
     //setting up ids of the board stack pane and group to format shape of game
-    @FXML
-    private StackPane gameBoardStackPane;
-    @FXML
-    public Group boardGroup;
+    @FXML public StackPane gameBoardStackPane;
+    @FXML public Group boardGroup;
 
     //setting original board width to calculate scaling
-    private final double DESIGN_WIDTH = 900.0;
-    private final double DESIGN_HEIGHT = 850.0;
+    private final double DESIGN_WIDTH = 845.0;
+    private final double DESIGN_HEIGHT = 845.0;
 
 
-    // --- Board model ---
     public Board board;
 
     public Map<String, Tile> tileMap = new HashMap<>();
@@ -52,9 +47,8 @@ public class BoardController {
     public void initialize() {
 
         masterGroup.setManaged(true); //consider the groups bounds when calculating the layout
-        //masterGroup.setTranslateY(-100); //hardcoded as the board displays in the center of the window, this removes the padding
 
-        StackPane.setAlignment(masterGroup, javafx.geometry.Pos.CENTER); //position the main stackpain
+        StackPane.setAlignment(masterGroup, javafx.geometry.Pos.CENTER); //position the main stackpane to center on the window
 
         NumberBinding scaleBinding = Bindings.createDoubleBinding(() -> {
             double containerWidth = mainContainer.getWidth(); //find width of window
@@ -75,7 +69,6 @@ public class BoardController {
         masterGroup.scaleYProperty().bind(scaleBinding);
 
 
-        // BOARD LOGIC
         board = new Board(11, 11);
         setupTiles();
     }
@@ -87,26 +80,26 @@ public class BoardController {
             String fxId = polygon.getId();
             if (fxId == null || fxId.isBlank()) continue;
 
-            // Determine tile type by fxId pattern or length
-            ShapeEnum shapeType = (fxId.length() <= 2) ? ShapeEnum.OCTAGON : ShapeEnum.RHOMBUS;
+            // dtermine tile type by fxId pattern or length
+            ShapeEnum shapeType = (fxId.length() <= 3) ? ShapeEnum.OCTAGON : ShapeEnum.RHOMBUS;
 
-            // Create or get Tile from the board
+            // create or get Tile from the board
             Tile tile = board.getTile(fxId); // assumes Board can return a Tile for any ID
             if (tile == null) {
                 tile = new Tile(fxId, shapeType); // for rhombuses or missing ones
                 board.addTile(tile);
             }
 
-            // Store Tile in polygon's userData for easy access in clicks
+            // store Tile in polygon's userData for easy access in clicks
             polygon.setUserData(tile);
 
-            // Set initial color
+            // set initial color
             polygon.setFill(DEFAULT_COLOR);
 
-            // Set click handler
+            // set click handler
             polygon.setOnMouseClicked(this::handleTileClick);
 
-            // Save in maps
+            // save in our maps
             tileMap.put(fxId, tile);
             polygonMap.put(fxId, polygon);
         }
@@ -117,23 +110,22 @@ public class BoardController {
         Object source = event.getSource();
         if (!(source instanceof Polygon clicked)) return;
 
-        // Get the associated Tile model, if any
+        // get tile model associated 
         Tile tile = null;
         Object userData = clicked.getUserData();
         if (userData instanceof Tile t) {
             tile = t;
         }
 
-        // Determine the default color based on tile type
+        // find the default colour based on tile type
         Color defaultColor;
         if (tile != null) {
             defaultColor = (tile.getShape() == ShapeEnum.OCTAGON) ? Color.web("#4d44ff") : Color.web("#9e9bec");
-            // You can adjust hex codes for octagon/rhombus
         } else {
-            defaultColor = Color.LIGHTGRAY; // fallback if no Tile
+            defaultColor = Color.LIGHTGRAY; // if no tile 
         }
 
-        // Toggle selection and set fill
+        // toggle selection and set fill
         if (tile != null) {
             tile.toggleSelected();
             clicked.setFill(tile.isSelected() ? SELECTED_COLOR : defaultColor);

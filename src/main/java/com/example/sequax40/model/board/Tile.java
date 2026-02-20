@@ -6,11 +6,12 @@ import com.example.sequax40.enums.ShapeEnum;
 
 public class Tile {
 
-    private final String coord;      // e.g., "A1" or "DIA_A1_B1"
+    private final String coord;      // e.g., "A1" or "AB_1_2"
     private final ShapeEnum shape;
     private PlayerEnum owner;
     private boolean selected;
 
+    //Tile constructor 
     public Tile(String coord, ShapeEnum shape) {
         if (coord == null || coord.isBlank()) {
             throw new IllegalArgumentException("Coordinate cannot be null or blank");
@@ -26,7 +27,7 @@ public class Tile {
         this.selected = false;
     }
 
-    // Owner methods (sprint 2)
+    // owner methods (sprint 2)
     public boolean isEmpty() {
         return owner == PlayerEnum.EMPTY;
     }
@@ -44,7 +45,7 @@ public class Tile {
         this.selected = false;
     }
 
-    // Selection methods
+    // selection methods
     public boolean isSelected() {
         return selected;
     }
@@ -53,7 +54,7 @@ public class Tile {
         selected = !selected;
     }
 
-    // Getters
+    // getters
     public String getCoord() {
         return coord;
     }

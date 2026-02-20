@@ -6,9 +6,9 @@ import javafx.scene.control.Label;
 public class QuaxController {
     /*
 
-    private GameState game; // your model
-
-    public void initialize() {
+    private GameState game;
+    
+    public void initialise() {
         game = new GameState();
     }
 

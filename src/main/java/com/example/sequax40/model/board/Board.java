@@ -15,7 +15,7 @@ public class Board {
         this.cols = cols;
         this.tiles = new HashMap<>();
 
-        // Initialize octagon tiles
+        // initialise octagon tiles
         for (int row = 0; row < rows; row++) {
             char rowChar = (char) ('A' + row); // A, B, C...
             for (int col = 1; col <= cols; col++) {
@@ -24,14 +24,15 @@ public class Board {
             }
         }
 
-        // Initialize Rhombus Tiles as well (sprint 2)
+        // initialise Rhombus Tiles as well (sprint 2)
         // Example: AB_1_2, BC_2_3 etc.
-        String[] rhombusIds = {"A_B_1_2", "BC2_3"}; // placeholder example
+        String[] rhombusIds = {"AB_1_2", "BC_2_3"}; // placeholder example
         for (String id : rhombusIds) {
             tiles.put(id, new Tile(id, ShapeEnum.RHOMBUS));
         }
     }
 
+    //getters and setters
     public Tile getTile(String coord) {
         return tiles.get(coord);
     }

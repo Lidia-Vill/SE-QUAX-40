@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Feature2Test {
 
-    // Initialise the JavaFX Toolkit before running any tests
+    // initialise the JavaFX Toolkit before running any tests
     @BeforeAll
     static void initToolkit() {
         try {
@@ -46,7 +46,7 @@ public class Feature2Test {
         controller.mainContainer = new StackPane();
         controller.boardGroup = new Group();
 
-        // Assign to class fields (IMPORTANT FIX)
+        // assign to polygon class field and give the tile an id 
         octagonPolygon = new Polygon();
         octagonPolygon.setId("A1");
 
@@ -55,7 +55,7 @@ public class Feature2Test {
 
         controller.boardGroup.getChildren().addAll(octagonPolygon, rhombusPolygon);
 
-        // Create board and setup tiles so userData is set
+        // create board and setup tiles so userData is set
         controller.board = new Board(11, 11);
         controller.setupTiles();
     }
@@ -74,17 +74,17 @@ public class Feature2Test {
         assertEquals(1.0, controller.masterGroup.getScaleX(), 0.001);
 
         //if container size is the size of actual board
-        controller.mainContainer.resize(900, 850); 
+        controller.mainContainer.resize(845, 845); 
         assertEquals(1.0, controller.masterGroup.getScaleX(), 0.001);
         assertEquals(1.0, controller.masterGroup.getScaleY(), 0.001);
 
         //make the container half the size of the board 
-        controller.mainContainer.resize(450, 425);
+        controller.mainContainer.resize(422.5, 422.5);
         assertEquals(0.5, controller.masterGroup.getScaleX(), 0.001);
         assertEquals(0.5, controller.masterGroup.getScaleY(), 0.001);
 
         //even with extra wide screen Math.min should size board to still be 1:1 as the x is 
-        controller.mainContainer.resize(1800, 850);
+        controller.mainContainer.resize(1800, 845);
         assertEquals(1.0, controller.masterGroup.getScaleX(), 0.001); 
         assertEquals(1.0, controller.masterGroup.getScaleY(), 0.001);
     }
@@ -94,14 +94,14 @@ public class Feature2Test {
     @Test
     void testInitialize() {
     	
-    	// Setup a fresh controller with mocked UI
+    	// setup a fresh controller with mocked UI
         controller.initialize();
 
         assertNotNull(controller.board, "Board should be initialized");
         assertFalse(controller.tileMap.isEmpty(), "tileMap should be populated");
         assertFalse(controller.polygonMap.isEmpty(), "polygonMap should be populated");
 
-        // Verify at least one polygon has Tile in userData
+        // verify at least one polygon has Tile in userData
         Polygon polygon = controller.polygonMap.values().iterator().next();
         assertNotNull(polygon.getUserData());
         assertTrue(polygon.getUserData() instanceof Tile);
