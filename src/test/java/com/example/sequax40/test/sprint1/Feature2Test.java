@@ -61,7 +61,7 @@ public class Feature2Test {
     }
 
     @Test
-    void testInitializeSetsPropertiesAndBindings() {
+    void testInitialiseSetsPropertiesAndBindings() {
         
         
         // call initialise method 
@@ -92,12 +92,12 @@ public class Feature2Test {
     
     
     @Test
-    void testInitialize() {
+    void testInitialise() {
     	
     	// setup a fresh controller with mocked UI
         controller.initialize();
 
-        assertNotNull(controller.board, "Board should be initialized");
+        assertNotNull(controller.board, "Board should be initialised");
         assertFalse(controller.tileMap.isEmpty(), "tileMap should be populated");
         assertFalse(controller.polygonMap.isEmpty(), "polygonMap should be populated");
 
