@@ -54,7 +54,7 @@ public class BoardController {
         masterGroup.setManaged(true); //consider the groups bounds when calculating the layout
         //masterGroup.setTranslateY(-100); //hardcoded as the board displays in the center of the window, this removes the padding
 
-        StackPane.setAlignment(masterGroup, javafx.geometry.Pos.CENTER); //position the main stackpane
+        StackPane.setAlignment(masterGroup, javafx.geometry.Pos.TOP_CENTER); //position the main stackpain
 
         NumberBinding scaleBinding = Bindings.createDoubleBinding(() -> {
             double containerWidth = mainContainer.getWidth(); //find width of window
@@ -94,7 +94,7 @@ public class BoardController {
             Tile tile = board.getTile(fxId); // assumes Board can return a Tile for any ID
             if (tile == null) {
                 tile = new Tile(fxId, shapeType); // for rhombuses or missing ones
-                board.addTile(tile);              // if your Board supports dynamic addition
+                board.addTile(tile);
             }
 
             // Store Tile in polygon's userData for easy access in clicks
@@ -138,7 +138,6 @@ public class BoardController {
             tile.toggleSelected();
             clicked.setFill(tile.isSelected() ? SELECTED_COLOR : defaultColor);
         } else {
-            // Fallback for polygons without a Tile
             Object stored = clicked.getProperties().getOrDefault("originalColor", clicked.getFill());
             Color originalColor = (stored instanceof Color c) ? c : defaultColor;
 
@@ -146,6 +145,8 @@ public class BoardController {
             clicked.setFill(clicked.getFill().equals(SELECTED_COLOR) ? originalColor : SELECTED_COLOR);
         }
     }
+
+
 
 
 

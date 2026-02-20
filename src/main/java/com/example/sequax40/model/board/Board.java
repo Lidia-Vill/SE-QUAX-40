@@ -25,9 +25,8 @@ public class Board {
             }
         }
 
-        // Optionally initialize rhombus tiles
-        // Example: AB1_2, BC2_3 etc.
-        // You can loop or generate based on your board layout
+        // Initialize Rhombus Tiles as well (sprint 2)
+        // Example: AB_1_2, BC_2_3 etc.
         String[] rhombusIds = {"A_B_1_2", "BC2_3"}; // placeholder example
         for (String id : rhombusIds) {
             tiles.put(id, new Tile(id, ShapeEnum.RHOMBUS));

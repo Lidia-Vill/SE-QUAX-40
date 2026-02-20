@@ -11,13 +11,21 @@ public class Tile {
     private boolean selected;
 
     public Tile(String coord, ShapeEnum shape) {
+        if (coord == null || coord.isBlank()) {
+            throw new IllegalArgumentException("Coordinate cannot be null or blank");
+        }
+
+        if (shape == null) {
+            throw new IllegalArgumentException("Shape cannot be null");
+        }
+
         this.coord = coord;
         this.shape = shape;
-        this.owner = PlayerEnum.EMPTY; // empty by default
+        this.owner = PlayerEnum.EMPTY;
         this.selected = false;
     }
 
-    // --- Owner methods ---
+    // Owner methods (sprint 2)
     public boolean isEmpty() {
         return owner == PlayerEnum.EMPTY;
     }
@@ -35,7 +43,7 @@ public class Tile {
         this.selected = false;
     }
 
-    // --- Selection methods ---
+    // Selection methods
     public boolean isSelected() {
         return selected;
     }
@@ -44,7 +52,7 @@ public class Tile {
         selected = !selected;
     }
 
-    // --- Getters ---
+    // Getters
     public String getCoord() {
         return coord;
     }
