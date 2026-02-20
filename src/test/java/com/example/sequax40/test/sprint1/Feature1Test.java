@@ -10,9 +10,10 @@ import org.testfx.framework.junit5.ApplicationTest;
 
 import com.example.sequax40.app.QuaxApplication;
 import com.example.sequax40.controller.BoardController;
-//paste this line below into
+//paste this line below
 //  --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
-//	to run configurations, to allow testfx to access internal javafx class (had to manually access it) due to encapsulation in newer versions of java fx 
+//	into run configurations, to allow testfx to access internal javafx class (had to manually access it)
+//	due to encapsulation in newer versions of java fx
 
 class Feature1Test extends ApplicationTest{
 

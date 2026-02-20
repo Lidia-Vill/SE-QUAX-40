@@ -47,7 +47,7 @@ public class Feature3Test {
         controller.board = new Board(11, 11);
         controller.setupTiles();
 
-        // create board for Board Tests
+        // create board for Board Tests (not connected to controller)
         board = new Board(11, 11);
     }
 
@@ -156,7 +156,7 @@ public class Feature3Test {
     @Test
     void constructor_shouldThrowExceptionIfCoordIsBlank() {
         assertThrows(IllegalArgumentException.class,
-                () -> new Tile("   ", ShapeEnum.RHOMBUS));
+                () -> new Tile(" ", ShapeEnum.RHOMBUS));
     }
 
     @Test
@@ -174,7 +174,6 @@ public class Feature3Test {
     }
 
     // Default state Tests
-
     @Test
     void tile_shouldNotBeSelectedByDefault() {
         Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
@@ -183,7 +182,6 @@ public class Feature3Test {
     }
 
     // Selection logic
-
     @Test
     void toggleSelected_shouldSetSelectedToTrue() {
         Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
