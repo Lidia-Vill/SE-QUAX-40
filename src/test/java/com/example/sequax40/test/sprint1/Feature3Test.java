@@ -153,7 +153,6 @@ public class Feature3Test {
             new Tile(null, ShapeEnum.OCTAGON);
             fail("Expected IllegalArgumentException for null coordinate");
         } catch (IllegalArgumentException e) {
-            // Test passes
         }
     }
 
@@ -163,7 +162,6 @@ public class Feature3Test {
             new Tile(" ", ShapeEnum.RHOMBUS);
             fail("Expected IllegalArgumentException for blank coordinate");
         } catch (IllegalArgumentException e) {
-            // Test passes
         }
     }
 
@@ -173,7 +171,6 @@ public class Feature3Test {
             new Tile("A1", null);
             fail("Expected IllegalArgumentException for null shape");
         } catch (IllegalArgumentException e) {
-            // Test passes
         }
     }
 
