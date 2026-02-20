@@ -147,7 +147,6 @@ public class Feature3Test {
 
 
     // Constructor validation
-
     @Test
     void constructor_shouldThrowExceptionIfCoordIsNull() {
         assertThrows(IllegalArgumentException.class,
