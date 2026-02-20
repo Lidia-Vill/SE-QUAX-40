@@ -39,7 +39,7 @@ public class Feature3Test {
         octagonPolygon.setId("A1");
 
         rhombusPolygon = new Polygon();
-        rhombusPolygon.setId("AB10_11");
+        rhombusPolygon.setId("AB_10_11");
 
         controller.boardGroup.getChildren().addAll(octagonPolygon, rhombusPolygon);
 
@@ -106,7 +106,7 @@ public class Feature3Test {
 
         // Verify tileMap
         Tile octTile = controller.tileMap.get("A1");
-        Tile rhombTile = controller.tileMap.get("AB10_11");
+        Tile rhombTile = controller.tileMap.get("AB_10_11");
 
         assertNotNull(octTile, "Octagon tile should exist in tileMap");
         assertNotNull(rhombTile, "Rhombus tile should exist in tileMap");
@@ -117,11 +117,11 @@ public class Feature3Test {
 
         // Verify polygonMap
         assertEquals(octTile, controller.polygonMap.get("A1").getUserData());
-        assertEquals(rhombTile, controller.polygonMap.get("AB10_11").getUserData());
+        assertEquals(rhombTile, controller.polygonMap.get("AB_10_11").getUserData());
 
         // Verify default fill colour
         assertEquals(Color.web("#4d44ff"), controller.polygonMap.get("A1").getFill());
-        assertEquals(Color.web("#4d44ff"), controller.polygonMap.get("AB10_11").getFill());
+        assertEquals(Color.web("#4d44ff"), controller.polygonMap.get("AB_10_11").getFill());
     }
 
     @Test
