@@ -119,7 +119,7 @@ public class Feature3Test {
         assertEquals(octTile, controller.polygonMap.get("A1").getUserData());
         assertEquals(rhombTile, controller.polygonMap.get("AB10_11").getUserData());
 
-        // Verify default fill color
+        // Verify default fill colour
         assertEquals(Color.web("#4d44ff"), controller.polygonMap.get("A1").getFill());
         assertEquals(Color.web("#4d44ff"), controller.polygonMap.get("AB10_11").getFill());
     }
