@@ -1,5 +1,6 @@
 package com.example.sequax40.model.board;
 
+
 import com.example.sequax40.enums.PlayerEnum;
 import com.example.sequax40.enums.ShapeEnum;
 
