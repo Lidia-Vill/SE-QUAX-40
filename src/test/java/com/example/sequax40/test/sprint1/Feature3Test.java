@@ -149,20 +149,32 @@ public class Feature3Test {
     // Constructor validation
     @Test
     void constructor_shouldThrowExceptionIfCoordIsNull() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new Tile(null, ShapeEnum.OCTAGON));
+        try {
+            new Tile(null, ShapeEnum.OCTAGON);
+            fail("Expected IllegalArgumentException for null coordinate");
+        } catch (IllegalArgumentException e) {
+            // Test passes
+        }
     }
 
     @Test
     void constructor_shouldThrowExceptionIfCoordIsBlank() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new Tile(" ", ShapeEnum.RHOMBUS));
+        try {
+            new Tile(" ", ShapeEnum.RHOMBUS);
+            fail("Expected IllegalArgumentException for blank coordinate");
+        } catch (IllegalArgumentException e) {
+            // Test passes
+        }
     }
 
     @Test
     void constructor_shouldThrowExceptionIfShapeIsNull() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new Tile("A1", null));
+        try {
+            new Tile("A1", null);
+            fail("Expected IllegalArgumentException for null shape");
+        } catch (IllegalArgumentException e) {
+            // Test passes
+        }
     }
 
     @Test
