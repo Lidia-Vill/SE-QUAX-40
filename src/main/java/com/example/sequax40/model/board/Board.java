@@ -49,10 +49,91 @@ public class Board {
     }
 
     public void addTile(Tile tile) {
-        if (tile != null) tiles.put(tile.getCoord(), tile);
+        if (tile == null) {
+            throw new IllegalArgumentException("Tile cannot be null.");
+        }
+
+        String coord = tile.getCoord();
+
+        if (coord == null || coord.isBlank()) {
+            throw new IllegalArgumentException("Tile coordinate cannot be null or blank.");
+        }
+
+        if (!isValidCoordinate(coord)) {
+            throw new IllegalArgumentException("Invalid coordinate: " + coord);
+        }
+
+        if (tiles.containsKey(coord)) {
+            throw new IllegalStateException("Tile already exists at: " + coord);
+        }
+
+        // Shape validation
+        if (coord.contains("_") && tile.getShape() != ShapeEnum.RHOMBUS) {
+            throw new IllegalArgumentException("Rhombus coordinate must have RHOMBUS shape.");
+        }
+
+        if (!coord.contains("_") && tile.getShape() != ShapeEnum.OCTAGON) {
+            throw new IllegalArgumentException("Octagon coordinate must have OCTAGON shape.");
+        }
+
+        tiles.put(coord, tile);
     }
 
     public Map<String, Tile> getAllTiles() {
         return tiles;
     }
+
+
+    private boolean isValidCoordinate(String coord) {
+
+        //octagon
+        if (!coord.contains("_")) {
+            if (coord.length() < 2) return false;
+
+            char letter = coord.charAt(0);
+            String numberPart = coord.substring(1);
+
+            if (!Character.isLetter(letter)) return false;
+
+            try {
+                int number = Integer.parseInt(numberPart);
+
+                return letter >= 'A'
+                        && letter < ('A' + cols)
+                        && number >= 1
+                        && number <= rows;
+
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+
+        // rhombus
+        else {
+            String[] parts = coord.split("_");
+            if (parts.length != 3) return false;
+
+            String letters = parts[0];
+            if (letters.length() != 2) return false;
+
+            char first = letters.charAt(0);
+            char second = letters.charAt(1);
+
+            try {
+                int lower = Integer.parseInt(parts[1]);
+                int upper = Integer.parseInt(parts[2]);
+
+                return first >= 'A'
+                        && first < ('A' + cols - 1)
+                        && second == first + 1
+                        && lower >= 1
+                        && upper == lower + 1
+                        && upper <= rows;
+
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+    }
+
 }
