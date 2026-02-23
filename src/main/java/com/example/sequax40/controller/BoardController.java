@@ -5,7 +5,7 @@ import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Tile;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
-import javafx.scene.layout.StackPane;
+import   javafx.scene.layout.StackPane;
 import com.example.sequax40.model.board.Board;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;

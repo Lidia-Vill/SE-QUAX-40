@@ -62,4 +62,9 @@ public class Tile {
     public ShapeEnum getShape() {
         return shape;
     }
+
+
+    public void setSelected(boolean b) {
+        this.selected = b;
+    }
 }

@@ -1,4 +1,5 @@
 package com.example.sequax40.model.board;
+import com.example.sequax40.enums.PlayerEnum;
 import com.example.sequax40.enums.ShapeEnum;
 
 import java.util.HashMap;
@@ -24,8 +25,6 @@ public class Board {
             }
         }
 
-
-
         // initialise Rhombus Tiles
         for (int letterIndex = 0; letterIndex < cols - 1; letterIndex++) {
             char firstLetter = (char) ('A' + letterIndex);
@@ -49,91 +48,77 @@ public class Board {
     }
 
     public void addTile(Tile tile) {
-        if (tile == null) {
-            throw new IllegalArgumentException("Tile cannot be null.");
-        }
-
-        String coord = tile.getCoord();
-
-        if (coord == null || coord.isBlank()) {
-            throw new IllegalArgumentException("Tile coordinate cannot be null or blank.");
-        }
-
-        if (!isValidCoordinate(coord)) {
-            throw new IllegalArgumentException("Invalid coordinate: " + coord);
-        }
-
-        if (tiles.containsKey(coord)) {
-            throw new IllegalStateException("Tile already exists at: " + coord);
-        }
-
-        // Shape validation
-        if (coord.contains("_") && tile.getShape() != ShapeEnum.RHOMBUS) {
-            throw new IllegalArgumentException("Rhombus coordinate must have RHOMBUS shape.");
-        }
-
-        if (!coord.contains("_") && tile.getShape() != ShapeEnum.OCTAGON) {
-            throw new IllegalArgumentException("Octagon coordinate must have OCTAGON shape.");
-        }
-
-        tiles.put(coord, tile);
+        if (tile != null) tiles.put(tile.getCoord(), tile);
     }
 
     public Map<String, Tile> getAllTiles() {
         return tiles;
     }
 
-
-    private boolean isValidCoordinate(String coord) {
-
-        //octagon
-        if (!coord.contains("_")) {
-            if (coord.length() < 2) return false;
-
-            char letter = coord.charAt(0);
-            String numberPart = coord.substring(1);
-
-            if (!Character.isLetter(letter)) return false;
-
-            try {
-                int number = Integer.parseInt(numberPart);
-
-                return letter >= 'A'
-                        && letter < ('A' + cols)
-                        && number >= 1
-                        && number <= rows;
-
-            } catch (NumberFormatException e) {
-                return false;
-            }
+    public void reset() {
+        for (Tile tile : tiles.values()) {
+            tile.reset();
         }
+    }
 
-        // rhombus
-        else {
-            String[] parts = coord.split("_");
-            if (parts.length != 3) return false;
+    public int getRows() {
+        return rows;
+    }
 
-            String letters = parts[0];
-            if (letters.length() != 2) return false;
+    public int getCols() {
+        return cols;
+    }
 
-            char first = letters.charAt(0);
-            char second = letters.charAt(1);
+    public void loadFromDump(int[][] dump) {
 
-            try {
-                int lower = Integer.parseInt(parts[1]);
-                int upper = Integer.parseInt(parts[2]);
+        for (int r = 0; r < dump.length; r++) {
+            for (int c = 0; c < dump[r].length; c++) {
 
-                return first >= 'A'
-                        && first < ('A' + cols - 1)
-                        && second == first + 1
-                        && lower >= 1
-                        && upper == lower + 1
-                        && upper <= rows;
+                char rowChar = (char) ('A' + r);
+                String coord = rowChar + String.valueOf(c + 1);
 
-            } catch (NumberFormatException e) {
-                return false;
+                Tile tile = getTile(coord);
+                if (tile == null) continue;
+
+                int value = dump[r][c];
+
+                if (value == 0) {
+                    tile.setOwner(PlayerEnum.EMPTY);
+                } else if (value == 3) {
+                    tile.setOwner(PlayerEnum.BLACK);
+                } else if (value == 4) {
+                    tile.setOwner(PlayerEnum.WHITE);
+                }
             }
         }
     }
+
+    public int[][] dumpBoard() {
+
+        int[][] dump = new int[rows][cols];
+
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+
+                char rowChar = (char) ('A' + r);
+                String coord = rowChar + String.valueOf(c + 1);
+
+                Tile tile = getTile(coord);
+
+                if (tile == null) {
+                    dump[r][c] = 2;
+                } else if (tile.getOwner() == PlayerEnum.BLACK) {
+                    dump[r][c] = 3;
+                } else if (tile.getOwner() == PlayerEnum.WHITE) {
+                    dump[r][c] = 4;
+                } else {
+                    dump[r][c] = 0;
+                }
+            }
+        }
+
+        return dump;
+    }
+
 
 }
