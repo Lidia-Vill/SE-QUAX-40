@@ -16,19 +16,30 @@ public class Board {
         this.tiles = new HashMap<>();
 
         // initialise octagon tiles
-        for (int row = 0; row < rows; row++) {
-            char rowChar = (char) ('A' + row); // A, B, C...
-            for (int col = 1; col <= cols; col++) {
-                String id = rowChar + String.valueOf(col); // e.g., "A1"
+        for (int col = 0; col < cols; col++) { // letters A–K
+            char letter = (char) ('A' + col);
+            for (int row = 1; row <= rows; row++) { // numbers 1–11
+                String id = letter + String.valueOf(row);
                 tiles.put(id, new Tile(id, ShapeEnum.OCTAGON));
             }
         }
 
-        // initialise Rhombus Tiles as well (sprint 2)
-        // Example: AB_1_2, BC_2_3 etc.
-        String[] rhombusIds = {"AB_1_2", "BC_2_3"}; // placeholder example
-        for (String id : rhombusIds) {
-            tiles.put(id, new Tile(id, ShapeEnum.RHOMBUS));
+
+
+        // initialise Rhombus Tiles
+        for (int letterIndex = 0; letterIndex < cols - 1; letterIndex++) {
+            char firstLetter = (char) ('A' + letterIndex);
+            char secondLetter = (char) ('A' + letterIndex + 1);
+
+            for (int number = 1; number < rows; number++) {
+                int lowerNumber = number;
+                int upperNumber = number + 1;
+
+                String id = "" + firstLetter + secondLetter + "_"
+                        + lowerNumber + "_" + upperNumber;
+
+                tiles.put(id, new Tile(id, ShapeEnum.RHOMBUS));
+            }
         }
     }
 
