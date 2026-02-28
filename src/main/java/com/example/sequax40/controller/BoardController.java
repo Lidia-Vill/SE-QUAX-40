@@ -1,10 +1,14 @@
 package com.example.sequax40.controller;
 
 
+import com.example.sequax40.enums.PlayerEnum;
 import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Tile;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import com.example.sequax40.model.board.Board;
 import javafx.scene.input.MouseEvent;
@@ -30,9 +34,15 @@ public class BoardController {
     //setting up ids of the board stack pane and group to format shape of game
     @FXML public StackPane gameBoardStackPane;
     @FXML public Group boardGroup;
+    @FXML private HBox windowContainer;
+    
+    //turn label
+    @FXML private Label turnLabel;
+    @FXML private Polygon turnOct;
+    @FXML private Polygon turnRhom;
 
     //setting original board width to calculate scaling
-    private final double DESIGN_WIDTH = 845.0;
+    private final double DESIGN_WIDTH = 1100.0;
     private final double DESIGN_HEIGHT = 845.0;
 
 
@@ -40,15 +50,14 @@ public class BoardController {
 
     public Map<String, Tile> tileMap = new HashMap<>();
     public Map<String, Polygon> polygonMap = new HashMap<>();
+    
+    //set initial player to be BLACK
+    private PlayerEnum currentTurn = PlayerEnum.BLACK;
 
 
     //initialise method 
     @FXML
     public void initialize() {
-
-        masterGroup.setManaged(true); //consider the groups bounds when calculating the layout
-
-        StackPane.setAlignment(masterGroup, javafx.geometry.Pos.CENTER); //position the main stackpane to center on the window
 
         NumberBinding scaleBinding = Bindings.createDoubleBinding(() -> {
             double containerWidth = mainContainer.getWidth(); //find width of window
@@ -65,15 +74,20 @@ public class BoardController {
         }, mainContainer.widthProperty(), mainContainer.heightProperty());
 
         //ensures the board keeps the aspect ratio without stretching
-        masterGroup.scaleXProperty().bind(scaleBinding);
-        masterGroup.scaleYProperty().bind(scaleBinding);
+        windowContainer.scaleXProperty().bind(scaleBinding);
+        windowContainer.scaleYProperty().bind(scaleBinding);
+        windowContainer.setManaged(true);
+		
+        StackPane.setAlignment(masterGroup,  javafx.geometry.Pos.CENTER);
 
-
+                
         board = new Board(11, 11);
         setupTiles();
+           
+        updateTurnLabel();
     }
 
-    public void setupTiles() {
+    /*public void setupTiles() {
         for (var node : boardGroup.getChildren()) {
             if (!(node instanceof Polygon polygon)) continue;
 
@@ -103,11 +117,46 @@ public class BoardController {
             tileMap.put(fxId, tile);
             polygonMap.put(fxId, polygon);
         }
+    }*/
+    
+    private void setupTiles() {
+        attachTilesRecursively(boardGroup);
+    }
+
+    private void attachTilesRecursively(javafx.scene.Parent parent) {
+        for (var node : parent.getChildrenUnmodifiable()) {
+
+            if (node instanceof Polygon polygon) {
+
+                String fxId = polygon.getId();
+                if (fxId == null || fxId.isBlank()) continue;
+
+                ShapeEnum shapeType = (fxId.length() <= 3)
+                        ? ShapeEnum.OCTAGON
+                        : ShapeEnum.RHOMBUS;
+
+                // Always create a Tile if not in board
+                Tile tile = board.getTile(fxId);
+                if (tile == null) {
+                    continue;
+                }
+
+                polygon.setUserData(tile);
+                polygon.setFill(shapeType == ShapeEnum.OCTAGON ? Color.web("#4d44ff") : Color.web("#9e9bec"));
+                polygon.setOnMouseClicked(this::handleTileClick);
+
+                tileMap.put(fxId, tile);
+                polygonMap.put(fxId, polygon);
+
+            } else if (node instanceof javafx.scene.Parent childParent) {
+                attachTilesRecursively(childParent); // recurse into nested groups
+            }
+        }
     }
 
     @FXML
     public void handleTileClick(MouseEvent event) {
-        Object source = event.getSource();
+        /*Object source = event.getSource();
         if (!(source instanceof Polygon clicked)) return;
 
         // get tile model associated 
@@ -136,10 +185,63 @@ public class BoardController {
             clicked.getProperties().putIfAbsent("originalColor", originalColor);
             clicked.setFill(clicked.getFill().equals(SELECTED_COLOR) ? originalColor : SELECTED_COLOR);
         }
+    	*/
+    	
+    	
+    	
+        if (!(event.getSource() instanceof Polygon clicked)) {
+        	return;
+        }
+        
+        Tile tile = (clicked.getUserData() instanceof Tile t) ? t : null;
+              
+        if (tile == null) {
+        	System.out.println("Tile not found for id :" + clicked.getId() );
+        	return;
+        }
+        
+        if(!tile.isEmpty()) {
+        	return;
+        }
+
+        
+        //if (tile.isSelected()) return;
+
+        // set colour based on current turn
+        if (currentTurn == PlayerEnum.BLACK) {
+            clicked.setFill(Color.web("#2f2f2f"));
+            tile.setOwner(PlayerEnum.BLACK);
+        } else {
+            clicked.setFill(Color.WHITE);
+            tile.setOwner(PlayerEnum.WHITE);
+        }
+
+        //tile.setSelected(true);
+     
+        switchTurn();
     }
 
+    private void switchTurn() {
+    	currentTurn = (currentTurn == PlayerEnum.BLACK) ? PlayerEnum.WHITE : PlayerEnum.BLACK;
+    	
+    	updateTurnLabel();
+    }
 
+    private void updateTurnLabel() {
+    	if(currentTurn == PlayerEnum.BLACK) {
+    		turnLabel.setText("BLACKS'S TURN");
+    		turnLabel.setTextFill(Color.web("2f2f2f"));
+    		//change colour of octagon & rhombus 
+    		turnOct.setFill(Color.web("#2f2f2f"));
+            turnRhom.setFill(Color.web("#2f2f2f"));
 
-
+    	}
+    	else {
+    		turnLabel.setText("WHITE'S TURN");
+    		turnLabel.setTextFill(Color.WHITE);
+    		turnOct.setFill(Color.WHITE);
+            turnRhom.setFill(Color.WHITE);
+    	}
+    }
 
 }

@@ -49,10 +49,15 @@ public class Tile {
     public boolean isSelected() {
         return selected;
     }
+    
+    public void setSelected(boolean selected) {
+    	this.selected = selected;
+    }
 
     public void toggleSelected() {
         selected = !selected;
     }
+	
 
     // getters
     public String getCoord() {
