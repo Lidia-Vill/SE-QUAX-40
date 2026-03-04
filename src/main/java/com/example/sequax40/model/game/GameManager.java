@@ -6,7 +6,7 @@ import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.move.Move;
 
 public class GameManager {
-
+/*
     private final Board board;
     private final GameState gameState;
     private final WinChecker winChecker;
@@ -42,5 +42,5 @@ public class GameManager {
         gameState.switchPlayer();
 
         return true;
-    }
+    }*/
 }

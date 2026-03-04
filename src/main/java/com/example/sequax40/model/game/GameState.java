@@ -63,7 +63,7 @@ public class GameState {
         this.winner = winner;
         this.gameOver = true;
     }
-
+/*
     // --- Reset ---
     public void reset() {
         board.reset();
@@ -72,4 +72,6 @@ public class GameState {
         gameOver = false;
         turnCount = 0;
     }
+
+ */
 }

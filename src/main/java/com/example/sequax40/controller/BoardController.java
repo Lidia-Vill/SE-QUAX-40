@@ -23,6 +23,7 @@ import javafx.beans.binding.NumberBinding;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class BoardController {
 
 
@@ -202,13 +203,23 @@ public class BoardController {
         	System.out.println("Tile not found for id :" + clicked.getId() );
         	return;
         }
-        
+
         if(!tile.isEmpty()) {
-        	return;
+            return;
         }
 
+
+        // RHOMBUS lOGIC:
         
         //if (tile.isSelected()) return;
+
+        if(tile.getShape() == ShapeEnum.RHOMBUS) {
+            boolean isRhombusValid  = isRhombusValid(tile, currentTurn);
+
+            if(!isRhombusValid) {
+                return;
+            }
+        }
 
         // set colour based on current turn
         if (currentTurn == PlayerEnum.BLACK) {
@@ -247,4 +258,30 @@ public class BoardController {
     	}
     }
 
+
+    private boolean isRhombusValid(Tile rhombusTile, PlayerEnum currentTurn) {
+        String id = rhombusTile.getCoord();
+
+        char letter1 = id.charAt(0);
+        char letter2 = id.charAt(1);
+
+        int firstUnderscore = id.indexOf("_");
+        int secondUnderscore = id.indexOf("_", firstUnderscore + 1);
+
+        String num1 = id.substring(firstUnderscore + 1, secondUnderscore);
+        String num2 = id.substring(secondUnderscore + 1);
+
+        Tile t1 = tileMap.get(String.valueOf(letter1) + num1);
+        Tile t2 = tileMap.get(String.valueOf(letter1) + num2);
+        Tile t3 = tileMap.get(String.valueOf(letter2) + num2);
+        Tile t4 = tileMap.get(String.valueOf(letter2) + num1);
+
+        boolean diag1 = (t1 != null && t3 != null) && !t1.isEmpty() && t1.getOwner() == t3.getOwner() && t1.getOwner() == currentTurn;
+        boolean diag2 = (t2 != null && t4 != null) && !t2.isEmpty() && t2.getOwner() == t4.getOwner() && t2.getOwner() == currentTurn;
+
+        return diag1 || diag2;
+    }
+
+
 }
+
