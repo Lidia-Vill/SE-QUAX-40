@@ -331,5 +331,18 @@ public class BoardController {
     public PlayerEnum getCurrentTurn() {
         return currentTurn;
     }
+
+    // setters used for testing so UI fields are not null (Sprint2 Feature3 test)
+    public void setTurnLabel(Label label) {
+        this.turnLabel = label;
+    }
+
+    public void setTurnOct(Polygon oct) {
+        this.turnOct = oct;
+    }
+
+    public void setTurnRhom(Polygon rhom) {
+        this.turnRhom = rhom;
+    }
 }
 
