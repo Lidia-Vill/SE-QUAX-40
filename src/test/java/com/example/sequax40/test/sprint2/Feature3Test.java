@@ -5,6 +5,8 @@ package com.example.sequax40.test.sprint2;
 import com.example.sequax40.controller.BoardController;
 import com.example.sequax40.enums.PlayerEnum;
 import com.example.sequax40.model.board.Board;
+import com.example.sequax40.model.game.GameManager;
+
 import javafx.scene.control.Label;
 import javafx.scene.shape.Polygon;
 import org.junit.jupiter.api.BeforeEach;
@@ -113,6 +115,7 @@ public class Feature3Test {
     void resetSetsTurnBackToBlack() {
 
         BoardController controller = new BoardController();
+        
         controller.board = new Board(3,3);
 
         // give dummy UI elements

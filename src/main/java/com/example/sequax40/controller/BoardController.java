@@ -4,16 +4,14 @@ package com.example.sequax40.controller;
 import com.example.sequax40.enums.PlayerEnum;
 import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Tile;
+import com.example.sequax40.model.game.GameManager;
+import com.example.sequax40.model.board.Board;
+
 import javafx.fxml.FXML;
 import javafx.scene.Group;
-
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-
-
-import com.example.sequax40.model.board.Board;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
@@ -26,45 +24,53 @@ import java.util.Map;
 
 public class BoardController {
 
-
-    //to test the tiles are clickable
-    private static final Color SELECTED_COLOR = Color.WHITE;
-    private static final Color DEFAULT_COLOR = Color.web("#4d44ff");
-
-    //setting up the ids of the stackpane container, and group to help with scaling
+	// FXML
+	//setting up the ids of the stackpane container, and group to help with scaling
     @FXML public StackPane mainContainer;
     @FXML public Group masterGroup;
-
     //setting up ids of the board stack pane and group to format shape of game
     @FXML public StackPane gameBoardStackPane;
     @FXML public Group boardGroup;
     @FXML private HBox windowContainer;
-    
     //turn label
     @FXML private Label turnLabel;
     @FXML private Polygon turnOct;
     @FXML private Polygon turnRhom;
-
+	
+   
     //setting original board width to calculate scaling
     private final double DESIGN_WIDTH = 1100.0;
     private final double DESIGN_HEIGHT = 845.0;
 
-
+    //Model
     public Board board;
+    private GameManager gameManager;
 
     public Map<String, Tile> tileMap = new HashMap<>();
     public Map<String, Polygon> polygonMap = new HashMap<>();
     
-    //set initial player to be BLACK
-    private PlayerEnum currentTurn = PlayerEnum.BLACK;
 
 
     //initialise method 
     @FXML
     public void initialize() {
 
-        NumberBinding scaleBinding = Bindings.createDoubleBinding(() -> {
-            double containerWidth = mainContainer.getWidth(); //find width of window
+        setupScaling();
+                
+        board = new Board(11, 11);
+        setupTiles();
+        
+        gameManager = new GameManager(board, tileMap);
+           
+        updateTurnLabel();
+    }
+
+    
+    private void setupScaling() {
+    	
+    	NumberBinding scaleBinding = Bindings.createDoubleBinding(() -> {
+            
+    		double containerWidth = mainContainer.getWidth(); //find width of window
             double containerHeight = mainContainer.getHeight(); //find height of window
 
             if (containerWidth <= 0 || containerHeight <= 0) {
@@ -74,7 +80,8 @@ public class BoardController {
             double scaleX = containerWidth / DESIGN_WIDTH; //calculate scale of the x of board
             double scaleY = containerHeight / DESIGN_HEIGHT; //calculate scale of y of board 
 
-            return Math.min(scaleX, scaleY); //find the min of x or y to ensure the board always fits the viewport 
+            return Math.min(scaleX, scaleY); //find the min of x or y to ensure the board always fits the viewport
+            
         }, mainContainer.widthProperty(), mainContainer.heightProperty());
 
         //ensures the board keeps the aspect ratio without stretching
@@ -84,48 +91,13 @@ public class BoardController {
 		
         StackPane.setAlignment(masterGroup,  javafx.geometry.Pos.CENTER);
 
-                
-        board = new Board(11, 11);
-        setupTiles();
-           
-        updateTurnLabel();
     }
-
-    /*public void setupTiles() {
-        for (var node : boardGroup.getChildren()) {
-            if (!(node instanceof Polygon polygon)) continue;
-
-            String fxId = polygon.getId();
-            if (fxId == null || fxId.isBlank()) continue;
-
-            // dtermine tile type by fxId pattern or length
-            ShapeEnum shapeType = (fxId.length() <= 3) ? ShapeEnum.OCTAGON : ShapeEnum.RHOMBUS;
-
-            // create or get Tile from the board
-            Tile tile = board.getTile(fxId); // assumes Board can return a Tile for any ID
-            if (tile == null) {
-                tile = new Tile(fxId, shapeType); // for rhombuses or missing ones
-                board.addTile(tile);
-            }
-
-            // store Tile in polygon's userData for easy access in clicks
-            polygon.setUserData(tile);
-
-            // set initial color
-            polygon.setFill(DEFAULT_COLOR);
-
-            // set click handler
-            polygon.setOnMouseClicked(this::handleTileClick);
-
-            // save in our maps
-            tileMap.put(fxId, tile);
-            polygonMap.put(fxId, polygon);
-        }
-    }*/
+    
     
     public void setupTiles() {
         attachTilesRecursively(boardGroup);
     }
+    
 
     private void attachTilesRecursively(javafx.scene.Parent parent) {
         for (var node : parent.getChildrenUnmodifiable()) {
@@ -158,90 +130,45 @@ public class BoardController {
         }
     }
 
+    
     @FXML
     public void handleTileClick(MouseEvent event) {
-        /*Object source = event.getSource();
-        if (!(source instanceof Polygon clicked)) return;
-
-        // get tile model associated 
-        Tile tile = null;
-        Object userData = clicked.getUserData();
-        if (userData instanceof Tile t) {
-            tile = t;
-        }
-
-        // find the default colour based on tile type
-        Color defaultColor;
-        if (tile != null) {
-            defaultColor = (tile.getShape() == ShapeEnum.OCTAGON) ? Color.web("#4d44ff") : Color.web("#9e9bec");
-        } else {
-            defaultColor = Color.LIGHTGRAY; // if no tile 
-        }
-
-        // toggle selection and set fill
-        if (tile != null) {
-            tile.toggleSelected();
-            clicked.setFill(tile.isSelected() ? SELECTED_COLOR : defaultColor);
-        } else {
-            Object stored = clicked.getProperties().getOrDefault("originalColor", clicked.getFill());
-            Color originalColor = (stored instanceof Color c) ? c : defaultColor;
-
-            clicked.getProperties().putIfAbsent("originalColor", originalColor);
-            clicked.setFill(clicked.getFill().equals(SELECTED_COLOR) ? originalColor : SELECTED_COLOR);
-        }
-    	*/
-    	
-    	
-    	
+            	
         if (!(event.getSource() instanceof Polygon clicked)) {
         	return;
         }
         
         Tile tile = (clicked.getUserData() instanceof Tile t) ? t : null;
               
-        if (tile == null) {
-        	System.out.println("Tile not found for id :" + clicked.getId() );
+        if (tile == null || !tile.isEmpty()) {
         	return;
         }
 
-        if(!tile.isEmpty()) {
-            return;
+
+        boolean movePlayed = gameManager.playMove(tile);
+        if(!movePlayed) {
+        	return;
         }
-
-
-        // RHOMBUS lOGIC:
         
-        //if (tile.isSelected()) return;
-
-        if(tile.getShape() == ShapeEnum.RHOMBUS) {
-            boolean isRhombusValid  = isRhombusValid(tile, currentTurn);
-
-            if(!isRhombusValid) {
-                return;
-            }
+        updateTileUI(tile, clicked);
+        updateTurnLabel();
+    }
+    
+    
+    private void updateTileUI(Tile tile, Polygon polygon) {
+    	if (tile.getOwner() == PlayerEnum.BLACK) {
+            polygon.setFill(Color.web("#2f2f2f"));
+        } 
+    	else {
+            polygon.setFill(Color.WHITE);
         }
-
-        // set colour based on current turn
-        if (currentTurn == PlayerEnum.BLACK) {
-            clicked.setFill(Color.web("#2f2f2f"));
-            tile.setOwner(PlayerEnum.BLACK);
-        } else {
-            clicked.setFill(Color.WHITE);
-            tile.setOwner(PlayerEnum.WHITE);
-        }
-
-        //tile.setSelected(true);
-     
-        switchTurn();
     }
 
-    private void switchTurn() {
-    	currentTurn = (currentTurn == PlayerEnum.BLACK) ? PlayerEnum.WHITE : PlayerEnum.BLACK;
-    	
-    	updateTurnLabel();
-    }
 
     private void updateTurnLabel() {
+    	
+    	PlayerEnum currentTurn = gameManager.getCurrentTurn();
+    	
     	if(currentTurn == PlayerEnum.BLACK) {
     		turnLabel.setText("BLACKS'S TURN");
     		turnLabel.setTextFill(Color.web("2f2f2f"));
@@ -259,40 +186,16 @@ public class BoardController {
     }
 
 
-    private boolean isRhombusValid(Tile rhombusTile, PlayerEnum currentTurn) {
-        String id = rhombusTile.getCoord();
-
-        char letter1 = id.charAt(0);
-        char letter2 = id.charAt(1);
-
-        int firstUnderscore = id.indexOf("_");
-        int secondUnderscore = id.indexOf("_", firstUnderscore + 1);
-
-        String num1 = id.substring(firstUnderscore + 1, secondUnderscore);
-        String num2 = id.substring(secondUnderscore + 1);
-
-        Tile t1 = tileMap.get(String.valueOf(letter1) + num1);
-        Tile t2 = tileMap.get(String.valueOf(letter1) + num2);
-        Tile t3 = tileMap.get(String.valueOf(letter2) + num2);
-        Tile t4 = tileMap.get(String.valueOf(letter2) + num1);
-
-        boolean diag1 = (t1 != null && t3 != null) && !t1.isEmpty() && t1.getOwner() == t3.getOwner() && t1.getOwner() == currentTurn;
-        boolean diag2 = (t2 != null && t4 != null) && !t2.isEmpty() && t2.getOwner() == t4.getOwner() && t2.getOwner() == currentTurn;
-
-        return diag1 || diag2;
-    }
-
-
-
     @FXML
     private void handleReset() {
         resetGame();
     }
 
+    
     public void resetGame() {
 
         // Reset the board model
-        board.reset();
+        gameManager.resetGame();
 
         // Reset the UI colours
         for (Map.Entry<String, Polygon> entry : polygonMap.entrySet()) {
@@ -313,10 +216,10 @@ public class BoardController {
             poly.setFill(getDefaultFill(tile));
         }
 
-        // Reset turn so BLACK starts again
-        currentTurn = PlayerEnum.BLACK;
         updateTurnLabel();
     }
+    
+    
     //Put back to original colour
     private Color getDefaultFill(Tile tile) {
         if (tile.getShape() == ShapeEnum.OCTAGON) {
@@ -327,10 +230,6 @@ public class BoardController {
         }
     }
 
-
-    public PlayerEnum getCurrentTurn() {
-        return currentTurn;
-    }
 
     // setters used for testing so UI fields are not null (Sprint2 Feature3 test)
     public void setTurnLabel(Label label) {
