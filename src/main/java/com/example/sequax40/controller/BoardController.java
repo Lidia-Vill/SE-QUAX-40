@@ -123,7 +123,7 @@ public class BoardController {
         }
     }*/
     
-    private void setupTiles() {
+    public void setupTiles() {
         attachTilesRecursively(boardGroup);
     }
 
@@ -283,5 +283,53 @@ public class BoardController {
     }
 
 
+
+    @FXML
+    private void handleReset() {
+        resetGame();
+    }
+
+    public void resetGame() {
+
+        // Reset the board model
+        board.reset();
+
+        // Reset the UI colours
+        for (Map.Entry<String, Polygon> entry : polygonMap.entrySet()) {
+
+            Polygon poly = entry.getValue();
+
+            Object data = poly.getUserData();
+            Tile tile = null;
+
+            if (data instanceof Tile) {
+                tile = (Tile) data;
+            }
+
+            if (tile == null) {
+                continue;
+            }
+
+            poly.setFill(getDefaultFill(tile));
+        }
+
+        // Reset turn so BLACK starts again
+        currentTurn = PlayerEnum.BLACK;
+        updateTurnLabel();
+    }
+    //Put back to original colour
+    private Color getDefaultFill(Tile tile) {
+        if (tile.getShape() == ShapeEnum.OCTAGON) {
+            return Color.web("#4d44ff");
+        }
+        else {
+            return Color.web("#9e9bec");
+        }
+    }
+
+
+    public PlayerEnum getCurrentTurn() {
+        return currentTurn;
+    }
 }
 

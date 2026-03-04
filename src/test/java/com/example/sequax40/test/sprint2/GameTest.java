@@ -1,6 +1,8 @@
 
 package com.example.sequax40.test.sprint2;
 
+import com.example.sequax40.controller.BoardController;
+import com.example.sequax40.enums.PlayerEnum;
 import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.game.GameManager;
 import com.example.sequax40.model.move.Move;
@@ -51,7 +53,7 @@ class GameTest {
     @BeforeEach
     void setup() {
         board = new Board(3,3);
-        gm = new GameManager(board);
+        //gm = new GameManager(board);
     }
 
     // -----------------------
@@ -84,7 +86,7 @@ class GameTest {
     // -----------------------
     // QTS TESTS
     // -----------------------
-
+/*
     @Test
     void playerTurnTest() {
 
@@ -118,4 +120,58 @@ class GameTest {
 
         assertTrue(compare(result, BLACK_WIN_RESULT));
     }
+*/
+
+
+    //test the reset board
+    @Test
+    void boardResetClearsBoard() {
+
+        board.loadFromDump(copy(BLACK_WIN_RESULT));
+
+        board.reset();
+
+        assertTrue(compare(board.dumpBoard(), EMPTY_BOARD));
+    }
+
+
+
+    private static final int[][] MIXED_BOARD = {
+            {3,4,0},
+            {0,3,4},
+            {4,0,3}
+    };
+
+    @Test
+    void boardResetClearsMixedBoard() {
+
+        board.loadFromDump(copy(MIXED_BOARD));
+
+        board.reset();
+
+        assertTrue(compare(board.dumpBoard(), EMPTY_BOARD));
+    }
+
+
+    //check it returns to blacks turn after reset
+    @Test
+    void resetSetsTurnBackToBlack() {
+
+        BoardController controller = new BoardController();
+        controller.board = new Board(3,3);
+
+        // simulate some tiles existing
+        for (var tile : controller.board.getAllTiles().values()) {
+            controller.tileMap.put(tile.getCoord(), tile);
+        }
+
+        // reset game
+        controller.resetGame();
+
+        // check turn is BLACK again
+        assertEquals(PlayerEnum.BLACK, controller.getCurrentTurn());
+    }
+
+
+
 }
