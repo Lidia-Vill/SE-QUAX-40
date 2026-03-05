@@ -34,9 +34,7 @@ public class Feature2Test {
     private Polygon turnOct;
     private Polygon turnRhom;
 
-    // -----------------------
     // BOARD DUMPS
-    // -----------------------
     // 0 = EMPTY
     // 1 = BLACK (current turn)
     // 2 = WHITE
@@ -70,9 +68,8 @@ public class Feature2Test {
             {0,0,0}
     };
 
-    // -----------------------
+
     // INITIALIZE JAVAFX
-    // -----------------------
     @BeforeAll
     static void initJfx() {
         try {
@@ -80,9 +77,7 @@ public class Feature2Test {
         } catch (IllegalStateException ignored) {}
     }
 
-    // -----------------------
     // SETUP
-    // -----------------------
     @BeforeEach
     void setup() {
         board = new Board(3,3);
@@ -111,9 +106,7 @@ public class Feature2Test {
         controller.setGameManager(manager);
     }
 
-    // -----------------------
     // HELPER: load dump into board
-    // -----------------------
     private void loadDump(int[][] dump) {
         for (int row = 0; row < dump.length; row++) {
             for (int col = 0; col < dump[row].length; col++) {
