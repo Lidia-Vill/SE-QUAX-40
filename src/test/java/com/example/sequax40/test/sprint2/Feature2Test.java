@@ -39,13 +39,13 @@ public class Feature2Test {
     // 1 = BLACK (current turn)
     // 2 = WHITE
     private static final int[][] VALID_RHOMBUS_DIAG1 = {
-            {1,0,0},  // diagonal top-left → bottom-right
+            {1,0,0},  // diagonal top-left to bottom-right
             {0,0,0},
             {0,0,1}
     };
 
     private static final int[][] VALID_RHOMBUS_DIAG2 = {
-            {0,0,1},  // diagonal top-right → bottom-left
+            {0,0,1},  // diagonal top-right to bottom-left
             {0,0,0},
             {1,0,0}
     };
