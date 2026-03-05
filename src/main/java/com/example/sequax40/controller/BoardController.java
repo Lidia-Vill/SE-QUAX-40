@@ -278,6 +278,8 @@ public class BoardController {
     public Label getTurnLabel() {
     	return turnLabel;
     }
+
+
     
 }
 

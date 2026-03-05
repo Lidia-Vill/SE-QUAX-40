@@ -5,20 +5,34 @@ package com.example.sequax40.test.sprint2;
 import com.example.sequax40.controller.BoardController;
 import com.example.sequax40.enums.PlayerEnum;
 import com.example.sequax40.model.board.Board;
+import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
 
+import javafx.fxml.FXML;
+import javafx.scene.Group;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import javafx.application.Platform;
 import org.junit.jupiter.api.BeforeAll;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
 public class Feature3Test {
     private Board board;
+    private BoardController controller;
+    private GameManager manager;
+
+
+    @FXML private Label turnLabel;
+    @FXML private Polygon turnOct;
+    @FXML private Polygon turnRhom;
 
     // -----------------------
     // STATIC BOARD DUMPS
@@ -46,9 +60,37 @@ public class Feature3Test {
     // SETUP
     // -----------------------
 
-    @BeforeEach
+    /*@BeforeEach
     void setup() {
         board = new Board(3,3);
+    }*/
+
+    @BeforeEach
+    void setup() {
+        board = new Board(11, 11);
+        controller = new BoardController();
+        Map<String, Tile> tileMap = board.getAllTiles();
+        manager = new GameManager(board, tileMap);
+        StackPane mainContainer = new StackPane();
+        HBox windowContainer = new HBox();
+        Group masterGroup = new Group();
+        Group boardGroup = new Group();
+        turnLabel = new Label();
+        turnOct = new Polygon();
+        turnRhom = new Polygon();
+
+        controller.setMainContainer(mainContainer);
+        controller.setWindowContainer(windowContainer);
+        controller.setMasterGroup(masterGroup);
+        controller.setMasterGroup(boardGroup);
+
+        controller.setTurnLabel(turnLabel);
+        controller.setTurnOct(turnOct);
+        controller.setTurnRhom(turnRhom);
+
+        controller.setBoard(board);
+        controller.setGameManager(manager);
+
     }
 
     // -----------------------
@@ -114,8 +156,10 @@ public class Feature3Test {
     @Test
     void resetSetsTurnBackToBlack() {
 
-        BoardController controller = new BoardController();
-        
+       /* BoardController controller = new BoardController();
+        Map<String, Tile> tileMap = board.getAllTiles();
+        GameManager manager = new GameManager(board, tileMap);
+        */
         controller.board = new Board(3,3);
 
         // give dummy UI elements
@@ -125,6 +169,6 @@ public class Feature3Test {
 
         controller.resetGame();
 
-        assertEquals(PlayerEnum.BLACK, controller.getCurrentTurn());
+        assertEquals(PlayerEnum.BLACK, manager.getCurrentTurn());
     }
 }
