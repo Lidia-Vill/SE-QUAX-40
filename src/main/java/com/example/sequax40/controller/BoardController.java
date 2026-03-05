@@ -33,7 +33,7 @@ public class BoardController {
     @FXML public Group boardGroup;
     @FXML private HBox windowContainer;
     //turn label
-    @FXML private Label turnLabel;
+    @FXML public Label turnLabel;
     @FXML private Polygon turnOct;
     @FXML private Polygon turnRhom;
 	
@@ -57,7 +57,9 @@ public class BoardController {
 
         setupScaling();
                 
-        board = new Board(11, 11);
+        if (this.board == null) {
+            this.board = new Board(11, 11);
+        }
         setupTiles();
         
         gameManager = new GameManager(board, tileMap);
@@ -95,6 +97,10 @@ public class BoardController {
     
     
     public void setupTiles() {
+    	if (boardGroup == null) {
+            return; 
+        }
+        
         attachTilesRecursively(boardGroup);
     }
     
@@ -145,7 +151,7 @@ public class BoardController {
         }
 
 
-        boolean movePlayed = gameManager.playMove(tile);
+        boolean movePlayed = gameManager.makeMove(tile);
         if(!movePlayed) {
         	return;
         }
@@ -243,5 +249,35 @@ public class BoardController {
     public void setTurnRhom(Polygon rhom) {
         this.turnRhom = rhom;
     }
+    
+    public void setBoard(Board board) {
+    	this.board = board;
+    }
+    
+    public void setGameManager(GameManager gameManager) {
+        this.gameManager = gameManager;
+    }
+    
+    public void setMainContainer(StackPane mainContainer) {
+        this.mainContainer = mainContainer;
+    }
+    
+    public void setWindowContainer(HBox windowContainer) {
+        this.windowContainer = windowContainer;
+    }
+    
+    public void setMasterGroup(Group masterGroup) {
+    	this.masterGroup = masterGroup;
+    }
+    
+    public void setBoardGrid(Group boardGroup) {
+        this.boardGroup = boardGroup;
+    }
+    
+    //getters for testing
+    public Label getTurnLabel() {
+    	return turnLabel;
+    }
+    
 }
 

@@ -25,7 +25,7 @@ public class GameManager {
 	        return currentTurn;
 	    }
 
-	    public boolean playMove(Tile tile) {
+	    public boolean makeMove(Tile tile) {
 
 	        if (tile == null || !tile.isEmpty()) {
 	            return false;
