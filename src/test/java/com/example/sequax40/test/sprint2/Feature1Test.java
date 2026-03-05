@@ -109,7 +109,7 @@ public class Feature1Test {
     
    
     @Test //at beginning of game the label should display blacks turn in the text, and colour of the text as well as the octagon and rhombus
-    void testTurnLabelStartsBlack() throws Exception{
+    void testTurnDisplayStartsBlack() throws Exception{
     	    	
     	runOnFxThreadAndWait(() -> controller.initialize());
         

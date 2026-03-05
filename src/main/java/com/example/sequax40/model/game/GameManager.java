@@ -14,7 +14,7 @@ public class GameManager {
 	    private final Board board;
 	    private final Map<String, Tile> tileMap;
 
-	    private PlayerEnum currentTurn = PlayerEnum.BLACK;
+	    private PlayerEnum currentTurn = PlayerEnum.BLACK; //set initial turn to black
 
 	    public GameManager(Board board, Map<String, Tile> tileMap) {
 	        this.board = board;
@@ -22,9 +22,11 @@ public class GameManager {
 	    }
 
 	    public PlayerEnum getCurrentTurn() {
-	        return currentTurn;
+	        return currentTurn; //return the current players turn
 	    }
 
+	    //checks whether a move is valid and sets the owner of the tile if it is
+	    //calls switchTurn if a valid move is made
 	    public boolean makeMove(Tile tile) {
 
 	        if (tile == null || !tile.isEmpty()) {
@@ -42,12 +44,15 @@ public class GameManager {
 	        return true;
 	    }
 
+	    //switches the turn to the opposite player
 	    private void switchTurn() {
 	        currentTurn = (currentTurn == PlayerEnum.BLACK)
 	                ? PlayerEnum.WHITE
 	                : PlayerEnum.BLACK;
 	    }
 
+	    //checks whether or not the placement of a rhombus tile is allowed
+	    //called within makeMove method 
 	    private boolean isRhombusValid(Tile rhombusTile) {
 
 	        String id = rhombusTile.getCoord();
@@ -79,6 +84,7 @@ public class GameManager {
 	        return diag1 || diag2;
 	    }
 
+	    //reset the board
 	    public void resetGame() {
 	        board.reset();
 	        currentTurn = PlayerEnum.BLACK;

@@ -55,20 +55,20 @@ public class BoardController {
     @FXML
     public void initialize() {
 
-        setupScaling();
+        setupScaling(); //call the scaling method 
                 
         if (this.board == null) {
             this.board = new Board(11, 11);
         }
         setupTiles();
         
-        gameManager = new GameManager(board, tileMap);
+        gameManager = new GameManager(board, tileMap); //initialise the game manager to enforce rules
            
         updateTurnLabel();
     }
 
     
-    private void setupScaling() {
+    private void setupScaling() { //helper method to scale the board to fit screen
     	
     	NumberBinding scaleBinding = Bindings.createDoubleBinding(() -> {
             
@@ -95,43 +95,54 @@ public class BoardController {
 
     }
     
-    
+    //initialises all tiles in ui by scanning board group 
     public void setupTiles() {
     	if (boardGroup == null) {
             return; 
         }
         
-        attachTilesRecursively(boardGroup);
+        attachTiles(boardGroup);
     }
     
 
-    private void attachTilesRecursively(javafx.scene.Parent parent) {
-        for (var node : parent.getChildrenUnmodifiable()) {
+    private void attachTiles(javafx.scene.Parent parent) {
+        //loop through all child nodes of current parent
+    	for (var node : parent.getChildrenUnmodifiable()) {
 
+    		//check if node is a polygon (represents tile)
             if (node instanceof Polygon polygon) {
 
+            	//get the fx id assigned in fxml
                 String fxId = polygon.getId();
+                //and skips shapes without an id
                 if (fxId == null || fxId.isBlank()) continue;
 
+                //determines type of shape based on length of id
                 ShapeEnum shapeType = (fxId.length() <= 3)
                         ? ShapeEnum.OCTAGON
                         : ShapeEnum.RHOMBUS;
 
-                // Always create a Tile if not in board
+                // look up corresponding tile in board model
                 Tile tile = board.getTile(fxId);
+                //if tile doesn't exist in board model skip 
                 if (tile == null) {
                     continue;
                 }
 
+                //attach the tile to the polygon to retrieve it later
                 polygon.setUserData(tile);
+                //set the colour based on the shape
                 polygon.setFill(shapeType == ShapeEnum.OCTAGON ? Color.web("#4d44ff") : Color.web("#9e9bec"));
+                //add a click handler so tile reacts to user interaction 
                 polygon.setOnMouseClicked(this::handleTileClick);
 
+                //store the references for lookup
                 tileMap.put(fxId, tile);
                 polygonMap.put(fxId, polygon);
 
-            } else if (node instanceof javafx.scene.Parent childParent) {
-                attachTilesRecursively(childParent); // recurse into nested groups
+            } //if node is in another container recursively search for polygons 
+            else if (node instanceof javafx.scene.Parent childParent) {
+                attachTiles(childParent); // recurse into nested groups
             }
         }
     }
@@ -145,23 +156,25 @@ public class BoardController {
         }
         
         Tile tile = (clicked.getUserData() instanceof Tile t) ? t : null;
-              
+            
+        //if tile is not initialised or if its already owned, return (allows player to click again as invalid move)
         if (tile == null || !tile.isEmpty()) {
         	return;
         }
 
-
+        //check if the move made is valid with the rules in game manager
         boolean movePlayed = gameManager.makeMove(tile);
         if(!movePlayed) {
-        	return;
+        	return; //if invalid move, return
         }
         
-        updateTileUI(tile, clicked);
-        updateTurnLabel();
+        updateTileUI(tile, clicked); //update the tile the player clicked to match their colour
+        updateTurnLabel(); //update the display to show the next player
     }
     
     
     private void updateTileUI(Tile tile, Polygon polygon) {
+    	//update the colour of the tile clicked based on its owner
     	if (tile.getOwner() == PlayerEnum.BLACK) {
             polygon.setFill(Color.web("#2f2f2f"));
         } 
@@ -173,8 +186,10 @@ public class BoardController {
 
     private void updateTurnLabel() {
     	
+    	//find out whos turn it is after the last move
     	PlayerEnum currentTurn = gameManager.getCurrentTurn();
     	
+    	//change the turn displays colour and text based on currentTurn
     	if(currentTurn == PlayerEnum.BLACK) {
     		turnLabel.setText("BLACKS'S TURN");
     		turnLabel.setTextFill(Color.web("2f2f2f"));
@@ -222,11 +237,11 @@ public class BoardController {
             poly.setFill(getDefaultFill(tile));
         }
 
-        updateTurnLabel();
+        updateTurnLabel(); //reset to black
     }
     
     
-    //Put back to original colour
+    //original colour of tiles
     private Color getDefaultFill(Tile tile) {
         if (tile.getShape() == ShapeEnum.OCTAGON) {
             return Color.web("#4d44ff");
@@ -237,7 +252,7 @@ public class BoardController {
     }
 
 
-    // setters used for testing so UI fields are not null (Sprint2 Feature3 test)
+    // setters used for testing so UI fields are not null (Sprint2 Features 1 and 3 test)
     public void setTurnLabel(Label label) {
         this.turnLabel = label;
     }
@@ -278,8 +293,5 @@ public class BoardController {
     public Label getTurnLabel() {
     	return turnLabel;
     }
-
-
-    
 }
 
