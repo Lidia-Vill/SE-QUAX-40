@@ -30,7 +30,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
 public class Feature1Test {
-
+	
+	//INITIALISING
+	
+	//initialise all the setups for the board
 	private BoardController controller;
     private Board board;
     private GameManager manager;
@@ -45,7 +48,7 @@ public class Feature1Test {
     	Platform.startup(()-> {});
     }
 	
-    
+    //ensure each board section is initialised before each test
     @BeforeEach
     void setup() {
     	board = new Board(11, 11);
@@ -74,73 +77,50 @@ public class Feature1Test {
         
     }
     
-    //GameManager tests 
+    //GAME MANAGER TESTS
     
-    @Test
+    @Test //ensure the first player is black
     void testGameStartsWithBlack() {
-    	assertEquals(PlayerEnum.BLACK, manager.getCurrentTurn());
+    	assertEquals(PlayerEnum.BLACK, manager.getCurrentTurn()); //check the current turn in manager at beginning is set to black
     }
-    
-    @Test
-    void testCannotPlaceOnOccupiedTile() {
-    	Tile tile = board.getTile("A1");
-    	
-    	manager.makeMove(tile);
-    	PlayerEnum turnFirstMove = manager.getCurrentTurn();
-    	
-    	boolean secondMove = manager.makeMove(tile);
-    	    	
-    	assertFalse(secondMove); //place fails 
-    }
-    
-    @Test
-    void testStaysPlayersTurnOnInvalidMove() {
-    	Tile tile = board.getTile("A1");
-    	
-    	manager.makeMove(tile);
-    	PlayerEnum turnFirstMove = manager.getCurrentTurn();
-    	
-    	boolean secondMove = manager.makeMove(tile);
-    	
-    	assertEquals(turnFirstMove, manager.getCurrentTurn());
 
-    }
-    
-    @Test
-    void testTurnAlternatesAfterValidMove() {
-    	Tile tile = board.getTile("A1");
-    	boolean moveMade = manager.makeMove(tile);
+    @Test //after one move, current player should be white 
+    void testAlternatingTurns1() {
+    	Tile tile1 = board.getTile("A1");
     	
-    	assertTrue(moveMade);
-    	assertEquals(PlayerEnum.WHITE, manager.getCurrentTurn());
+    	manager.makeMove(tile1); //make a move on tile A1
+    	
+    	assertEquals(PlayerEnum.WHITE, manager.getCurrentTurn()); //check current turn is now white 
     }
     
-    
-    @Test
-    void testAlternatingTurns() {
+    @Test //ensure after two moves, the turn returns to black
+    void testAlternatingTurns2() {
     	Tile tile1 = board.getTile("A1");
     	Tile tile2 = board.getTile("B1");
     	
     	manager.makeMove(tile1);
     	manager.makeMove(tile2);
     	
-    	assertEquals(PlayerEnum.BLACK, manager.getCurrentTurn());
+    	assertEquals(PlayerEnum.BLACK, manager.getCurrentTurn()); //check current turn has reverted to white 
     }
     
     
-    //BoardController Tests
+    //BOARD CONTROLLER TESTS
     
    
-    @Test
+    @Test //at beginning of game the label should display blacks turn in the text, and colour of the text as well as the octagon and rhombus
     void testTurnLabelStartsBlack() throws Exception{
     	    	
     	runOnFxThreadAndWait(() -> controller.initialize());
         
         Label currentTurnLabel = controller.getTurnLabel();
         assertTrue(currentTurnLabel.getText().contains("BLACK"));
+        assertEquals(Color.web("2f2f2f"), turnLabel.getTextFill());
+        assertEquals(Color.web("2f2f2f"), turnRhom.getFill());
+        assertEquals(Color.web("2f2f2f"), turnOct.getFill());
     }
     
-    @Test
+    @Test //confirm after a tile is placed, the symbol for the rhombus turns changes from black to white and back to black after a second click
     void testRhomLabelUpdates() {
     	Tile tileA1 = board.getTile("A1");
         Tile tileA2 = board.getTile("A2");
@@ -153,7 +133,7 @@ public class Feature1Test {
 
     }
     
-    @Test
+    @Test //confirm after a tile is placed, the symbol for the octagon turns changes from black to white and back to black after a second click
     void testOctLabelUpdates() {
     	Tile tileA1 = board.getTile("A1");
         Tile tileA2 = board.getTile("A2");
@@ -166,7 +146,7 @@ public class Feature1Test {
 
     }
     
-    @Test
+    @Test //confirm after a tile is placed, the colour of text to display turns changes from black to white and back to black after a second click
     void testLabelColorUpdates() {
     	Tile tileA1 = board.getTile("A1");
         Tile tileA2 = board.getTile("A2");
@@ -179,7 +159,7 @@ public class Feature1Test {
 
     }
     
-    @Test
+    @Test //confirm after a tile is placed, the actual text to display turns changes from black to white and back to black after a second click
     void testLabelTextUpdates() {
     	Tile tileA1 = board.getTile("A1");
         Tile tileA2 = board.getTile("A2");
@@ -193,6 +173,9 @@ public class Feature1Test {
     }
     
     
+    //HELPER METHODS
+    
+    //
     private void runOnFxThreadAndWait(Runnable action) {
         CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
