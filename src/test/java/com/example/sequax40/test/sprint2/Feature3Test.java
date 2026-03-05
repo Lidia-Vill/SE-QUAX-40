@@ -45,15 +45,15 @@ public class Feature3Test {
     };
 
     private static final int[][] BLACK_WIN_RESULT = {
-            {3,0,0},
-            {3,0,0},
-            {3,0,0}
+            {1,0,0},
+            {1,0,0},
+            {1,0,0}
     };
 
     private static final int[][] MIXED_BOARD = {
-            {3,4,0},
-            {0,3,4},
-            {4,0,3}
+            {1,2,0},
+            {0,1,2},
+            {2,0,1}
     };
 
     // -----------------------
@@ -67,7 +67,7 @@ public class Feature3Test {
 
     @BeforeEach
     void setup() {
-        board = new Board(11, 11);
+        board = new Board(3, 3);
         controller = new BoardController();
         Map<String, Tile> tileMap = board.getAllTiles();
         manager = new GameManager(board, tileMap);
