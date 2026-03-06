@@ -188,6 +188,7 @@ public class BoardController {
     	
     	//find out whos turn it is after the last move
     	PlayerEnum currentTurn = gameManager.getCurrentTurn();
+ 
     	
     	//change the turn displays colour and text based on currentTurn
     	if(currentTurn == PlayerEnum.BLACK) {
