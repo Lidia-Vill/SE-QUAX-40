@@ -34,37 +34,35 @@ public class Feature3Test {
     @FXML private Polygon turnOct;
     @FXML private Polygon turnRhom;
 
-    // -----------------------
-    // STATIC BOARD DUMPS
-    // -----------------------
 
+    // board dumps
+    // 0 = empty
+    // 1 = black (current turn)
+    // 2 = white
+
+    //an empty board
     private static final int[][] EMPTY_BOARD = {
             {0,0,0},
             {0,0,0},
             {0,0,0}
     };
 
+    //board with only  black tiles
     private static final int[][] BLACK_WIN_RESULT = {
             {1,0,0},
             {1,0,0},
             {1,0,0}
     };
 
+    //board containing both black and white tiles
     private static final int[][] MIXED_BOARD = {
             {1,2,0},
             {0,1,2},
             {2,0,1}
     };
 
-    // -----------------------
-    // SETUP
-    // -----------------------
 
-    /*@BeforeEach
-    void setup() {
-        board = new Board(3,3);
-    }*/
-
+    // setup - runs before each test so that every test starts with a blank baord
     @BeforeEach
     void setup() {
         board = new Board(3, 3);
@@ -93,10 +91,8 @@ public class Feature3Test {
 
     }
 
-    // -----------------------
-    // HELPER METHODS
-    // -----------------------
 
+    //this is used by the tests to compare two boards (used after reset to check the board is equal to the expected empty board)
     private boolean compare(int[][] a, int[][] b) {
         if (a.length != b.length) return false;
 
@@ -108,6 +104,8 @@ public class Feature3Test {
         return true;
     }
 
+
+    //below makes a duplicate of the board so the original isnt modified
     private int[][] copy(int[][] original) {
         int[][] copy = new int[original.length][original[0].length];
         for (int i = 0; i < original.length; i++) {
@@ -116,6 +114,7 @@ public class Feature3Test {
         return copy;
     }
 
+    //javaFX initialization
     @BeforeAll
     static void initJfx() {
         try {
@@ -125,12 +124,12 @@ public class Feature3Test {
         }
     }
 
-    // -----------------------
+
     // TESTS
-    // -----------------------
 
     // test the reset board
     @Test
+    //check reset clears a board which had a winning black column (contains only black tiles)
     void boardResetClearsBoard() {
 
         board.loadFromDump(copy(BLACK_WIN_RESULT));
@@ -141,7 +140,7 @@ public class Feature3Test {
     }
 
 
-    //check for a mixed board
+    //check reset works for a mixed board
     @Test
     void boardResetClearsMixedBoard() {
 
@@ -156,13 +155,9 @@ public class Feature3Test {
     @Test
     void resetSetsTurnBackToBlack() {
 
-       /* BoardController controller = new BoardController();
-        Map<String, Tile> tileMap = board.getAllTiles();
-        GameManager manager = new GameManager(board, tileMap);
-        */
         controller.board = new Board(3,3);
 
-        // give dummy UI elements
+
         controller.setTurnLabel(new Label());
         controller.setTurnOct(new Polygon());
         controller.setTurnRhom(new Polygon());

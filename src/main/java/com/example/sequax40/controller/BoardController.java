@@ -64,7 +64,7 @@ public class BoardController {
         
         gameManager = new GameManager(board, tileMap); //initialise the game manager to enforce rules
            
-        updateTurnLabel();
+        updateTurnLabel(); //after resetting the game, this updates the UI text which then displays "Black's turn"
     }
 
     
@@ -209,17 +209,17 @@ public class BoardController {
 
     @FXML
     private void handleReset() {
-        resetGame();
+        resetGame();//when player clicks the reset button, this method is called
     }
 
     
     public void resetGame() {
 
-        // Reset the board model
+        // Reset the board model (the game logic)
         gameManager.resetGame();
 
         // Reset the UI colours
-        for (Map.Entry<String, Polygon> entry : polygonMap.entrySet()) {
+        for (Map.Entry<String, Polygon> entry : polygonMap.entrySet()) { //loops through every tile on the board
 
             Polygon poly = entry.getValue();
 
@@ -230,11 +230,11 @@ public class BoardController {
                 tile = (Tile) data;
             }
 
-            if (tile == null) {
+            if (tile == null) { //if tile is missing then we skip
                 continue;
             }
 
-            poly.setFill(getDefaultFill(tile));
+            poly.setFill(getDefaultFill(tile)); //changes tile back to its original colour
         }
 
         updateTurnLabel(); //reset to black
