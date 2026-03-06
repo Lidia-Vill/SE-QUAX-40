@@ -1,9 +1,11 @@
 package com.example.sequax40.test.sprint1;
 
 import com.example.sequax40.controller.BoardController;
+import com.example.sequax40.enums.PlayerEnum;
 import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
+import com.example.sequax40.model.game.GameManager;
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
@@ -47,6 +49,11 @@ public class Feature3Test {
         controller.board = new Board(11, 11);
         controller.setupTiles();
 
+        GameManager gm = new GameManager(board, controller.tileMap);
+        controller.setGameManager(gm);
+
+        board = controller.board;
+
         // create board for Board Tests
         board = new Board(11, 11);
     }
@@ -57,15 +64,10 @@ public class Feature3Test {
     void testOctagonClickTogglesSelection() {
         Tile tile = (Tile) octagonPolygon.getUserData();
 
-        // First click
         controller.handleTileClick(mockClickEvent(octagonPolygon));
-        assertTrue(tile.isSelected(), "Octagon tile should be selected");
-        assertEquals(Color.WHITE, octagonPolygon.getFill());
 
-        // Second click
-        controller.handleTileClick(mockClickEvent(octagonPolygon));
-        assertFalse(tile.isSelected(), "Octagon tile should be unselected");
-        assertEquals(Color.web("#4d44ff"), octagonPolygon.getFill());
+        assertEquals(PlayerEnum.BLACK, tile.getOwner());
+        assertEquals(Color.web("#2f2f2f"), octagonPolygon.getFill());
     }
 
     //do the same test as above for a rhombus tile 
