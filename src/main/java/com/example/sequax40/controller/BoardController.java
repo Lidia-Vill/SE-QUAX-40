@@ -31,7 +31,7 @@ public class BoardController {
     //setting up ids of the board stack pane and group to format shape of game
     @FXML public StackPane gameBoardStackPane;
     @FXML public Group boardGroup;
-    @FXML private HBox windowContainer;
+    @FXML public HBox windowContainer;
     //turn label
     @FXML public Label turnLabel;
     @FXML private Polygon turnOct;
@@ -39,8 +39,8 @@ public class BoardController {
 	
    
     //setting original board width to calculate scaling
-    private final double DESIGN_WIDTH = 1100.0;
-    private final double DESIGN_HEIGHT = 845.0;
+    private final static double DESIGN_WIDTH = 1100.0;
+    private final static double DESIGN_HEIGHT = 845.0;
 
     //Model
     public Board board;
@@ -79,7 +79,7 @@ public class BoardController {
                 return 1.0;
             }
 
-            double scaleX = containerWidth / DESIGN_WIDTH; //calculate scale of the x of board
+            double scaleX = containerWidth / getDESIGN_WIDTH(); //calculate scale of the x of board
             double scaleY = containerHeight / DESIGN_HEIGHT; //calculate scale of y of board 
 
             return Math.min(scaleX, scaleY); //find the min of x or y to ensure the board always fits the viewport
@@ -285,7 +285,7 @@ public class BoardController {
     	this.masterGroup = masterGroup;
     }
     
-    public void setBoardGrid(Group boardGroup) {
+    public void setBoardGroup(Group boardGroup) {
         this.boardGroup = boardGroup;
     }
     
@@ -293,5 +293,14 @@ public class BoardController {
     public Label getTurnLabel() {
     	return turnLabel;
     }
+
+
+	public static double getDESIGN_WIDTH() {
+		return DESIGN_WIDTH;
+	}
+	
+	public static double getDESIGN_HEIGHT() {
+		return DESIGN_HEIGHT;
+	}
 }
 

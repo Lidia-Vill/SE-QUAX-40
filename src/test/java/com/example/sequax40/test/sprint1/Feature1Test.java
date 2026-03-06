@@ -4,7 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import javafx.scene.Group;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 import org.testfx.framework.junit5.ApplicationTest;
 
@@ -38,9 +41,20 @@ class Feature1Test extends ApplicationTest{
     	long startTime = System.currentTimeMillis(); //record start time before setup 
         
         BoardController controller = new BoardController(); //create new controller
-        controller.masterGroup = new Group(); //initialise javafx components
-        controller.mainContainer = new StackPane();
-        controller.boardGroup = new Group();
+                
+        StackPane mainContainer = new StackPane();
+    	HBox windowContainer = new HBox();
+    	Group masterGroup = new Group();
+    	Group boardGroup = new Group();
+    	
+    	controller.setMainContainer(mainContainer);
+    	controller.setWindowContainer(windowContainer);
+    	controller.setMasterGroup(masterGroup);
+    	controller.setMasterGroup(boardGroup);
+
+    	controller.setTurnLabel(new Label());
+    	controller.setTurnOct(new Polygon());
+    	controller.setTurnRhom(new Polygon());
        
         
         controller.initialize();  //run setup 

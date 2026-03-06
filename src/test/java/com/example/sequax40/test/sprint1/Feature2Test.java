@@ -2,7 +2,11 @@ package com.example.sequax40.test.sprint1;
 
 import javafx.application.Platform;
 import javafx.scene.Group;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Polygon;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -23,37 +27,75 @@ public class Feature2Test {
         }
     }
 
-    @Test
-    void testInitializeSetsPropertiesAndBindings() {
-        // instantiate the controller
+   
+    
+    private BoardController createController() {
+
         BoardController controller = new BoardController();
 
-        controller.masterGroup = new Group();
-        controller.mainContainer = new StackPane();
-        controller.boardGroup = new Group();
+        StackPane mainContainer = new StackPane();
+        HBox windowContainer = new HBox();
+        Group masterGroup = new Group();
+        Group boardGroup = new Group();
 
-        // call initialise method
+        controller.setMainContainer(mainContainer);
+        controller.setWindowContainer(windowContainer);
+        controller.setMasterGroup(masterGroup);
+        controller.setBoardGroup(boardGroup);
+
+        controller.setTurnLabel(new Label());
+        controller.setTurnOct(new Polygon());
+        controller.setTurnRhom(new Polygon());
+
         controller.initialize();
 
-        assertTrue(controller.masterGroup.isManaged(), "Group should be managed to consider bounds");
+        return controller;
+    }
+    
+    @Test
+    void testScalingZeroContainerReturnsOne() {
 
-        //if container size is 0 - should return 1.0
+        BoardController controller = createController();
+
         controller.mainContainer.resize(0, 0);
-        assertEquals(1.0, controller.masterGroup.getScaleX(), 0.001);
+        controller.mainContainer.layout();
 
-        //if container size is the size of actual board
+        assertEquals(1.0, controller.windowContainer.getScaleX(), 0.001);
+    }
+
+    @Test
+    void testScalingAtDesignSize() {
+
+        BoardController controller = createController();
+
         controller.mainContainer.resize(900, 850);
-        assertEquals(1.0, controller.masterGroup.getScaleX(), 0.001);
-        assertEquals(1.0, controller.masterGroup.getScaleY(), 0.001);
+        controller.mainContainer.layout();
 
-        //make the container half the size of the board
+        assertEquals(0.8181818, controller.windowContainer.getScaleX(), 0.001);
+        assertEquals(0.8181818, controller.windowContainer.getScaleY(), 0.001);
+    }
+
+    @Test
+    void testScalingHalfSize() {
+
+        BoardController controller = createController();
+
         controller.mainContainer.resize(450, 425);
-        assertEquals(0.5, controller.masterGroup.getScaleX(), 0.001);
-        assertEquals(0.5, controller.masterGroup.getScaleY(), 0.001);
+        controller.mainContainer.layout();
+        
+        assertEquals(0.4090909, controller.windowContainer.getScaleX(), 0.001);
+        assertEquals(0.4090909, controller.windowContainer.getScaleY(), 0.001);
+    }
 
-        //even with extra wide screen Math.min should size board to still be 1:1 as the x is
+    @Test
+    void testScalingExtraWideWindow() {
+
+        BoardController controller = createController();
+
         controller.mainContainer.resize(1800, 850);
-        assertEquals(1.0, controller.masterGroup.getScaleX(), 0.001);
-        assertEquals(1.0, controller.masterGroup.getScaleY(), 0.001);
+        controller.mainContainer.layout();
+
+        assertEquals(1.0059171, controller.windowContainer.getScaleX(), 0.001);
+        assertEquals(1.0059171, controller.windowContainer.getScaleY(), 0.001);
     }
 }
