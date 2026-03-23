@@ -4032,10 +4032,16 @@
                         <Font name="System Bold" size="30.0" />
                      </font>
                   </Label>
-                  <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9e9bec" height="450.0" stroke="#9e9bec" strokeType="INSIDE" width="200.0" />
-                  <Button mnemonicParsing="false" style="-fx-background-color: #e8e9eb;" text="RESET" onAction="#handleReset">
+                  <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9e9bec" height="375.0" stroke="#9e9bec" strokeType="INSIDE" width="200.0" />
+                  <Button id="piButton" fx:id="piButton" mnemonicParsing="false" onAction="#piRule" prefHeight="45.0" prefWidth="210.0" style="-fx-background-color: #e8e9eb;" text="ACTIVATE PIE RULE">
                      <font>
-                        <Font name="System Bold" size="25.0" />
+                        <Font name="System Bold" size="20.0" />
+                     </font>
+                  </Button>
+                  <Rectangle fill="#9e9bec" height="25.0" layoutX="35.0" layoutY="10.0" stroke="#9e9bec" strokeType="INSIDE" width="200.0" />
+                  <Button layoutX="83.0" layoutY="745.0" mnemonicParsing="false" onAction="#handleReset" prefHeight="45.0" prefWidth="210.0" style="-fx-background-color: #e8e9eb;" text="RESET">
+                     <font>
+                        <Font name="System Bold" size="20.0" />
                      </font>
                   </Button>
                </children>
