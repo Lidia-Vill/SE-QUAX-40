@@ -53,12 +53,9 @@ public class GameManager {
 	        tile.setOwner(currentTurn);
             tileMap.put(tile.getCoord(), tile);
 
-            // Only check for win AFTER placing tile
-            boolean win = checkWin(currentTurn);
-            if (win) {
+            if (checkWin(currentTurn)) {
                 System.out.println(currentTurn + " wins!");
-                gameOver = true; // set flag
-                // Optionally, notify controller / UI via callback
+                gameOver = true;
             } else {
                 switchTurn();
             }
@@ -97,22 +94,22 @@ public class GameManager {
 	        String num2 = id.substring(secondUnderscore + 1);
 
             // Retrieve the four tiles forming the rhombus corners
-	        Tile t1 = tileMap.get(letter1 + num1); // top-left corner
-	        Tile t2 = tileMap.get(letter1 + num2); // top-left corner
-	        Tile t3 = tileMap.get(letter2 + num2); // bottom-left corner
-	        Tile t4 = tileMap.get(letter2 + num1); // bottom-right corner
+	        Tile t1 = tileMap.get("" + letter1 + num1); // top-left corner
+	        Tile t2 = tileMap.get("" + letter1 + num2); // top-left corner
+	        Tile t3 = tileMap.get("" + letter2 + num2); // bottom-left corner
+	        Tile t4 = tileMap.get("" + letter2 + num1); // bottom-right corner
 
             // Check first diagonal: t1-t3
-	        boolean diag1 = (t1 != null && t3 != null)
-	                && !t1.isEmpty()
-	                && t1.getOwner() == currentTurn
-	                && t1.getOwner() == t3.getOwner();
+            boolean diag1 = t1 != null && t3 != null
+                    && !t1.isEmpty() && !t3.isEmpty()
+                    && t1.getOwner() == currentTurn
+                    && t3.getOwner() == currentTurn;
 
             // Check first diagonal: t2-t4
-	        boolean diag2 = (t2 != null && t4 != null)
-	                && !t2.isEmpty()
-	                && t2.getOwner() == currentTurn
-	                && t2.getOwner() == t4.getOwner();
+            boolean diag2 = t2 != null && t4 != null
+                    && !t2.isEmpty() && !t4.isEmpty()
+                    && t2.getOwner() == currentTurn
+                    && t4.getOwner() == currentTurn;
 
 	        return diag1 || diag2; // Return true if at least one diagonal is valid
 	    }
@@ -139,9 +136,11 @@ public class GameManager {
         Set<String> visited = new HashSet<>();
 
         for (Tile tile : tileMap.values()) {
+            if (tile == null || tile.isEmpty()) {
+                continue;
+            }
 
             if (tile.getOwner() == player && !visited.contains(tile.getCoord())) {
-
                 Set<String> edgesReached = new HashSet<>();
 
                 if (dfs(tile, player, visited, edgesReached)) {
@@ -162,20 +161,23 @@ public class GameManager {
                         Set<String> visited,
                         Set<String> edgesReached) {
 
-        if (visited.contains(tile.getCoord())) return false;
+        if (tile == null || visited.contains(tile.getCoord())) {
+            return false;
+        }
 
         visited.add(tile.getCoord());
 
-        // mark which edges this tile touches
         markEdges(tile, player, edgesReached);
 
-        // check if this component connects both required sides
         if (hasWon(player, edgesReached)) {
             return true;
         }
 
-        for (Tile neighbor : getNeighbors(tile)) {
-            if (neighbor != null && neighbor.getOwner() == player) {
+        for (Tile neighbor : getNeighbors(tile, player)) {
+            if (neighbor != null
+                    && neighbor.getOwner() == player
+                    && !visited.contains(neighbor.getCoord())) {
+
                 if (dfs(neighbor, player, visited, edgesReached)) {
                     return true;
                 }
@@ -189,6 +191,11 @@ public class GameManager {
      * Marks which edges of the board a tile touches.
      */
     private void markEdges(Tile tile, PlayerEnum player, Set<String> edges) {
+
+        // Rhombuses do not directly touch board edges
+        if (tile.getShape() == ShapeEnum.RHOMBUS) {
+            return;
+        }
 
         int row = getRow(tile.getCoord());
         char col = getCol(tile.getCoord());
@@ -224,24 +231,29 @@ public class GameManager {
         return coord.charAt(0);
     }
 
-    private List<Tile> getNeighbors(Tile tile) {
+    private List<Tile> getNeighbors(Tile tile, PlayerEnum player) {
         List<Tile> neighbors = new ArrayList<>();
-
         String coord = tile.getCoord();
 
         if (!coord.contains("_")) {
-            // Normal octagon tile
+            // Octagon
             int row = getRow(coord);
             char col = getCol(coord);
 
-            neighbors.add(tileMap.get(col + "" + (row - 1))); // up
-            neighbors.add(tileMap.get(col + "" + (row + 1))); // down
-            neighbors.add(tileMap.get((char) (col - 1) + "" + row)); // left
-            neighbors.add(tileMap.get((char) (col + 1) + "" + row)); // right
+            addIfOwnedByPlayer(neighbors, tileMap.get(col + "" + (row - 1)), player); // up
+            addIfOwnedByPlayer(neighbors, tileMap.get(col + "" + (row + 1)), player); // down
+            addIfOwnedByPlayer(neighbors, tileMap.get((char) (col - 1) + "" + row), player); // left
+            addIfOwnedByPlayer(neighbors, tileMap.get((char) (col + 1) + "" + row), player); // right
 
-            // Also check for rhombuses that include this tile
+            // Check placed rhombuses owned by same player
             for (Tile rhombus : tileMap.values()) {
-                if (rhombus.getShape() != ShapeEnum.RHOMBUS) continue;
+                if (rhombus == null || rhombus.getShape() != ShapeEnum.RHOMBUS) {
+                    continue;
+                }
+
+                if (rhombus.isEmpty() || rhombus.getOwner() != player) {
+                    continue;
+                }
 
                 String id = rhombus.getCoord();
                 char l1 = id.charAt(0);
@@ -256,14 +268,14 @@ public class GameManager {
                 Tile t3 = tileMap.get("" + l2 + n2);
                 Tile t4 = tileMap.get("" + l2 + n1);
 
-                // If this octagon is a corner of the rhombus, connect to opposite corner
-                if (tile.equals(t1) && t3 != null) neighbors.add(t3);
-                if (tile.equals(t3) && t1 != null) neighbors.add(t1);
-                if (tile.equals(t2) && t4 != null) neighbors.add(t4);
-                if (tile.equals(t4) && t2 != null) neighbors.add(t2);
+                if (tile.equals(t1)) addIfOwnedByPlayer(neighbors, t3, player);
+                if (tile.equals(t3)) addIfOwnedByPlayer(neighbors, t1, player);
+                if (tile.equals(t2)) addIfOwnedByPlayer(neighbors, t4, player);
+                if (tile.equals(t4)) addIfOwnedByPlayer(neighbors, t2, player);
             }
+
         } else {
-            // Rhombus tile: neighbors are its four corners
+            // Rhombus
             char l1 = coord.charAt(0);
             char l2 = coord.charAt(1);
             int i1 = coord.indexOf("_");
@@ -276,13 +288,19 @@ public class GameManager {
             Tile t3 = tileMap.get("" + l2 + n2);
             Tile t4 = tileMap.get("" + l2 + n1);
 
-            if (t1 != null) neighbors.add(t1);
-            if (t2 != null) neighbors.add(t2);
-            if (t3 != null) neighbors.add(t3);
-            if (t4 != null) neighbors.add(t4);
+            addIfOwnedByPlayer(neighbors, t1, player);
+            addIfOwnedByPlayer(neighbors, t2, player);
+            addIfOwnedByPlayer(neighbors, t3, player);
+            addIfOwnedByPlayer(neighbors, t4, player);
         }
 
         return neighbors;
+    }
+
+    private void addIfOwnedByPlayer(List<Tile> neighbors, Tile tile, PlayerEnum player) {
+        if (tile != null && !tile.isEmpty() && tile.getOwner() == player) {
+            neighbors.add(tile);
+        }
     }
 
     public void resetGame() {

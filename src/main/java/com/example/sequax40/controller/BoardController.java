@@ -157,42 +157,44 @@ public class BoardController {
     
     @FXML
     public void handleTileClick(MouseEvent event) {
-            	
+
         if (!(event.getSource() instanceof Polygon clicked)) {
-        	return;
-        }
-        
-        Tile tile = (clicked.getUserData() instanceof Tile t) ? t : null;
-            
-        //if tile is not initialised or if its already owned, return (allows player to click again as invalid move)
-        if (tile == null || !tile.isEmpty()) {
-        	return;
+            return;
         }
 
-        //check if the move made is valid with the rules in game manager
-        boolean movePlayed = gameManager.makeMove(tile);
-        if(!movePlayed) {
-        	return; //if invalid move, return
+        Tile tile = (clicked.getUserData() instanceof Tile t) ? t : null;
+
+        // if tile is not initialised or if it's already owned, return
+        if (tile == null || !tile.isEmpty()) {
+            return;
         }
+
+        // check if the move made is valid with the rules in game manager
+        boolean movePlayed = gameManager.makeMove(tile);
+        if (!movePlayed) {
+            return; // if invalid move, return
+        }
+
+        // colour the tile immediately, including the winning tile
+        updateTileUI(tile, clicked);
 
         if (gameManager.isGameOver()) {
             turnLabel.setText(gameManager.getCurrentTurn() + " WINS!");
             return;
         }
-        
-        if(!firstMoveMade) {
-        	firstMoveMade = true;
-        	pieRuleButton.setVisible(true);
+
+        if (!firstMoveMade) {
+            firstMoveMade = true;
+            pieRuleButton.setVisible(true);
         }
-        
-        //pie rule is only allowed as whites very first turn and is invisible otherwise
-        if (firstMoveMade && !pieRuleUsed 
+
+        // pie rule is only allowed as white's very first turn and is invisible otherwise
+        if (firstMoveMade && !pieRuleUsed
                 && gameManager.getCurrentTurn() == PlayerEnum.BLACK) {
             pieRuleButton.setVisible(false);
         }
-        
-        updateTileUI(tile, clicked); //update the tile the player clicked to match their colour
-        updateTurnLabel(); //update the display to show the next player
+
+        updateTurnLabel(); // update the display to show the next player
     }
     
     
