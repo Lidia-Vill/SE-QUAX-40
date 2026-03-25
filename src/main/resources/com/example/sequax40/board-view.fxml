@@ -4033,7 +4033,7 @@
                      </font>
                   </Label>
                   <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9e9bec" height="375.0" stroke="#9e9bec" strokeType="INSIDE" width="200.0" />
-                  <Button id="piButton" fx:id="piButton" mnemonicParsing="false" onAction="#piRule" prefHeight="45.0" prefWidth="210.0" style="-fx-background-color: #e8e9eb;" text="ACTIVATE PIE RULE">
+                  <Button id="pieRuleButton" fx:id="pieRuleButton" mnemonicParsing="false" onAction="#handlePieRule" prefHeight="45.0" prefWidth="210.0" style="-fx-background-color: #e8e9eb;" text="ACTIVATE PIE RULE" visible="false">
                      <font>
                         <Font name="System Bold" size="20.0" />
                      </font>

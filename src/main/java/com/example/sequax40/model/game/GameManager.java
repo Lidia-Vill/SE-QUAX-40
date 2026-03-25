@@ -13,6 +13,8 @@ public class GameManager {
 
 	    private final Board board;
 	    private final Map<String, Tile> tileMap;
+	    
+	    private Tile firstMove; //to track pie rule 
 
 	    private PlayerEnum currentTurn = PlayerEnum.BLACK; //set initial turn to black
 
@@ -32,6 +34,10 @@ public class GameManager {
 	        if (tile == null || !tile.isEmpty()) {
 	            return false;
 	        }
+	        
+	        if(firstMove == null) {
+	        	firstMove = tile;
+	        }
 
 	        if (tile.getShape() == ShapeEnum.RHOMBUS) {
 	            if (!isRhombusValid(tile)) {
@@ -45,7 +51,7 @@ public class GameManager {
 	    }
 
 	    //switches the turn to the opposite player
-	    private void switchTurn() {
+	    public void switchTurn() {
 	        currentTurn = (currentTurn == PlayerEnum.BLACK)
 	                ? PlayerEnum.WHITE
 	                : PlayerEnum.BLACK;
@@ -100,5 +106,11 @@ public class GameManager {
 	    public void resetGame() {
 	        board.reset();  // clear all tiles
 	        currentTurn = PlayerEnum.BLACK; // reset turn to BLACK
+	        firstMove = null;
 	    }
+	    
+	    public Tile getFirstMoveTile() {
+	    	return firstMove;
+	    }
+	   
 	}

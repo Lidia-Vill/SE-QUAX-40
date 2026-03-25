@@ -9,6 +9,7 @@ import com.example.sequax40.model.board.Board;
 
 import javafx.fxml.FXML;
 import javafx.scene.Group;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -17,6 +18,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.NumberBinding;
+import javafx.event.ActionEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +38,8 @@ public class BoardController {
     @FXML public Label turnLabel;
     @FXML private Polygon turnOct;
     @FXML private Polygon turnRhom;
+    //pie rule button
+    @FXML private Button pieRuleButton;
 	
    
     //setting original board width to calculate scaling
@@ -49,6 +53,9 @@ public class BoardController {
     public Map<String, Tile> tileMap = new HashMap<>();
     public Map<String, Polygon> polygonMap = new HashMap<>();
     
+    private boolean firstMoveMade = false;
+    private boolean pieRuleUsed = false;
+    
 
 
     //initialise method 
@@ -61,7 +68,7 @@ public class BoardController {
             this.board = new Board(11, 11);
         }
         setupTiles();
-        
+                
         gameManager = new GameManager(board, tileMap); //initialise the game manager to enforce rules
            
         updateTurnLabel(); //after resetting the game, this updates the UI text which then displays "Black's turn"
@@ -168,6 +175,17 @@ public class BoardController {
         	return; //if invalid move, return
         }
         
+        if(!firstMoveMade) {
+        	firstMoveMade = true;
+        	pieRuleButton.setVisible(true);
+        }
+        
+        //pie rule is only allowed as whites very first turn and is invisible otherwise
+        if (firstMoveMade && !pieRuleUsed 
+                && gameManager.getCurrentTurn() == PlayerEnum.BLACK) {
+            pieRuleButton.setVisible(false);
+        }
+        
         updateTileUI(tile, clicked); //update the tile the player clicked to match their colour
         updateTurnLabel(); //update the display to show the next player
     }
@@ -181,6 +199,35 @@ public class BoardController {
     	else {
             polygon.setFill(Color.WHITE);
         }
+    }
+    
+    @FXML
+    public void handlePieRule(ActionEvent event) {
+    	
+    	if(pieRuleUsed || !firstMoveMade) {
+    		return;
+    	}
+    	
+    	pieRuleUsed = true;
+    	
+    	Tile firstTile = gameManager.getFirstMoveTile();
+    	
+    	if(firstTile != null) {
+    		firstTile.setOwner(PlayerEnum.WHITE);
+    		
+    		Polygon polygon = polygonMap.get(firstTile.getCoord());
+    		
+    		if(polygon != null) {
+    			updateTileUI(firstTile, polygon);
+    		}
+    	}
+
+        gameManager.switchTurn();
+
+        pieRuleButton.setVisible(false);
+
+        updateTurnLabel();
+    	
     }
 
 
@@ -218,24 +265,20 @@ public class BoardController {
 
         // Reset the board model (the game logic)
         gameManager.resetGame();
+        
+        pieRuleButton.setVisible(false);
+        firstMoveMade = false;
+        pieRuleUsed = false;
 
         // Reset the UI colours
-        for (Map.Entry<String, Polygon> entry : polygonMap.entrySet()) { //loops through every tile on the board
+        for (Map.Entry<String, Polygon> entry : polygonMap.entrySet()) {
 
             Polygon poly = entry.getValue();
+            Tile tile = (Tile) poly.getUserData();
 
-            Object data = poly.getUserData();
-            Tile tile = null;
+            if (tile == null) continue;
 
-            if (data instanceof Tile) {
-                tile = (Tile) data;
-            }
-
-            if (tile == null) { //if tile is missing then we skip
-                continue;
-            }
-
-            poly.setFill(getDefaultFill(tile)); //changes tile back to its original colour
+            poly.setFill(getDefaultFill(tile));
         }
 
         updateTurnLabel(); //reset to black
