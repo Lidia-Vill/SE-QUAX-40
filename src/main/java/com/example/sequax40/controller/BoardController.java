@@ -174,6 +174,11 @@ public class BoardController {
         if(!movePlayed) {
         	return; //if invalid move, return
         }
+
+        if (gameManager.isGameOver()) {
+            turnLabel.setText(gameManager.getCurrentTurn() + " WINS!");
+            return;
+        }
         
         if(!firstMoveMade) {
         	firstMoveMade = true;

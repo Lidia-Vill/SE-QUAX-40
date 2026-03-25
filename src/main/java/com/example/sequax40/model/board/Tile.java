@@ -69,4 +69,20 @@ public class Tile {
         return shape;
     }
 
+    private Tile[] rhombusCorners;
+
+    public void setRhombusCorners(Tile... corners) {
+        this.rhombusCorners = corners;
+    }
+
+    public Tile getOtherCorner(Tile corner) {
+        if (rhombusCorners == null) return null;
+        for (Tile t : rhombusCorners) {
+            if (t != null && !t.equals(corner)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
 }
