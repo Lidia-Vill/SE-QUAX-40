@@ -9,6 +9,7 @@ import com.example.sequax40.model.board.Board;
 
 import javafx.fxml.FXML;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -183,13 +184,12 @@ public class BoardController {
             return;
         }
 
-        if (!firstMoveMade) {
-            firstMoveMade = true;
-            pieRuleButton.setVisible(true);
+        if (!isFirstMoveMade()) {
+            setFirstMoveMade(true);
         }
 
         // pie rule is only allowed as white's very first turn and is invisible otherwise
-        if (firstMoveMade && !pieRuleUsed
+        if (isFirstMoveMade() && !isPieRuleUsed()
                 && gameManager.getCurrentTurn() == PlayerEnum.BLACK) {
             pieRuleButton.setVisible(false);
         }
@@ -211,11 +211,11 @@ public class BoardController {
     @FXML
     public void handlePieRule(ActionEvent event) {
     	
-    	if(pieRuleUsed || !firstMoveMade) {
+    	if(isPieRuleUsed() || !isFirstMoveMade()) {
     		return;
     	}
     	
-    	pieRuleUsed = true;
+    	setPieRuleUsed(true);
     	
     	Tile firstTile = gameManager.getFirstMoveTile();
     	
@@ -231,10 +231,20 @@ public class BoardController {
 
         gameManager.switchTurn();
 
-        pieRuleButton.setVisible(false);
-
         updateTurnLabel();
     	
+    }
+    
+    public void updatePieRuleButtonVisibility() {
+    	if(pieRuleButton == null) {
+    		return;
+    	}
+    	
+    	pieRuleButton.setVisible(shouldShowPieRuleButton());
+    }
+    
+    public boolean shouldShowPieRuleButton() {
+    	return firstMoveMade && !pieRuleUsed && gameManager.getCurrentTurn() == PlayerEnum.WHITE;
     }
 
 
@@ -273,9 +283,9 @@ public class BoardController {
         // Reset the board model (the game logic)
         gameManager.resetGame();
         
-        pieRuleButton.setVisible(false);
-        firstMoveMade = false;
-        pieRuleUsed = false;
+        setFirstMoveMade(false);
+        setPieRuleUsed(false);
+        updatePieRuleButtonVisibility();
 
         // Reset the UI colours
         for (Map.Entry<String, Polygon> entry : polygonMap.entrySet()) {
@@ -340,6 +350,10 @@ public class BoardController {
         this.boardGroup = boardGroup;
     }
     
+    public void setPieRuleButton(Button pieRuleButton) {
+    	this.pieRuleButton = pieRuleButton;
+    }
+    
     //getters for testing
     public Label getTurnLabel() {
     	return turnLabel;
@@ -352,6 +366,34 @@ public class BoardController {
 	
 	public static double getDESIGN_HEIGHT() {
 		return DESIGN_HEIGHT;
+	}
+
+
+	public boolean isPieRuleUsed() {
+		return pieRuleUsed;
+	}
+
+
+	public void setPieRuleUsed(boolean pieRuleUsed) {
+		this.pieRuleUsed = pieRuleUsed;
+		updatePieRuleButtonVisibility();
+	}
+
+
+	public boolean isFirstMoveMade() {
+		return firstMoveMade;
+	}
+
+
+	public void setFirstMoveMade(boolean firstMoveMade) {
+		this.firstMoveMade = firstMoveMade;
+		updatePieRuleButtonVisibility();
+	}
+
+
+	public Node getPieRuleButton() {
+		// TODO Auto-generated method stub
+		return pieRuleButton;
 	}
 }
 
