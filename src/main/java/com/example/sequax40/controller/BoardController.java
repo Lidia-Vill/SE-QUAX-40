@@ -256,7 +256,7 @@ public class BoardController {
     	
     	//change the turn displays colour and text based on currentTurn
     	if(currentTurn == PlayerEnum.BLACK) {
-    		turnLabel.setText("BLACKS'S TURN");
+    		turnLabel.setText("BLACK'S TURN");
     		turnLabel.setTextFill(Color.web("2f2f2f"));
     		//change colour of octagon & rhombus 
     		turnOct.setFill(Color.web("#2f2f2f"));

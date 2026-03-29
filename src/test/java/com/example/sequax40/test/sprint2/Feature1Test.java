@@ -22,6 +22,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -42,6 +43,7 @@ public class Feature1Test {
     @FXML private Label turnLabel;
     @FXML private Polygon turnOct;
     @FXML private Polygon turnRhom;
+    @FXML private Button pieRuleButton;
     
     @BeforeAll
     static void initToolkit() {
@@ -62,15 +64,17 @@ public class Feature1Test {
     	turnLabel = new Label();
     	turnOct = new Polygon();
     	turnRhom = new Polygon();
+    	pieRuleButton = new Button();
     	
     	controller.setMainContainer(mainContainer);
     	controller.setWindowContainer(windowContainer);
     	controller.setMasterGroup(masterGroup);
-    	controller.setMasterGroup(boardGroup);
+    	controller.setBoardGroup(boardGroup);
 
     	controller.setTurnLabel(turnLabel);
     	controller.setTurnOct(turnOct);
     	controller.setTurnRhom(turnRhom);
+    	controller.setPieRuleButton(pieRuleButton);
     	
     	controller.setBoard(board); 
         controller.setGameManager(manager);
@@ -115,9 +119,9 @@ public class Feature1Test {
         
         Label currentTurnLabel = controller.getTurnLabel();
         assertTrue(currentTurnLabel.getText().contains("BLACK"));
-        assertEquals(Color.web("2f2f2f"), turnLabel.getTextFill());
-        assertEquals(Color.web("2f2f2f"), turnRhom.getFill());
-        assertEquals(Color.web("2f2f2f"), turnOct.getFill());
+        assertEquals(Color.web("#2f2f2f"), turnLabel.getTextFill());
+        assertEquals(Color.web("#2f2f2f"), turnRhom.getFill());
+        assertEquals(Color.web("#2f2f2f"), turnOct.getFill());
     }
     
     @Test //confirm after a tile is placed, the symbol for the rhombus turns changes from black to white and back to black after a second click
@@ -129,7 +133,7 @@ public class Feature1Test {
         assertEquals(Color.WHITE, turnRhom.getFill());
 
         runOnFxThreadAndWait(() -> controller.handleTileClick(mockClickEvent(tileA2)));
-        assertEquals(Color.web("2f2f2f"), turnRhom.getFill());
+        assertEquals(Color.web("#2f2f2f"), turnRhom.getFill());
 
     }
     
@@ -142,12 +146,12 @@ public class Feature1Test {
         assertEquals(Color.WHITE, turnOct.getFill());
 
         runOnFxThreadAndWait(() -> controller.handleTileClick(mockClickEvent(tileA2)));
-        assertEquals(Color.web("2f2f2f"), turnOct.getFill());
+        assertEquals(Color.web("#2f2f2f"), turnOct.getFill());
 
     }
     
     @Test //confirm after a tile is placed, the colour of text to display turns changes from black to white and back to black after a second click
-    void testLabelColorUpdates() {
+    void testLabelColourUpdates() {
     	Tile tileA1 = board.getTile("A1");
         Tile tileA2 = board.getTile("A2");
         
@@ -155,7 +159,7 @@ public class Feature1Test {
         assertEquals(Color.WHITE, turnLabel.getTextFill());
 
         runOnFxThreadAndWait(() -> controller.handleTileClick(mockClickEvent(tileA2)));
-        assertEquals(Color.web("2f2f2f"), turnLabel.getTextFill());
+        assertEquals(Color.web("#2f2f2f"), turnLabel.getTextFill());
 
     }
     

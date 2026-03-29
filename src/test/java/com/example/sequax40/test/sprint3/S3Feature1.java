@@ -61,7 +61,7 @@ class S3Feature1 {
     	controller.setMainContainer(mainContainer);
     	controller.setWindowContainer(windowContainer);
     	controller.setMasterGroup(masterGroup);
-    	controller.setMasterGroup(boardGroup);
+    	controller.setBoardGroup(boardGroup);
     	
 
     	controller.setTurnLabel(turnLabel);
