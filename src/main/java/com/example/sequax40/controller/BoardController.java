@@ -67,6 +67,8 @@ public class BoardController {
     // BOT is BLACK for now (change later if needed)
     private PlayerEnum botColor = PlayerEnum.BLACK;
 
+    private boolean botThinking = false;
+
 
     //initialise method 
     @FXML
@@ -171,6 +173,8 @@ public class BoardController {
     
     @FXML
     public void handleTileClick(MouseEvent event) {
+
+        if (botThinking) return;
 
         if (!(event.getSource() instanceof Polygon clicked)) {
             return;
@@ -425,6 +429,8 @@ public class BoardController {
 
         if (gameManager.getCurrentTurn() != botColor) return;
 
+        botThinking = true;
+
         javafx.animation.PauseTransition pause =
                 new javafx.animation.PauseTransition(javafx.util.Duration.seconds(0.4));
 
@@ -457,7 +463,17 @@ public class BoardController {
         if (chosenTile == null) return;
 
         boolean movePlayed = gameManager.makeMove(chosenTile);
-        if (!movePlayed) return;
+
+        int attempts = 0;
+
+        while (!movePlayed && attempts < 100) {
+
+            chosenTile = availableTiles.get(random.nextInt(availableTiles.size()));
+
+            movePlayed = gameManager.makeMove(chosenTile);
+
+            attempts++;
+        }
 
         Polygon polygon = polygonMap.get(chosenTile.getCoord());
         if (polygon != null) {
@@ -470,7 +486,7 @@ public class BoardController {
         }
 
         updateTurnLabel();
-
+        botThinking = false;
         Platform.runLater(this::triggerBotIfNeeded);
     }
 }
