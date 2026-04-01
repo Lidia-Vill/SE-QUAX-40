@@ -18,9 +18,12 @@ public class GameManager {
         private boolean gameOver = false;
         private PlayerEnum currentTurn = PlayerEnum.BLACK; //set initial turn to black
 
+        private int moveCount = 0;
+
 
 
         private final Map<String, List<Tile>> rhombusLookup = new HashMap<>();
+
 
 
 	    public GameManager(Board board, Map<String, Tile> tileMap) {
@@ -31,6 +34,10 @@ public class GameManager {
 	    public PlayerEnum getCurrentTurn() {
 	        return currentTurn; //return the current players turn
 	    }
+
+        public int getMoveCount() {
+            return moveCount;
+        }
 
 	    //checks whether a move is valid and sets the owner of the tile if it is
 	    //calls switchTurn if a valid move is made
@@ -57,6 +64,7 @@ public class GameManager {
                 System.out.println(currentTurn + " wins!");
                 gameOver = true;
             } else {
+                moveCount++;
                 switchTurn();
             }
 
@@ -305,6 +313,7 @@ public class GameManager {
 
     public void resetGame() {
         board.reset();
+        moveCount = 0;
         currentTurn = PlayerEnum.BLACK;
         firstMove = null;
         gameOver = false;  // reset the stop flag

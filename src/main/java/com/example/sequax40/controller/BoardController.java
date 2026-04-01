@@ -7,6 +7,8 @@ import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
 import com.example.sequax40.model.board.Board;
 
+import com.example.sequax40.model.player.BotPlayer;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -22,7 +24,9 @@ import javafx.beans.binding.NumberBinding;
 import javafx.event.ActionEvent;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 
 public class BoardController {
@@ -56,23 +60,32 @@ public class BoardController {
     
     private boolean firstMoveMade = false;
     private boolean pieRuleUsed = false;
-    
+
+    private BotPlayer botPlayer = new BotPlayer();
+    private final Random random = new Random();
+
+    // BOT is BLACK for now (change later if needed)
+    private PlayerEnum botColor = PlayerEnum.BLACK;
 
 
     //initialise method 
     @FXML
     public void initialize() {
 
-        setupScaling(); //call the scaling method 
-                
+        setupScaling();
+
         if (this.board == null) {
             this.board = new Board(11, 11);
         }
+
         setupTiles();
-                
-        gameManager = new GameManager(board, tileMap); //initialise the game manager to enforce rules
-           
-        updateTurnLabel(); //after resetting the game, this updates the UI text which then displays "Black's turn"
+
+        gameManager = new GameManager(board, tileMap);
+
+        updateTurnLabel();
+
+        // safe start
+        Platform.runLater(this::triggerBotIfNeeded);
     }
 
     
@@ -194,7 +207,10 @@ public class BoardController {
             pieRuleButton.setVisible(false);
         }
 
-        updateTurnLabel(); // update the display to show the next player
+        updateTurnLabel();
+
+        // SAFE bot trigger
+        Platform.runLater(this::triggerBotIfNeeded);
     }
     
     
@@ -277,17 +293,16 @@ public class BoardController {
         resetGame();//when player clicks the reset button, this method is called
     }
 
-    
+
     public void resetGame() {
 
-        // Reset the board model (the game logic)
         gameManager.resetGame();
-        
-        setFirstMoveMade(false);
-        setPieRuleUsed(false);
+
+        firstMoveMade = false;
+        pieRuleUsed = false;
+
         updatePieRuleButtonVisibility();
 
-        // Reset the UI colours
         for (Map.Entry<String, Polygon> entry : polygonMap.entrySet()) {
 
             Polygon poly = entry.getValue();
@@ -298,7 +313,9 @@ public class BoardController {
             poly.setFill(getDefaultFill(tile));
         }
 
-        updateTurnLabel(); //reset to black
+        updateTurnLabel();
+
+        Platform.runLater(this::triggerBotIfNeeded);
     }
     
     
@@ -395,5 +412,66 @@ public class BoardController {
 		// TODO Auto-generated method stub
 		return pieRuleButton;
 	}
+
+
+    private boolean isBotTurn() {
+        return gameManager.getCurrentTurn() == botColor;
+    }
+
+
+    private void triggerBotIfNeeded() {
+
+        if (gameManager.isGameOver()) return;
+
+        if (gameManager.getCurrentTurn() != botColor) return;
+
+        javafx.animation.PauseTransition pause =
+                new javafx.animation.PauseTransition(javafx.util.Duration.seconds(0.4));
+
+        pause.setOnFinished(e -> makeBotMove());
+        pause.play();
+    }
+
+    private void makeBotMove() {
+
+        List<Tile> availableTiles = tileMap.values().stream()
+                .filter(Tile::isEmpty)
+                .toList();
+
+        if (availableTiles.isEmpty()) return;
+
+        Tile chosenTile;
+
+        // FIRST MOVE = ALWAYS F6
+        if (gameManager.getMoveCount() == 0) {
+
+            chosenTile = availableTiles.stream()
+                    .filter(tile -> "F6".equals(tile.getCoord()))
+                    .findFirst()
+                    .orElse(null);
+
+        } else {
+            chosenTile = availableTiles.get(random.nextInt(availableTiles.size()));
+        }
+
+        if (chosenTile == null) return;
+
+        boolean movePlayed = gameManager.makeMove(chosenTile);
+        if (!movePlayed) return;
+
+        Polygon polygon = polygonMap.get(chosenTile.getCoord());
+        if (polygon != null) {
+            updateTileUI(chosenTile, polygon);
+        }
+
+        if (gameManager.isGameOver()) {
+            turnLabel.setText(gameManager.getCurrentTurn() + " WINS!");
+            return;
+        }
+
+        updateTurnLabel();
+
+        Platform.runLater(this::triggerBotIfNeeded);
+    }
 }
 
