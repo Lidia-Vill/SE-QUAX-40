@@ -73,6 +73,7 @@ class S3Feature2 {
         controller.setGameManager(manager);
         
     }
+    
 	@Test
 	void testIfPieRuleAlreadyUsed() {
 		controller.setPieRuleUsed(true);
