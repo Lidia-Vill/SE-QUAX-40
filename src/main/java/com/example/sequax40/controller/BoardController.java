@@ -418,23 +418,32 @@ public class BoardController {
 	}
 
 
+    // Checks if it is currently the bot's turn
     private boolean isBotTurn() {
         return gameManager.getCurrentTurn() == botColor;
     }
 
 
+    // Triggers the bot to make a move IF needed
     private void triggerBotIfNeeded() {
 
+        // If the game is already finished do nothing
         if (gameManager.isGameOver()) return;
 
+        // If it's not the bot's turn do nothing
         if (gameManager.getCurrentTurn() != botColor) return;
 
+        // Mark that the bot is currently thinking (used to disable clicks)
         botThinking = true;
 
+        // Create a short delay (0.4 seconds) to make bot feel more natural
         javafx.animation.PauseTransition pause =
                 new javafx.animation.PauseTransition(javafx.util.Duration.seconds(0.4));
 
+        // After the delay finishes bot makes its move
         pause.setOnFinished(e -> makeBotMove());
+
+        // Start the delay
         pause.play();
     }
 
@@ -448,7 +457,7 @@ public class BoardController {
 
         Tile chosenTile;
 
-        // FIRST MOVE = ALWAYS F6
+        // First move always to F6 as it is the smartest play (for now)
         if (gameManager.getMoveCount() == 0) {
 
             chosenTile = availableTiles.stream()
@@ -457,6 +466,7 @@ public class BoardController {
                     .orElse(null);
 
         } else {
+            // Otherwise pick a random tile
             chosenTile = availableTiles.get(random.nextInt(availableTiles.size()));
         }
 
@@ -466,6 +476,9 @@ public class BoardController {
 
         int attempts = 0;
 
+
+        // If the move was invalid, retry with different random tiles
+        // (prevents bot getting stuck on invalid placements)
         while (!movePlayed && attempts < 100) {
 
             chosenTile = availableTiles.get(random.nextInt(availableTiles.size()));
@@ -475,11 +488,13 @@ public class BoardController {
             attempts++;
         }
 
+        // Update the UI for the chosen tile (change colour)
         Polygon polygon = polygonMap.get(chosenTile.getCoord());
         if (polygon != null) {
             updateTileUI(chosenTile, polygon);
         }
 
+        // Check if the move ended the game
         if (gameManager.isGameOver()) {
             turnLabel.setText(gameManager.getCurrentTurn() + " WINS!");
             return;
@@ -487,6 +502,8 @@ public class BoardController {
 
         updateTurnLabel();
         botThinking = false;
+
+        // If next turn is also bot (future-proofing), trigger again
         Platform.runLater(this::triggerBotIfNeeded);
     }
 }
