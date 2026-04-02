@@ -91,9 +91,6 @@ class S3Feature2 {
 	
 	@Test
 	void testHandlePieRuleIfNoFirstMove() {
-		
-		controller.setFirstMoveMade(false);
-		
 		PlayerEnum beforePlayer = manager.getCurrentTurn();
 		
 		controller.handlePieRule(new ActionEvent());
@@ -106,7 +103,6 @@ class S3Feature2 {
 	@Test
 	void testHandlePieRuleSuccess() {
 		controller.setPieRuleUsed(false);
-		controller.setFirstMoveMade(true);
 		
 		Tile tile = board.getTile("A1");
 		manager.makeMove(tile);
@@ -124,7 +120,8 @@ class S3Feature2 {
 	
 	@Test 
 	void testButtonHiddenBeforeFirstMove() {
-		controller.setFirstMoveMade(false);
+		
+		controller.updatePieRuleButtonVisibility();
 		
 		assertFalse(controller.getPieRuleButton().isVisible());
 	}
@@ -134,7 +131,6 @@ class S3Feature2 {
 		Tile tile = board.getTile("A1"); //black makes a move 
 		manager.makeMove(tile);
 
-		controller.setFirstMoveMade(true);
 		controller.setPieRuleUsed(false); //pie rule hasnt been used 
 		
 		controller.updatePieRuleButtonVisibility();
@@ -144,7 +140,7 @@ class S3Feature2 {
 	
 	@Test 
 	void testButtonHiddenAfterUse() {
-		controller.setFirstMoveMade(true);
+		manager.setMoveCount(1);
 		controller.setPieRuleUsed(true);
 		
 		
@@ -152,12 +148,11 @@ class S3Feature2 {
 	}
 	
 	@Test 
-	void testButtonHiddenIfNotUsed() {
+	void testButtonHiddenAfterSecondMove() {
 		
 		Tile blackTile = board.getTile("A1");
 		manager.makeMove(blackTile);
-		
-		controller.setFirstMoveMade(true);
+
 		controller.setPieRuleUsed(false);
 		
 		controller.updatePieRuleButtonVisibility();

@@ -57,8 +57,7 @@ public class BoardController {
 
     public Map<String, Tile> tileMap = new HashMap<>();
     public Map<String, Polygon> polygonMap = new HashMap<>();
-    
-    private boolean firstMoveMade = false;
+
     private boolean pieRuleUsed = false;
 
     private BotPlayer botPlayer = new BotPlayer();
@@ -201,17 +200,8 @@ public class BoardController {
             return;
         }
 
-        if (!isFirstMoveMade()) {
-            setFirstMoveMade(true);
-        }
-
-        // pie rule is only allowed as white's very first turn and is invisible otherwise
-        if (isFirstMoveMade() && !isPieRuleUsed()
-                && gameManager.getCurrentTurn() == PlayerEnum.BLACK) {
-            pieRuleButton.setVisible(false);
-        }
-
         updateTurnLabel();
+        updatePieRuleButtonVisibility();
 
         // SAFE bot trigger
         Platform.runLater(this::triggerBotIfNeeded);
@@ -230,8 +220,8 @@ public class BoardController {
     
     @FXML
     public void handlePieRule(ActionEvent event) {
-    	
-    	if(isPieRuleUsed() || !isFirstMoveMade()) {
+        	
+    	if(isPieRuleUsed() || gameManager.getMoveCount() != 1) {
     		return;
     	}
     	
@@ -252,6 +242,8 @@ public class BoardController {
         gameManager.switchTurn();
 
         updateTurnLabel();
+        
+        Platform.runLater(this::triggerBotIfNeeded);
     	
     }
     
@@ -259,12 +251,12 @@ public class BoardController {
     	if(pieRuleButton == null) {
     		return;
     	}
-    	
+    	    	
     	pieRuleButton.setVisible(shouldShowPieRuleButton());
     }
     
     public boolean shouldShowPieRuleButton() {
-    	return firstMoveMade && !pieRuleUsed && gameManager.getCurrentTurn() == PlayerEnum.WHITE;
+    	return gameManager.getMoveCount() == 1 && !pieRuleUsed;
     }
 
 
@@ -302,7 +294,6 @@ public class BoardController {
 
         gameManager.resetGame();
 
-        firstMoveMade = false;
         pieRuleUsed = false;
 
         updatePieRuleButtonVisibility();
@@ -401,17 +392,6 @@ public class BoardController {
 	}
 
 
-	public boolean isFirstMoveMade() {
-		return firstMoveMade;
-	}
-
-
-	public void setFirstMoveMade(boolean firstMoveMade) {
-		this.firstMoveMade = firstMoveMade;
-		updatePieRuleButtonVisibility();
-	}
-
-
 	public Node getPieRuleButton() {
 		// TODO Auto-generated method stub
 		return pieRuleButton;
@@ -426,9 +406,12 @@ public class BoardController {
 
     // Triggers the bot to make a move IF needed
     private void triggerBotIfNeeded() {
+    	
+    	// wait for player to decide pie rule
+    	if (shouldShowPieRuleButton()) return;
 
         // If the game is already finished do nothing
-        if (gameManager.isGameOver()) return;
+    	if (gameManager.isGameOver()) return;
 
         // If it's not the bot's turn do nothing
         if (gameManager.getCurrentTurn() != botColor) return;
@@ -493,8 +476,8 @@ public class BoardController {
         if (polygon != null) {
             updateTileUI(chosenTile, polygon);
         }
-
-        // Check if the move ended the game
+        
+                // Check if the move ended the game
         if (gameManager.isGameOver()) {
             turnLabel.setText(gameManager.getCurrentTurn() + " WINS!");
             return;
@@ -505,6 +488,8 @@ public class BoardController {
 
         // If next turn is also bot (future-proofing), trigger again
         Platform.runLater(this::triggerBotIfNeeded);
+        
+        updatePieRuleButtonVisibility();
     }
 }
 

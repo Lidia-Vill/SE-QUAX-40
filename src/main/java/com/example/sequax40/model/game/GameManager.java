@@ -323,4 +323,8 @@ public class GameManager {
         return gameOver;
     }
 
+	public void setMoveCount(int i) {
+		moveCount = i;
+	}
+
 }
