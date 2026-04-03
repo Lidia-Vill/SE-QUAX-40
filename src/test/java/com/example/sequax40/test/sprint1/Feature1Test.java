@@ -14,7 +14,7 @@ import org.testfx.framework.junit5.ApplicationTest;
 
 import com.example.sequax40.app.QuaxApplication;
 import com.example.sequax40.controller.BoardController;
-//paste this line below
+// paste this line below
 
 //  --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
 

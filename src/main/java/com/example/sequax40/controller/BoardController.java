@@ -219,35 +219,37 @@ public class BoardController {
         }
     }
     
+    //a method to handle player clicking the pie rule button
     @FXML
     public void handlePieRule(ActionEvent event) {
         	
     	if(isPieRuleUsed() || gameManager.getMoveCount() != 1) {
     		return;
-    	}
+    	} //if the rule has already been used and there's more or less than 1 move made don't do anything if its clicked
     	
-    	setPieRuleUsed(true);
+    	setPieRuleUsed(true); //mark the use as used 
     	
-    	Tile firstTile = gameManager.getFirstMoveTile();
+    	Tile firstTile = gameManager.getFirstMoveTile(); //find Blacks first tile 
     	
     	if(firstTile != null) {
-    		firstTile.setOwner(PlayerEnum.WHITE);
+    		firstTile.setOwner(PlayerEnum.WHITE); //change the owner to white
     		
     		Polygon polygon = polygonMap.get(firstTile.getCoord());
     		
     		if(polygon != null) {
-    			updateTileUI(firstTile, polygon);
+    			updateTileUI(firstTile, polygon); //change the colour of the tile to white to match new owner
     		}
     	}
 
-        gameManager.switchTurn();
-
-        updateTurnLabel();
+        gameManager.switchTurn(); //switch the turn back to black
+ 
+        updateTurnLabel(); //update the turn label to say blacks turn
         
-        Platform.runLater(this::triggerBotIfNeeded);
+        Platform.runLater(this::triggerBotIfNeeded); //trigger the bot to continue gameplay
     	
     }
     
+    //a method to change the visibility of the pie rule button
     public void updatePieRuleButtonVisibility() {
     	if(pieRuleButton == null) {
     		return;
@@ -256,6 +258,7 @@ public class BoardController {
     	pieRuleButton.setVisible(shouldShowPieRuleButton());
     }
     
+    //boolean method to check whether button should be shown
     public boolean shouldShowPieRuleButton() {
     	return gameManager.getMoveCount() == 1 && !pieRuleUsed;
     }
