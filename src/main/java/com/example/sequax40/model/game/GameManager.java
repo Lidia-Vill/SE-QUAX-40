@@ -141,9 +141,9 @@ public class GameManager {
      */
     public boolean checkWin(PlayerEnum player) {
 
-        Set<String> visited = new HashSet<>();
+        Set<String> visited = new HashSet<>();//to keep track of tiles we've checked to avoid re-checking the same ones and creating infinite loop
 
-        for (Tile tile : tileMap.values()) {
+        for (Tile tile : tileMap.values()) {//iterates over every tile in board
             if (tile == null || tile.isEmpty()) {
                 continue;
             }
@@ -183,7 +183,7 @@ public class GameManager {
                     && neighbor.getOwner() == player
                     && !visited.contains(neighbor.getCoord())) {
 
-                if (dfs(neighbor, player, visited, edgesReached)) { //recrusively explores the neighbour
+                if (dfs(neighbor, player, visited, edgesReached)) { //recursively explores the neighbour
                     return true;
                 }
             }
@@ -193,10 +193,10 @@ public class GameManager {
     }
 
 
-    //If a tile is on the edge of the baord, record it
+    //If a tile is on the edge of the board, record it
     private void markEdges(Tile tile, PlayerEnum player, Set<String> edges) {
 
-        // Rhombuses do not directly touch board edges so dont check them
+        // Rhombuses do not directly touch board edges so don't check them
         if (tile.getShape() == ShapeEnum.RHOMBUS) {
             return;
         }
@@ -213,9 +213,8 @@ public class GameManager {
         }
     }
 
-    /*
-     * Checks if the connected component connects either the top to the bottom or the left to the right of the board
-     */
+
+    //Checks if the connected component connects either the top to the bottom or the left to the right of the board
     private boolean hasWon(PlayerEnum player, Set<String> edges) {
 
         if (player == PlayerEnum.BLACK) {
@@ -225,12 +224,12 @@ public class GameManager {
         }
     }
 
-    // Extract row number e.g.  "A10" → 10
+    // Extract row number e.g.  "A10" -> 10
     private int getRow(String coord) {
         return Integer.parseInt(coord.substring(1));
     }
 
-    // Extract column letter e.g. "A10" → 'A'
+    // Extract column letter e.g. "A10" -> 'A'
     private char getCol(String coord) {
         return coord.charAt(0);
     }
@@ -243,7 +242,7 @@ public class GameManager {
         String coord = tile.getCoord();
 
 
-        //check if its an octagon
+        //check if it's an octagon
         if (!coord.contains("_")) {
             int row = getRow(coord);
             char col = getCol(coord);
