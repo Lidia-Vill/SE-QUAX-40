@@ -56,6 +56,7 @@ class Feature1Test extends ApplicationTest{
     	controller.setTurnLabel(new Label());
     	controller.setTurnOct(new Polygon());
     	controller.setTurnRhom(new Polygon());
+    	
     	controller.setPieRuleButton(new Button());
         
         controller.initialize();  //run setup 
