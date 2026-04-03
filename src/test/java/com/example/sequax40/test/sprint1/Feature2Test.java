@@ -2,6 +2,7 @@ package com.example.sequax40.test.sprint1;
 
 import javafx.application.Platform;
 import javafx.scene.Group;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -46,6 +47,7 @@ public class Feature2Test {
         controller.setTurnLabel(new Label());
         controller.setTurnOct(new Polygon());
         controller.setTurnRhom(new Polygon());
+        controller.setPieRuleButton(new Button());
 
         controller.initialize();
 

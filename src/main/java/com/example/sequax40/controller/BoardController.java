@@ -80,6 +80,7 @@ public class BoardController {
         }
 
         setupTiles();
+        pieRuleButton.setVisible(false);
 
         gameManager = new GameManager(board, tileMap);
 
