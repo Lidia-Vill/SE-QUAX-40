@@ -4033,13 +4033,13 @@
                      </font>
                   </Label>
                   <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9e9bec" height="350.0" stroke="#9e9bec" strokeType="INSIDE" width="200.0" />
-                  <Button id="showStratButton" fx:id="showStratButton" mnemonicParsing="false" onAction="#showStrat" prefHeight="45.0" prefWidth="210.0" style="-fx-background-color: #e8e9eb;" text="SHOW STRATEGY">
+                  <Button id="pieRuleButton" fx:id="pieRuleButton" mnemonicParsing="false" onAction="#handlePieRule" prefHeight="45.0" prefWidth="210.0" style="-fx-background-color: #e8e9eb;" text="ACTIVATE PIE RULE" visible="false">
                      <font>
                         <Font name="System Bold" size="20.0" />
                      </font>
                   </Button>
                   <Rectangle fill="#9e9bec" height="25.0" stroke="#9e9bec" strokeType="INSIDE" width="200.0" />
-                  <Button id="pieRuleButton" fx:id="pieRuleButton" mnemonicParsing="false" onAction="#handlePieRule" prefHeight="45.0" prefWidth="210.0" style="-fx-background-color: #e8e9eb;" text="ACTIVATE PIE RULE" visible="false">
+                  <Button id="showStratButton" fx:id="showStratButton" mnemonicParsing="false" onAction="#showStrat" prefHeight="45.0" prefWidth="210.0" style="-fx-background-color: #e8e9eb;" text="SHOW STRATEGY">
                      <font>
                         <Font name="System Bold" size="20.0" />
                      </font>
