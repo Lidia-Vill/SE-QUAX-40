@@ -327,6 +327,12 @@ public class BoardController {
             return Color.web("#9e9bec");
         }
     }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    @FXML
+    public void showStrat(ActionEvent event) {
+    	
+    }
 
 
     // setters used for testing so UI fields are not null (Sprint2 Features 1 and 3 test)
