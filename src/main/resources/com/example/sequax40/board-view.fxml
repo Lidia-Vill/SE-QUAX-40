@@ -3990,7 +3990,13 @@
             </StackPane>
             <VBox alignment="TOP_CENTER" prefHeight="845.0" prefWidth="250.0" style="-fx-background-color: #9e9bec;">
                <children>
-                  <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9e9bec" height="120.0" stroke="#9e9bec" strokeType="INSIDE" width="200.0" />
+                  <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9e9bec" height="25.0" stroke="#9e9bec" strokeType="INSIDE" width="200.0" />
+                  <Label fx:id="timerLabel" prefHeight="45.0" prefWidth="210.0" style="-fx-background-color: #e8e9eb; -fx-alignment: center; -fx-background-radius: 5;" text="00 : 00">
+                     <font>
+                        <Font name="Consolas Bold" size="30.0" />
+                     </font>
+                  </Label>
+                  <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9e9bec" height="25.0" stroke="#9e9bec" strokeType="INSIDE" width="200.0" />
                   <HBox alignment="CENTER" prefHeight="70.0" prefWidth="250.0">
                      <children>
                         <Polygon fx:id="turnOct" fill="#2d2d2d" onMouseClicked="#handleTileClick" scaleX="0.6" scaleY="0.6" stroke="#2d2d2d" strokeType="INSIDE" strokeWidth="1.2" style="-fx-translate-x: +5;">

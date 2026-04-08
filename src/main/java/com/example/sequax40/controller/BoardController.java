@@ -45,7 +45,15 @@ public class BoardController {
     @FXML private Polygon turnRhom;
     //pie rule button
     @FXML private Button pieRuleButton;
-	
+    //strategy button
+    @FXML private Button showStratButton;
+	//timer label
+    @FXML private Label timerLabel;
+    //timer and variable to track seconds in the game
+    private javafx.animation.Timeline gameTimer;
+    private int elapsedSeconds = 0;
+    
+    
    
     //setting original board width to calculate scaling
     private final static double DESIGN_WIDTH = 1100.0;
@@ -84,6 +92,7 @@ public class BoardController {
 
         gameManager = new GameManager(board, tileMap);
 
+        startTimer(); //start the timer
         updateTurnLabel();
 
         // safe start
@@ -198,6 +207,7 @@ public class BoardController {
 
         if (gameManager.isGameOver()) {
             turnLabel.setText(gameManager.getCurrentTurn() + " WINS!");
+            stopTimer();
             return;
         }
 
@@ -298,6 +308,7 @@ public class BoardController {
 
         gameManager.resetGame();
 
+        
         pieRuleUsed = false;
 
         updatePieRuleButtonVisibility();
@@ -312,6 +323,7 @@ public class BoardController {
             poly.setFill(getDefaultFill(tile));
         }
 
+        startTimer(); //restart the timer
         updateTurnLabel();
 
         Platform.runLater(this::triggerBotIfNeeded);
@@ -500,5 +512,38 @@ public class BoardController {
         Platform.runLater(this::triggerBotIfNeeded);
         
         updatePieRuleButtonVisibility();
+    }
+    
+    private void startTimer() {
+        elapsedSeconds = 0; //reset counter to 0
+        updateTimerLabel(); 
+        if (gameTimer != null) gameTimer.stop(); //stop any previous timer running
+
+        //repeating task that fires every 1 second
+        gameTimer = new javafx.animation.Timeline(
+            new javafx.animation.KeyFrame(
+                javafx.util.Duration.seconds(1),
+                e -> {
+                    elapsedSeconds++; //add 1 to counter
+                    updateTimerLabel(); // update the screen
+                }
+            )
+        );
+        gameTimer.setCycleCount(javafx.animation.Animation.INDEFINITE); //repeat forever or until stopped
+        gameTimer.play(); //start the timer
+    }
+
+    //method to stop the timer when the game is won, or reset
+    private void stopTimer() {
+        if (gameTimer != null) gameTimer.stop();
+       
+    }
+
+    private void updateTimerLabel() {
+        int minutes = elapsedSeconds / 60; //calculating how many minutes AND seconds instead of just seconds
+        int seconds = elapsedSeconds % 60;
+        if (timerLabel != null) {
+            timerLabel.setText(String.format("%02d:%02d", minutes, seconds)); //update the label based on the calculated minutes and seconds
+        }
     }
 }
