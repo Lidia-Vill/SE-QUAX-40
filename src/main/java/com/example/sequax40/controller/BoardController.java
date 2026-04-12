@@ -546,4 +546,40 @@ public class BoardController {
             timerLabel.setText(String.format("%02d:%02d", minutes, seconds)); //update the label based on the calculated minutes and seconds
         }
     }
+
+
+	public void setTimerLabel(Label label) {
+		this.timerLabel = label;		
+	}
+	
+	public void updateTimerLabelForTest() {
+		updateTimerLabel();
+	}
+	
+	
+	public void startTimerForTest() { 
+		startTimer(); 
+	}
+	
+	public void stopTimerForTest()  { 
+		stopTimer(); 
+	}
+	
+	
+	public int getElapsedSeconds() { 
+		return elapsedSeconds; 
+	}
+	
+	public void setElapsedSeconds(int seconds) {
+		this.elapsedSeconds = seconds;
+	}
+	
+	
+	public javafx.animation.Timeline getGameTimer() { 
+		return gameTimer; 
+	}
+	
+	public void setGameTimer(javafx.animation.Timeline timer) {
+		this.gameTimer = timer;
+	}
 }
