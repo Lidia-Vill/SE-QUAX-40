@@ -43,6 +43,7 @@ public class BoardController {
     @FXML private Button pieRuleButton;
 
     @FXML private Button showStratButton;
+    @FXML private Label strategyLabel;
 
     @FXML private Label timerLabel;
     private javafx.animation.Timeline gameTimer;
@@ -562,6 +563,13 @@ public class BoardController {
                 poly.setFill(STRATEGY_PATH_COLOR);
             }
         }
+        
+        String explanation = "";
+        
+        strategyLabel.setText(explanation);
+        strategyLabel.setVisible(true);
+        strategyLabel.setManaged(true);
+        
  
         showStratButton.setText("HIDE STRATEGY");
         strategyVisible = true;
@@ -581,6 +589,10 @@ public class BoardController {
                 poly.setFill(getDefaultFill(tile));
             }
         }
+        
+        strategyLabel.setVisible(false);
+        strategyLabel.setText("");
+        strategyLabel.setManaged(true);
 
         showStratButton.setText("SHOW STRATEGY");
 
