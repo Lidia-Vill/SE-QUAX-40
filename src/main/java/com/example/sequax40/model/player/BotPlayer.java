@@ -514,7 +514,9 @@ public class BotPlayer {
                 && t2.getOwner() == player
                 && t4.getOwner() == player;
 
-        return diag1 || diag2;
+        return diag1 || diag2  // DELETE IT NOW
+                || (t1 != null && t1.getOwner() == player)
+                || (t2 != null && t2.getOwner() == player);
     }
 
     public void setLastExecutedStrategy(StrategyResult strategy) {
