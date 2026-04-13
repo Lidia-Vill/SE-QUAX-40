@@ -430,33 +430,30 @@ public class BoardController {
 
     // Triggers the bot to make a move IF needed
     private void triggerBotIfNeeded() {
-    	
-    	// wait for player to decide pie rule
-    	if (shouldShowPieRuleButton()) return;
 
-        // If the game is already finished do nothing
-    	if (gameManager.isGameOver()) return;
-
-        // If it's not the bot's turn do nothing
+        if (shouldShowPieRuleButton()) return;
+        if (gameManager.isGameOver()) return;
         if (gameManager.getCurrentTurn() != botColor) return;
 
-        // Mark that the bot is currently thinking (used to disable clicks)
         botThinking = true;
 
-        // Create a short delay (0.4 seconds) to make bot feel more natural
         javafx.animation.PauseTransition pause =
                 new javafx.animation.PauseTransition(javafx.util.Duration.seconds(0.4));
 
-        // After the delay finishes bot makes its move
-        pause.setOnFinished(e -> makeBotMove());
+        pause.setOnFinished(e -> {
+            if (gameManager.getCurrentTurn() != botColor) {
+                botThinking = false;
+                return;
+            }
+            makeBotMove();
+        });
 
-        // Start the delay
         pause.play();
     }
 
     private void makeBotMove() {
 
-        // 1. compute strategy ONCE
+        // 1. compute strategy FIRST (before ANY move)
         BotPlayer.StrategyResult strategy =
                 botPlayer.computeStrategy(tileMap, botColor, gameManager.getMoveCount());
 
@@ -465,22 +462,19 @@ public class BoardController {
             return;
         }
 
-        // 2. cache it for "SHOW STRATEGY"
-        botPlayer.cacheStrategy(strategy);
-
         Tile chosenTile = strategy.chosenTile;
 
-        // 3. play move
+        // 2. store strategy BEFORE move changes state
+        botPlayer.setLastExecutedStrategy(strategy);
+
+        // 3. execute move
         boolean movePlayed = gameManager.makeMove(chosenTile);
         if (!movePlayed) {
             botThinking = false;
             return;
         }
 
-        // 4. THIS is the actual executed move
-        botPlayer.setLastExecutedStrategy(strategy);
-
-        // 5. UI update
+        // 4. update UI AFTER move
         Polygon polygon = polygonMap.get(chosenTile.getCoord());
         if (polygon != null) {
             updateTileUI(chosenTile, polygon);
@@ -508,8 +502,11 @@ public class BoardController {
             return;
         }
 
-        // ALWAYS use last executed strategy (correct fix)
-        BotPlayer.StrategyResult strategy = botPlayer.getLastExecutedStrategy();
+        BotPlayer.StrategyResult strategy = botPlayer.getCachedStrategy();
+
+        if (strategy == null) {
+            strategy = botPlayer.getLastExecutedStrategy();
+        }
 
         if (strategy == null) return;
 
@@ -518,15 +515,27 @@ public class BoardController {
 
         for (Tile tile : currentStrategyPath) {
 
-            if (tile == null) continue;
-
             Polygon poly = polygonMap.get(tile.getCoord());
             if (poly == null) continue;
 
-            if (tile.getCoord().equals(chosenTile.getCoord())) {
-                poly.setFill(STRATEGY_NEXT_COLOR); // yellow = executed move
-            } else {
-                poly.setFill(STRATEGY_PATH_COLOR); // orange = explanation
+            boolean isChosen = chosenTile != null
+                    && tile.getCoord().equals(chosenTile.getCoord());
+
+            // ⭐ ALWAYS prioritize chosen tile first
+            if (isChosen) {
+                poly.setFill(STRATEGY_NEXT_COLOR);
+                continue;
+            }
+
+            // RHOMBUS: always show even if not empty
+            if (tile.getShape() == ShapeEnum.RHOMBUS) {
+                poly.setFill(STRATEGY_PATH_COLOR);
+                continue;
+            }
+
+            // OCTAGON: only show path tiles (but DON'T block chosen above)
+            if (tile.isEmpty()) {
+                poly.setFill(STRATEGY_PATH_COLOR);
             }
         }
 

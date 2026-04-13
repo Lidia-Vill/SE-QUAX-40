@@ -42,6 +42,11 @@ public class BotPlayer {
                                           PlayerEnum botColor,
                                           int moveCount) {
 
+
+        if (tileMap == null || botColor == null) {
+            throw new IllegalStateException("Invalid strategy input");
+        }
+
         PlayerEnum opponent = (botColor == PlayerEnum.BLACK)
                 ? PlayerEnum.WHITE
                 : PlayerEnum.BLACK;
@@ -52,7 +57,10 @@ public class BotPlayer {
         int botCost = countEmptyTiles(botPath);
         int opponentCost = countEmptyTiles(opponentPath);
 
-        boolean blocking = opponentCost < botCost;
+        int advantage = botCost - opponentCost;
+
+        // opponent close → always block
+        boolean blocking = opponentCost <= botCost + 4;
 
         List<Tile> chosenPath;
         Tile chosenTile;
@@ -65,12 +73,18 @@ public class BotPlayer {
             }
         }
 
-        if (blocking) {
-            chosenTile = bestTileFromPath(opponentPath, tileMap, botColor);
-            chosenPath = (chosenTile != null) ? opponentPath : botPath;
-        } else {
-            chosenTile = bestTileFromPath(botPath, tileMap, botColor);
-            chosenPath = botPath;
+        chosenTile = bestTileFromPath(opponentPath, tileMap, botColor);
+        chosenPath = new ArrayList<>(botPath);
+
+        // ensure rhombus influence is visible in UI path
+        for (Tile t : opponentPath) {
+            if (t != null
+                    && t.getShape() == ShapeEnum.RHOMBUS
+                    && isRhombusValidForPlayer(t, tileMap, botColor)
+                    && !chosenPath.contains(t)) {
+
+                chosenPath.add(t);
+            }
         }
 
         // 🔥 FIX: ensure chosen tile is ALWAYS legal rhombus
@@ -107,22 +121,29 @@ public class BotPlayer {
     private Tile bestTileFromPath(List<Tile> path,
                                   Map<String, Tile> tileMap,
                                   PlayerEnum player) {
-        // First pass: valid rhombus on the path
+
+        // 🔥 PASS 1: STRICT RHOMBUS PRIORITY
         for (Tile tile : path) {
-            if (!tile.isEmpty()) continue;
-            if (tile.getShape() != ShapeEnum.RHOMBUS) continue;
-            if (isRhombusValidForPlayer(tile, tileMap, player)) {
-                return tile;
+
+            if (tile == null || !tile.isEmpty()) continue;
+
+            if (tile.getShape() == ShapeEnum.RHOMBUS
+                    && isRhombusValidForPlayer(tile, tileMap, player)) {
+
+                return tile; // MUST be taken immediately
             }
         }
 
-        // Second pass: first empty octagon
+        // 🔥 PASS 2: OCTAGON FALLBACK
         return path.stream()
-                .filter(t -> t.isEmpty() && t.getShape() == ShapeEnum.OCTAGON)
-                .min(Comparator.comparingInt(t -> centrePenalty(t.getCoord(), player)))
+                .filter(t -> t != null
+                        && t.isEmpty()
+                        && t.getShape() == ShapeEnum.OCTAGON)
+                .min(Comparator.comparingInt(
+                        t -> centrePenalty(t.getCoord(), player)
+                ))
                 .orElse(null);
     }
-
 
 
 
@@ -283,12 +304,20 @@ public class BotPlayer {
      * Own placed tile = 0 (free), everything else = 1.
      */
     private int tileCost(Tile tile, PlayerEnum player) {
-        if (!tile.isEmpty() && tile.getOwner() == player) return 0;
 
-        // Encourage rhombus usage
-        if (tile.getShape() == ShapeEnum.RHOMBUS) return 0;
+        if (!tile.isEmpty() && tile.getOwner() == player) {
+            return 0; // already owned
+        }
 
-        return 1;
+        if (tile.getShape() == ShapeEnum.RHOMBUS) {
+
+            // ⭐ RHOMBUS PRIORITY BOOST
+            // makes them significantly preferred in shortest path
+            return tile.isEmpty() ? 1 : 1;
+        }
+
+        // normal octagon cost
+        return 3;
     }
 
 
