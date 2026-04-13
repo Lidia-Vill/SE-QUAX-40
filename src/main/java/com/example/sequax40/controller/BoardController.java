@@ -208,6 +208,10 @@ public class BoardController {
         if (!movePlayed) {
             return;
         }
+        
+        if (strategyVisible) {
+            hideStrategy();
+        }
 
         // colour the tile immediately, including the winning tile
         updateTileUI(tile, clicked);
@@ -347,7 +351,7 @@ public class BoardController {
         }
     }
     
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ 
 
     // setters used for testing so UI fields are not null (Sprint2 Features 1 and 3 test)
     public void setTurnLabel(Label label) {
@@ -452,29 +456,47 @@ public class BoardController {
     }
 
     private void makeBotMove() {
+    	 
 
-        // 1. compute strategy FIRST (before ANY move)
+        if (gameManager.getCurrentTurn() != botColor) {
+            botThinking = false;
+            return;
+        }
+ 
+
         BotPlayer.StrategyResult strategy =
                 botPlayer.computeStrategy(tileMap, botColor, gameManager.getMoveCount());
+ 
+        Tile chosenTile = (strategy != null) ? strategy.chosenTile : null;
 
-        if (strategy == null || strategy.chosenTile == null) {
+        if (chosenTile == null) {
+            chosenTile = tileMap.values().stream()
+                    .filter(t -> t.isEmpty()
+                            && t.getShape() == com.example.sequax40.enums.ShapeEnum.OCTAGON)
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        
+        if (chosenTile == null) {
             botThinking = false;
             return;
         }
+ 
 
-        Tile chosenTile = strategy.chosenTile;
+        if (strategy != null) {
+            botPlayer.setLastExecutedStrategy(strategy);
+        }
+ 
 
-        // 2. store strategy BEFORE move changes state
-        botPlayer.setLastExecutedStrategy(strategy);
-
-        // 3. execute move
         boolean movePlayed = gameManager.makeMove(chosenTile);
         if (!movePlayed) {
+
             botThinking = false;
+            Platform.runLater(this::triggerBotIfNeeded);
             return;
         }
-
-        // 4. update UI AFTER move
+ 
         Polygon polygon = polygonMap.get(chosenTile.getCoord());
         if (polygon != null) {
             updateTileUI(chosenTile, polygon);
@@ -483,62 +505,64 @@ public class BoardController {
         if (gameManager.isGameOver()) {
             turnLabel.setText(gameManager.getCurrentTurn() + " WINS!");
             stopTimer();
+            botThinking = false;
             return;
         }
-
+ 
         updateTurnLabel();
-        botThinking = false;
-
         updatePieRuleButtonVisibility();
+        botPlayer.clearCache();
+        botThinking = false;
+ 
+ 
         Platform.runLater(this::triggerBotIfNeeded);
     }
 
 
     @FXML
     public void showStrat(ActionEvent event) {
-
+ 
         if (strategyVisible) {
             hideStrategy();
             return;
         }
-
+ 
+        // Prefer cached (current turn) over last executed
         BotPlayer.StrategyResult strategy = botPlayer.getCachedStrategy();
-
-        if (strategy == null) {
-            strategy = botPlayer.getLastExecutedStrategy();
-        }
-
+        if (strategy == null) strategy = botPlayer.getLastExecutedStrategy();
         if (strategy == null) return;
-
+ 
         currentStrategyPath = strategy.path;
-        Tile chosenTile = strategy.chosenTile;
-
+        Tile chosenTile     = strategy.chosenTile;
+ 
         for (Tile tile : currentStrategyPath) {
-
+ 
             Polygon poly = polygonMap.get(tile.getCoord());
             if (poly == null) continue;
-
+ 
             boolean isChosen = chosenTile != null
                     && tile.getCoord().equals(chosenTile.getCoord());
-
-            // ⭐ ALWAYS prioritize chosen tile first
+ 
+            // Chosen tile always shown in yellow, regardless of shape
             if (isChosen) {
                 poly.setFill(STRATEGY_NEXT_COLOR);
                 continue;
             }
-
-            // RHOMBUS: always show even if not empty
+ 
+            // Rhombus tiles in path: highlight in orange (even if already owned)
             if (tile.getShape() == ShapeEnum.RHOMBUS) {
-                poly.setFill(STRATEGY_PATH_COLOR);
+                if(tile.isEmpty()) {
+                	poly.setFill(STRATEGY_PATH_COLOR);
+                }
                 continue;
             }
-
-            // OCTAGON: only show path tiles (but DON'T block chosen above)
+ 
+            // Octagon: highlight only empty tiles (owned tiles keep their player colour)
             if (tile.isEmpty()) {
                 poly.setFill(STRATEGY_PATH_COLOR);
             }
         }
-
+ 
         showStratButton.setText("HIDE STRATEGY");
         strategyVisible = true;
     }
