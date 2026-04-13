@@ -23,35 +23,39 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.NumberBinding;
 import javafx.event.ActionEvent;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 
 public class BoardController {
 
-	// FXML
-	//setting up the ids of the stackpane container, and group to help with scaling
+
     @FXML public StackPane mainContainer;
     @FXML public Group masterGroup;
-    //setting up ids of the board stack pane and group to format shape of game
+
     @FXML public StackPane gameBoardStackPane;
     @FXML public Group boardGroup;
     @FXML public HBox windowContainer;
-    //turn label
+
     @FXML public Label turnLabel;
     @FXML private Polygon turnOct;
     @FXML private Polygon turnRhom;
-    //pie rule button
+
     @FXML private Button pieRuleButton;
-    //strategy button
+
     @FXML private Button showStratButton;
-	//timer label
+
     @FXML private Label timerLabel;
-    //timer and variable to track seconds in the game
     private javafx.animation.Timeline gameTimer;
     private int elapsedSeconds = 0;
+
+
+    // Bot Strategy related variables
+    private List<Tile> currentStrategyPath = new ArrayList<>();
+    private boolean strategyVisible = false;
+
+    // Highlight colours for strategy display
+    private static final Color STRATEGY_PATH_COLOR  = Color.web("#ff9800"); // orange
+    private static final Color STRATEGY_NEXT_COLOR  = Color.web("#ffeb3b"); // yellow
     
     
    
@@ -97,6 +101,7 @@ public class BoardController {
 
         // safe start
         Platform.runLater(this::triggerBotIfNeeded);
+
     }
 
     
@@ -305,7 +310,7 @@ public class BoardController {
 
 
     public void resetGame() {
-
+        hideStrategy();
         gameManager.resetGame();
 
         
@@ -341,11 +346,6 @@ public class BoardController {
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    @FXML
-    public void showStrat(ActionEvent event) {
-    	
-    }
-
 
     // setters used for testing so UI fields are not null (Sprint2 Features 1 and 3 test)
     public void setTurnLabel(Label label) {
@@ -454,99 +454,117 @@ public class BoardController {
 
     private void makeBotMove() {
 
-        List<Tile> availableTiles = tileMap.values().stream()
-                .filter(Tile::isEmpty)
-                .toList();
-
-        if (availableTiles.isEmpty()) return;
-
-        Tile chosenTile;
-
-        // First move always to F6 as it is the smartest play (for now)
-        if (gameManager.getMoveCount() == 0) {
-
-            chosenTile = availableTiles.stream()
-                    .filter(tile -> "F6".equals(tile.getCoord()))
-                    .findFirst()
-                    .orElse(null);
-
-        } else {
-            // Otherwise pick a random tile
-            chosenTile = availableTiles.get(random.nextInt(availableTiles.size()));
-        }
+        // Use BotPlayer hybrid strategy instead of random
+        Tile chosenTile = botPlayer.chooseTile(tileMap, botColor, gameManager.getMoveCount());
 
         if (chosenTile == null) return;
 
         boolean movePlayed = gameManager.makeMove(chosenTile);
 
-        int attempts = 0;
+        if (!movePlayed) return; // invalid move — strategy returned bad tile
 
-
-        // If the move was invalid, retry with different random tiles
-        // (prevents bot getting stuck on invalid placements)
-        while (!movePlayed && attempts < 100) {
-
-            chosenTile = availableTiles.get(random.nextInt(availableTiles.size()));
-
-            movePlayed = gameManager.makeMove(chosenTile);
-
-            attempts++;
-        }
-
-        // Update the UI for the chosen tile (change colour)
+        // Update UI for the chosen tile
         Polygon polygon = polygonMap.get(chosenTile.getCoord());
         if (polygon != null) {
             updateTileUI(chosenTile, polygon);
         }
-        
-                // Check if the move ended the game
+
+        // Clear strategy highlight after bot plays
+        hideStrategy();
+
         if (gameManager.isGameOver()) {
             turnLabel.setText(gameManager.getCurrentTurn() + " WINS!");
+            stopTimer();
             return;
         }
 
         updateTurnLabel();
         botThinking = false;
 
-        // If next turn is also bot (future-proofing), trigger again
-        Platform.runLater(this::triggerBotIfNeeded);
-        
         updatePieRuleButtonVisibility();
+        Platform.runLater(this::triggerBotIfNeeded);
     }
-    
+
+    @FXML
+    public void showStrat(ActionEvent event) {
+        if (strategyVisible) {
+            hideStrategy();
+            return;
+        }
+
+        // Get the bot's planned path from BotPlayer
+        currentStrategyPath = botPlayer.getStrategyPath(tileMap, botColor, gameManager.getMoveCount());
+
+        boolean firstEmpty = true;
+
+        for (Tile tile : currentStrategyPath) {
+            if (!tile.isEmpty()) continue; // skip already-placed tiles
+
+            Polygon poly = polygonMap.get(tile.getCoord());
+            if (poly == null) continue;
+
+            if (firstEmpty) {
+                poly.setFill(STRATEGY_NEXT_COLOR);  // yellow = next move
+                firstEmpty = false;
+            } else {
+                poly.setFill(STRATEGY_PATH_COLOR);  // orange = planned path
+            }
+        }
+
+        showStratButton.setText("HIDE STRATEGY");
+        strategyVisible = true;
+    }
+
+
+    private void hideStrategy() {
+        for (Tile tile : currentStrategyPath) {
+            if (!tile.isEmpty()) continue;
+
+            Polygon poly = polygonMap.get(tile.getCoord());
+            if (poly == null) continue;
+
+            // Restore default colour
+            poly.setFill(getDefaultFill(tile));
+        }
+
+        if (showStratButton != null) {
+            showStratButton.setText("SHOW STRATEGY");
+        }
+
+        currentStrategyPath = new ArrayList<>();
+        strategyVisible = false;
+    }
+
+
     private void startTimer() {
-        elapsedSeconds = 0; //reset counter to 0
-        updateTimerLabel(); 
-        if (gameTimer != null) gameTimer.stop(); //stop any previous timer running
+        elapsedSeconds = 0;
+        updateTimerLabel();
+        if (gameTimer != null) gameTimer.stop();
 
-        //repeating task that fires every 1 second
         gameTimer = new javafx.animation.Timeline(
-            new javafx.animation.KeyFrame(
-                javafx.util.Duration.seconds(1),
-                e -> {
-                    elapsedSeconds++; //add 1 to counter
-                    updateTimerLabel(); // update the screen
-                }
-            )
+                new javafx.animation.KeyFrame(
+                        javafx.util.Duration.seconds(1),
+                        e -> {
+                            elapsedSeconds++;
+                            updateTimerLabel();
+                        }
+                )
         );
-        gameTimer.setCycleCount(javafx.animation.Animation.INDEFINITE); //repeat forever or until stopped
-        gameTimer.play(); //start the timer
+        gameTimer.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        gameTimer.play();
     }
 
-    //method to stop the timer when the game is won, or reset
     private void stopTimer() {
         if (gameTimer != null) gameTimer.stop();
-       
     }
 
     private void updateTimerLabel() {
-        int minutes = elapsedSeconds / 60; //calculating how many minutes AND seconds instead of just seconds
+        int minutes = elapsedSeconds / 60;
         int seconds = elapsedSeconds % 60;
         if (timerLabel != null) {
-            timerLabel.setText(String.format("%02d:%02d", minutes, seconds)); //update the label based on the calculated minutes and seconds
+            timerLabel.setText(String.format("%02d:%02d", minutes, seconds));
         }
     }
-
 
 	public void setTimerLabel(Label label) {
 		this.timerLabel = label;		

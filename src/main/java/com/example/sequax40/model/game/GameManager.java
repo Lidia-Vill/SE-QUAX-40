@@ -79,48 +79,35 @@ public class GameManager {
 	    }
 
 
-        /*
-         * Checks if a rhombus tile placement is valid based on the diagonal rule.
-         * A rhombus is valid if at least one of its two diagonals is fully owned
-         * by the current player.
-         */
+    /*
+     * Checks if a rhombus tile placement is valid based on the diagonal rule.
+     * A rhombus is valid if at least one of its two diagonals is fully owned
+     * by the current player.
+     */
 
-	    private boolean isRhombusValid(Tile rhombusTile) {
+    private boolean isRhombusValid(Tile rhombusTile) {
 
-	        String id = rhombusTile.getCoord(); // Get the rhombus coordinate, e.g., "AC_1_2"
+        Tile[] corners = getRhombusCorners(rhombusTile);
 
-            // Extract column letters
-	        char letter1 = id.charAt(0);
-	        char letter2 = id.charAt(1);
+        Tile t1 = corners[0];
+        Tile t2 = corners[1];
+        Tile t3 = corners[2];
+        Tile t4 = corners[3];
 
-            // Find positions of underscores to split row numbers
-	        int firstUnderscore = id.indexOf("_");
-	        int secondUnderscore = id.indexOf("_", firstUnderscore + 1);
+        // Check diagonal 1 (t1 ↔ t3)
+        boolean diag1 = t1 != null && t3 != null
+                && !t1.isEmpty() && !t3.isEmpty()
+                && t1.getOwner() == currentTurn
+                && t3.getOwner() == currentTurn;
 
-            // Extract the 2 row numbers from the coordinate string
-	        String num1 = id.substring(firstUnderscore + 1, secondUnderscore);
-	        String num2 = id.substring(secondUnderscore + 1);
+        // Check diagonal 2 (t2 ↔ t4)
+        boolean diag2 = t2 != null && t4 != null
+                && !t2.isEmpty() && !t4.isEmpty()
+                && t2.getOwner() == currentTurn
+                && t4.getOwner() == currentTurn;
 
-            // Retrieve the four tiles forming the rhombus corners
-	        Tile t1 = tileMap.get("" + letter1 + num1); // top-left corner
-	        Tile t2 = tileMap.get("" + letter1 + num2); // top-left corner
-	        Tile t3 = tileMap.get("" + letter2 + num2); // bottom-left corner
-	        Tile t4 = tileMap.get("" + letter2 + num1); // bottom-right corner
-
-            // Check first diagonal: t1-t3
-            boolean diag1 = t1 != null && t3 != null
-                    && !t1.isEmpty() && !t3.isEmpty()
-                    && t1.getOwner() == currentTurn
-                    && t3.getOwner() == currentTurn;
-
-            // Check first diagonal: t2-t4
-            boolean diag2 = t2 != null && t4 != null
-                    && !t2.isEmpty() && !t4.isEmpty()
-                    && t2.getOwner() == currentTurn
-                    && t4.getOwner() == currentTurn;
-
-	        return diag1 || diag2; // Return true if at least one diagonal is valid
-	    }
+        return diag1 || diag2;
+    }
 
 
 	    public Tile getFirstMoveTile() {
@@ -238,77 +225,111 @@ public class GameManager {
 
     //returns all connected tiles owned by the same player
     private List<Tile> getNeighbors(Tile tile, PlayerEnum player) {
+
+        //check if it's an octagon or a rhombus and delegate accordingly
+        if (isOctagon(tile)) {
+            return getOctagonNeighbors(tile, player);
+        } else {
+            return getRhombusNeighbors(tile, player);
+        }
+    }
+
+
+    //checks if the tile is an octagon (does not contain "_")
+    private boolean isOctagon(Tile tile) {
+        return !tile.getCoord().contains("_");
+    }
+
+
+    //handles neighbour logic for octagon tiles
+    private List<Tile> getOctagonNeighbors(Tile tile, PlayerEnum player) {
         List<Tile> neighbors = new ArrayList<>();
-        String coord = tile.getCoord();
+
+        int row = getRow(tile.getCoord());
+        char col = getCol(tile.getCoord());
+
+        //checks closest neighbours in all 4 directions (octagons only)
+        addIfOwnedByPlayer(neighbors, tileMap.get(col + "" + (row - 1)), player); // up
+        addIfOwnedByPlayer(neighbors, tileMap.get(col + "" + (row + 1)), player); // down
+        addIfOwnedByPlayer(neighbors, tileMap.get((char) (col - 1) + "" + row), player); // left
+        addIfOwnedByPlayer(neighbors, tileMap.get((char) (col + 1) + "" + row), player); // right
+
+        //check rhombus connections linked to this octagon
+        addRhombusConnections(tile, neighbors, player);
+
+        return neighbors;
+    }
 
 
-        //check if it's an octagon
-        if (!coord.contains("_")) {
-            int row = getRow(coord);
-            char col = getCol(coord);
+    //loops through all placed rhombuses and connects valid ones
+    private void addRhombusConnections(Tile tile, List<Tile> neighbors, PlayerEnum player) {
+        for (Tile rhombus : tileMap.values()) { //loops through every tile on the board
+
+            //skip if not a valid rhombus owned by the player
+            if (!isOwnedRhombus(rhombus, player)) continue;
+
+            //get the 4 corner tiles around the rhombus
+            Tile[] corners = getRhombusCorners(rhombus);
+
+            Tile t1 = corners[0];
+            Tile t2 = corners[1];
+            Tile t3 = corners[2];
+            Tile t4 = corners[3];
+
+            //add valid tiles to the neighbours array (diagonal connections)
+            if (tile.equals(t1)) addIfOwnedByPlayer(neighbors, t3, player);
+            if (tile.equals(t3)) addIfOwnedByPlayer(neighbors, t1, player);
+            if (tile.equals(t2)) addIfOwnedByPlayer(neighbors, t4, player);
+            if (tile.equals(t4)) addIfOwnedByPlayer(neighbors, t2, player);
+        }
+    }
 
 
-            //checks closest neighbours in all 4 directions (octagons only)
-            addIfOwnedByPlayer(neighbors, tileMap.get(col + "" + (row - 1)), player); // up
-            addIfOwnedByPlayer(neighbors, tileMap.get(col + "" + (row + 1)), player); // down
-            addIfOwnedByPlayer(neighbors, tileMap.get((char) (col - 1) + "" + row), player); // left
-            addIfOwnedByPlayer(neighbors, tileMap.get((char) (col + 1) + "" + row), player); // right
-
-            // Check rhombus connections
-            for (Tile rhombus : tileMap.values()) { //loops through every rhombus on the board
-                if (rhombus == null || rhombus.getShape() != ShapeEnum.RHOMBUS) {
-                    continue;
-                }
-
-                if (rhombus.isEmpty() || rhombus.getOwner() != player) {
-                    continue;
-                }
+    //checks if a tile is a placed rhombus owned by the current player
+    private boolean isOwnedRhombus(Tile tile, PlayerEnum player) {
+        return tile != null
+                && tile.getShape() == ShapeEnum.RHOMBUS
+                && !tile.isEmpty()
+                && tile.getOwner() == player;
+    }
 
 
-                //does code below for all placed rhombuses which are owned by the player. Get each of its label components.
-                String id = rhombus.getCoord();
-                char l1 = id.charAt(0);
-                char l2 = id.charAt(1);
-                int i1 = id.indexOf("_");
-                int i2 = id.indexOf("_", i1 + 1);
-                String n1 = id.substring(i1 + 1, i2);
-                String n2 = id.substring(i2 + 1);
+    //extracts the 4 corner tiles (octagons) from a rhombus coordinate
+    private Tile[] getRhombusCorners(Tile rhombus) {
+        String id = rhombus.getCoord();
 
-                //get the 4 tiles around the rhombus
-                Tile t1 = tileMap.get("" + l1 + n1);
-                Tile t2 = tileMap.get("" + l1 + n2);
-                Tile t3 = tileMap.get("" + l2 + n2);
-                Tile t4 = tileMap.get("" + l2 + n1);
+        //get column letters
+        char l1 = id.charAt(0);
+        char l2 = id.charAt(1);
+
+        //find positions of underscores
+        int i1 = id.indexOf("_");
+        int i2 = id.indexOf("_", i1 + 1);
+
+        //extract row numbers
+        String n1 = id.substring(i1 + 1, i2);
+        String n2 = id.substring(i2 + 1);
+
+        //get the 4 tiles around the rhombus
+        Tile t1 = tileMap.get("" + l1 + n1);
+        Tile t2 = tileMap.get("" + l1 + n2);
+        Tile t3 = tileMap.get("" + l2 + n2);
+        Tile t4 = tileMap.get("" + l2 + n1);
+
+        return new Tile[]{t1, t2, t3, t4};
+    }
 
 
-                //add valid tiles to the neighbours array
-                if (tile.equals(t1)) addIfOwnedByPlayer(neighbors, t3, player);
-                if (tile.equals(t3)) addIfOwnedByPlayer(neighbors, t1, player);
-                if (tile.equals(t2)) addIfOwnedByPlayer(neighbors, t4, player);
-                if (tile.equals(t4)) addIfOwnedByPlayer(neighbors, t2, player);
-            }
+    //handles neighbour logic when the current tile is a rhombus
+    private List<Tile> getRhombusNeighbors(Tile tile, PlayerEnum player) {
+        List<Tile> neighbors = new ArrayList<>();
 
-        } else {//runs when the current tile is a rhombus
+        //get the 4 corner tiles (octagons)
+        Tile[] corners = getRhombusCorners(tile);
 
-            //get the rhombus id and numbers
-            char l1 = coord.charAt(0);
-            char l2 = coord.charAt(1);
-            int i1 = coord.indexOf("_");
-            int i2 = coord.indexOf("_", i1 + 1);
-            String n1 = coord.substring(i1 + 1, i2);
-            String n2 = coord.substring(i2 + 1);
-
-            //get 4 corner tiles (octagons)
-            Tile t1 = tileMap.get("" + l1 + n1);
-            Tile t2 = tileMap.get("" + l1 + n2);
-            Tile t3 = tileMap.get("" + l2 + n2);
-            Tile t4 = tileMap.get("" + l2 + n1);
-
-            //if these octagons are owned by  the current player then we add them to neighbours
-            addIfOwnedByPlayer(neighbors, t1, player);
-            addIfOwnedByPlayer(neighbors, t2, player);
-            addIfOwnedByPlayer(neighbors, t3, player);
-            addIfOwnedByPlayer(neighbors, t4, player);
+        //if these octagons are owned by the current player then add them to neighbours
+        for (Tile t : corners) {
+            addIfOwnedByPlayer(neighbors, t, player);
         }
 
         return neighbors;

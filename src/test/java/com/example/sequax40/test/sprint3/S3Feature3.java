@@ -8,18 +8,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.example.sequax40.enums.PlayerEnum;
-import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
 
 public class S3Feature3 {
+
     private Board board;
     private GameManager manager;
     private Map<String, Tile> tileMap;
 
 
-    // SETUP
+    // SETUP: runs before each test to create a fresh board and game state
     @BeforeEach
     void setup() {
         board = new Board(11, 11);
@@ -28,14 +28,18 @@ public class S3Feature3 {
     }
 
 
-    // HELPER: COUNT OWNED TILES
+    // HELPER: counts how many tiles are owned by a given player
     private long countTiles(PlayerEnum player) {
         return tileMap.values().stream()
                 .filter(t -> t.getOwner() == player)
                 .count();
     }
 
-    // TEST 1: FIRST MOVE TO CENTRE
+
+    // NOTE: F6 is the centre tile and is expected to be used as the first move
+
+
+    // Ensure first move is always placed at the centre tile (F6)
     @Test
     void botFirstMoveIsCentre() {
 
@@ -50,7 +54,7 @@ public class S3Feature3 {
     }
 
 
-    // TEST 2: MOVE COUNT INCREMENTS
+    // Ensure move counter increments correctly for both players
     @Test
     void moveCountIncrementsCorrectly() {
 
@@ -64,18 +68,18 @@ public class S3Feature3 {
     }
 
 
-    // TEST 3: CANNOT PLAY OCCUPIED TILE
+    // Ensure a tile cannot be played twice
     @Test
     void cannotPlaySameTileTwice() {
 
         Tile tile = tileMap.get("F6");
 
         assertTrue(manager.makeMove(tile));
-        assertFalse(manager.makeMove(tile)); // second time invalid
+        assertFalse(manager.makeMove(tile)); // second attempt should fail
     }
 
 
-    // TEST 4: TURN SWITCHES CORRECTLY
+    // Ensure turn switches after a valid move
     @Test
     void turnSwitchesAfterValidMove() {
 
@@ -87,23 +91,24 @@ public class S3Feature3 {
     }
 
 
-    // TEST 5: TURN DOES NOT CHANGE ON INVALID MOVE
+    // Ensure turn does NOT switch if the move is invalid
     @Test
     void turnDoesNotChangeOnInvalidMove() {
 
         Tile tile = tileMap.get("F6");
 
-        manager.makeMove(tile); // BLACK
+        manager.makeMove(tile); // valid BLACK move
+
         PlayerEnum before = manager.getCurrentTurn();
 
-        boolean move = manager.makeMove(tile); // invalid
+        boolean move = manager.makeMove(tile); // invalid move (already occupied)
 
         assertFalse(move);
         assertEquals(before, manager.getCurrentTurn());
     }
 
 
-    // TEST 6: BOT-LIKE RANDOM VALID MOVE SIMULATION
+    // Simulates BOT behaviour to ensure it can always find valid moves when available
     @Test
     void botAlwaysFindsValidMoveWhenAvailable() {
 
@@ -113,6 +118,7 @@ public class S3Feature3 {
 
             boolean movePlayed = false;
 
+            // try all tiles until a valid move is found
             for (Tile tile : tileMap.values()) {
                 if (tile.isEmpty()) {
                     movePlayed = manager.makeMove(tile);
@@ -120,7 +126,7 @@ public class S3Feature3 {
                 }
             }
 
-            // If no move possible -> break safely
+            // safely exit if no valid move exists
             if (!movePlayed) break;
 
             attempts++;
@@ -130,17 +136,18 @@ public class S3Feature3 {
     }
 
 
-    // TEST 7: NO FREEZE WHEN NO VALID MOVES
+    // Ensure game does not freeze when no valid moves are available
     @Test
     void noInfiniteLoopWhenNoValidMoves() {
 
-        // Fill board artificially
+        // artificially fill the board so no moves are possible
         for (Tile tile : tileMap.values()) {
             tile.setOwner(PlayerEnum.BLACK);
         }
 
         boolean movePlayed = false;
 
+        // attempt to play any remaining move (there should be none)
         for (Tile tile : tileMap.values()) {
             if (tile.isEmpty()) {
                 movePlayed = manager.makeMove(tile);
@@ -148,6 +155,6 @@ public class S3Feature3 {
             }
         }
 
-        assertFalse(movePlayed); // nothing should work
+        assertFalse(movePlayed); // no move should be possible
     }
 }
