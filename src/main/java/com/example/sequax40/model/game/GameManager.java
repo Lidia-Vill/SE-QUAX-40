@@ -51,8 +51,8 @@ public class GameManager {
 	        	firstMove = tile;
 	        }
 
-            if (tile.getShape() == ShapeEnum.RHOMBUS){
-                if(!isRhombusValid(tile)) {
+            if (tile.getShape() == ShapeEnum.RHOMBUS) {
+                if (!isRhombusValid(tile, currentTurn)) {
                     return false;
                 }
             }
@@ -85,7 +85,7 @@ public class GameManager {
      * by the current player.
      */
 
-    private boolean isRhombusValid(Tile rhombusTile) {
+    private boolean isRhombusValid(Tile rhombusTile, PlayerEnum player) {
 
         Tile[] corners = getRhombusCorners(rhombusTile);
 
@@ -94,23 +94,21 @@ public class GameManager {
         Tile t3 = corners[2];
         Tile t4 = corners[3];
 
-        // Check diagonal 1 (t1 ↔ t3)
         boolean diag1 = t1 != null && t3 != null
                 && !t1.isEmpty() && !t3.isEmpty()
-                && t1.getOwner() == currentTurn
-                && t3.getOwner() == currentTurn;
+                && t1.getOwner() == player
+                && t3.getOwner() == player;
 
-        // Check diagonal 2 (t2 ↔ t4)
         boolean diag2 = t2 != null && t4 != null
                 && !t2.isEmpty() && !t4.isEmpty()
-                && t2.getOwner() == currentTurn
-                && t4.getOwner() == currentTurn;
+                && t2.getOwner() == player
+                && t4.getOwner() == player;
 
         return diag1 || diag2;
     }
 
 
-	    public Tile getFirstMoveTile() {
+    public Tile getFirstMoveTile() {
 	    	return firstMove;
 	    }
 

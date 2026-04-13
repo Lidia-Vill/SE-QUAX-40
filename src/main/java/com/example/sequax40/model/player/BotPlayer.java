@@ -8,75 +8,94 @@ import java.util.*;
 
 public class BotPlayer {
 
-    /**
-     * Hybrid strategy:
-     * 1. First move always plays centre (F6)
-     * 2. Find bot's shortest path and opponent's shortest path
-     * 3. If opponent is within 2 moves of matching bot's progress → block
-     * 4. Otherwise → advance along bot's own path
-     * 5. Prefers rhombus placements when valid
-     *
-     * Coordinate system (confirmed from screenshot):
-     *   Letter (A-K) = COLUMN, left to right
-     *   Number (1-11) = ROW, top to bottom
-     *
-     * BLACK connects row 1 (top) → row 11 (bottom)  — number changes
-     * WHITE connects col A (left) → col K (right)    — letter changes
-     */
-    public Tile chooseTile(Map<String, Tile> tileMap, PlayerEnum botColor, int moveCount) {
+    // Cached strategy so Show Strategy and actual move are always in sync
+    private StrategyResult cachedStrategy = null;
 
-        // First move ever — always play centre (F6 = col F, row 6)
-        if (moveCount == 0) {
-            Tile centre = tileMap.get("F6");
-            if (centre != null && centre.isEmpty()) return centre;
+    // Strategy that was actually executed in the last bot move
+    private StrategyResult lastExecutedStrategy = null;
+
+    /**
+     * Uses cached strategy if available, otherwise computes fresh.
+     * Guarantees the move matches what Show Strategy displayed.
+     */
+    public Tile chooseTile(Map<String, Tile> tileMap,
+                           PlayerEnum botColor,
+                           int moveCount) {
+        if (cachedStrategy != null && cachedStrategy.chosenTile != null) {
+            return cachedStrategy.chosenTile;
         }
+        // No cache — compute fresh
+        return computeStrategy(tileMap, botColor, moveCount).chosenTile;
+    }
+
+
+    /**
+     * Computes the bot's strategy for this turn and caches it.
+     * Called from triggerBotIfNeeded so both Show Strategy
+     * and makeBotMove use the exact same decision.
+     *
+     * Coordinate system (letter = col A-K, number = row 1-11):
+     *   BLACK connects row 11 (top) → row 1 (bottom)
+     *   WHITE connects col A (left) → col K (right)
+     */
+    public StrategyResult computeStrategy(Map<String, Tile> tileMap,
+                                          PlayerEnum botColor,
+                                          int moveCount) {
 
         PlayerEnum opponent = (botColor == PlayerEnum.BLACK)
                 ? PlayerEnum.WHITE
                 : PlayerEnum.BLACK;
 
-        List<Tile> botPath      = findShortestPath(tileMap, botColor);
+        List<Tile> botPath = findShortestPath(tileMap, botColor);
         List<Tile> opponentPath = findShortestPath(tileMap, opponent);
 
-        int botCost      = countEmptyTiles(botPath);
+        int botCost = countEmptyTiles(botPath);
         int opponentCost = countEmptyTiles(opponentPath);
 
-        // Block if opponent is within 2 moves of matching bot's progress
-        boolean opponentIsThreat = opponentCost <= botCost + 2;
+        boolean blocking = opponentCost < botCost;
 
-        if (opponentIsThreat && !opponentPath.isEmpty()) {
-            Tile block = bestTileFromPath(opponentPath, tileMap, botColor);
-            if (block != null) return block;
-        }
+        List<Tile> chosenPath;
+        Tile chosenTile;
 
-        // Otherwise advance own path
-        if (!botPath.isEmpty()) {
-            Tile advance = bestTileFromPath(botPath, tileMap, botColor);
-            if (advance != null) return advance;
-        }
-
-        // Fallback: any empty octagon
-        return tileMap.values().stream()
-                .filter(t -> t.isEmpty() && t.getShape() == ShapeEnum.OCTAGON)
-                .findFirst()
-                .orElse(null);
-    }
-
-
-    /**
-     * Returns the bot's own shortest path for the Show Strategy visualisation.
-     */
-    public List<Tile> getStrategyPath(Map<String, Tile> tileMap,
-                                      PlayerEnum botColor,
-                                      int moveCount) {
-        // If this is the first move, strategy is simply F6
         if (moveCount == 0) {
             Tile centre = tileMap.get("F6");
             if (centre != null && centre.isEmpty()) {
-                return List.of(centre);
+                cachedStrategy = new StrategyResult(List.of(centre), false, centre);
+                return cachedStrategy;
             }
         }
-        return findShortestPath(tileMap, botColor);
+
+        if (blocking) {
+            chosenTile = bestTileFromPath(opponentPath, tileMap, botColor);
+            chosenPath = (chosenTile != null) ? opponentPath : botPath;
+        } else {
+            chosenTile = bestTileFromPath(botPath, tileMap, botColor);
+            chosenPath = botPath;
+        }
+
+        // 🔥 FIX: ensure chosen tile is ALWAYS legal rhombus
+        if (chosenTile != null && chosenTile.getShape() == ShapeEnum.RHOMBUS) {
+            if (!isRhombusValidForPlayer(chosenTile, tileMap, botColor)) {
+                chosenTile = bestTileFromPath(botPath, tileMap, botColor);
+                chosenPath = botPath;
+                blocking = false;
+            }
+        }
+
+        cachedStrategy = new StrategyResult(chosenPath, blocking, chosenTile);
+        return cachedStrategy;
+    }
+
+
+    /** Returns the cached strategy — must call computeStrategy first */
+    public StrategyResult getCachedStrategy() {
+        return cachedStrategy;
+    }
+
+
+    /** Clears the cache after the bot has played */
+    public void clearCache() {
+        cachedStrategy = null;
     }
 
 
@@ -100,53 +119,27 @@ public class BotPlayer {
         // Second pass: first empty octagon
         return path.stream()
                 .filter(t -> t.isEmpty() && t.getShape() == ShapeEnum.OCTAGON)
-                .findFirst()
+                .min(Comparator.comparingInt(t -> centrePenalty(t.getCoord(), player)))
                 .orElse(null);
     }
 
 
-    /**
-     * Mirrors GameManager's isRhombusValid check.
-     * A rhombus is valid if at least one diagonal pair of corners
-     * is fully owned by the given player.
-     */
-    private boolean isRhombusValidForPlayer(Tile rhombus,
-                                            Map<String, Tile> tileMap,
-                                            PlayerEnum player) {
-        Tile[] corners = getRhombusCorners(rhombus, tileMap);
-
-        Tile t1 = corners[0];
-        Tile t2 = corners[1];
-        Tile t3 = corners[2];
-        Tile t4 = corners[3];
-
-        boolean diag1 = t1 != null && t3 != null
-                && !t1.isEmpty() && !t3.isEmpty()
-                && t1.getOwner() == player
-                && t3.getOwner() == player;
-
-        boolean diag2 = t2 != null && t4 != null
-                && !t2.isEmpty() && !t4.isEmpty()
-                && t2.getOwner() == player
-                && t4.getOwner() == player;
-
-        return diag1 || diag2;
-    }
 
 
     /**
      * Dijkstra's algorithm to find the shortest path for a player.
      *
-     * BLACK: row 1 (top) → row 11 (bottom)   number = row
-     * WHITE: col A (left) → col K (right)     letter = col
+     * Coordinate system confirmed from screenshot:
+     *   Letter (A-K) = COLUMN, left to right
+     *   Number (1-11) = ROW,  11 = top,  1 = bottom
+     *
+     * BLACK: row 11 (top) → row 1 (bottom)   start=11, goal=1
+     * WHITE: col A  (left) → col K (right)    start=A,  goal=K
      *
      * Cost:
      *   Own tile already placed = 0  (free)
      *   Empty tile              = 1  (needs claiming)
      *   Opponent tile           = blocked, skipped entirely
-     *
-     * Tiebreaker: prefer tiles closer to the centre of the board
-     * so the path runs through the middle rather than hugging an edge.
      */
     public List<Tile> findShortestPath(Map<String, Tile> tileMap, PlayerEnum player) {
 
@@ -216,7 +209,7 @@ public class BotPlayer {
 
 
     /**
-     * Reconstructs the path from the prev map, walking back from goal to start.
+     * Reconstructs the path from prev map, walking back from goal to start.
      */
     private List<Tile> reconstructPath(Map<String, String> prev,
                                        String goalCoord,
@@ -239,9 +232,8 @@ public class BotPlayer {
      * Returns traversable neighbours for pathfinding.
      *
      * Letter = col (A-K), Number = row (1-11)
-     *
-     * Up/down = row number changes (±1)
-     * Left/right = column letter changes (±1 in ASCII)
+     * Up   = row number increases (toward 11)
+     * Down = row number decreases (toward 1)
      */
     private List<Tile> getPathNeighbors(Tile tile,
                                         Map<String, Tile> tileMap,
@@ -249,12 +241,12 @@ public class BotPlayer {
         List<Tile> neighbors = new ArrayList<>();
 
         if (isOctagonTile(tile)) {
-            char col = tile.getCoord().charAt(0);        // letter = column
-            int  row = Integer.parseInt(tile.getCoord().substring(1)); // number = row
+            char col = tile.getCoord().charAt(0);
+            int  row = Integer.parseInt(tile.getCoord().substring(1));
 
             // Up and down: row number changes
-            addTile(neighbors, tileMap, "" + col + (row - 1)); // up
-            addTile(neighbors, tileMap, "" + col + (row + 1)); // down
+            addTile(neighbors, tileMap, "" + col + (row + 1)); // up   (higher number)
+            addTile(neighbors, tileMap, "" + col + (row - 1)); // down (lower number)
             // Left and right: column letter changes
             addTile(neighbors, tileMap, "" + (char)(col - 1) + row); // left
             addTile(neighbors, tileMap, "" + (char)(col + 1) + row); // right
@@ -288,10 +280,14 @@ public class BotPlayer {
 
     /**
      * Cost to traverse a tile.
-     * Own placed tile = 0, everything else empty = 1.
+     * Own placed tile = 0 (free), everything else = 1.
      */
     private int tileCost(Tile tile, PlayerEnum player) {
         if (!tile.isEmpty() && tile.getOwner() == player) return 0;
+
+        // Encourage rhombus usage
+        if (tile.getShape() == ShapeEnum.RHOMBUS) return 0;
+
         return 1;
     }
 
@@ -308,10 +304,8 @@ public class BotPlayer {
     /**
      * Start edge for Dijkstra seeding.
      *
-     * Letter = col, Number = row
-     *
-     * BLACK starts at row 1  → number part == 1
-     * WHITE starts at col A  → letter part == 'A'
+     * BLACK: starts at row 11 (top of screen)
+     * WHITE: starts at col A (left of screen)
      *
      * Rhombuses are never on the board edge.
      */
@@ -319,9 +313,9 @@ public class BotPlayer {
         if (tile.getShape() == ShapeEnum.RHOMBUS) return false;
         String coord = tile.getCoord();
         if (player == PlayerEnum.BLACK) {
-            // BLACK: top edge = row 1
+            // BLACK: top edge = row 11
             int row = Integer.parseInt(coord.substring(1));
-            return row == 1;
+            return row == 11;
         } else {
             // WHITE: left edge = col A
             return coord.charAt(0) == 'A';
@@ -332,8 +326,8 @@ public class BotPlayer {
     /**
      * Goal edge for Dijkstra termination.
      *
-     * BLACK goal is row 11 → number part == 11
-     * WHITE goal is col K  → letter part == 'K'
+     * BLACK: goal is row 1 (bottom of screen)
+     * WHITE: goal is col K (right of screen)
      *
      * Rhombuses are never on the board edge.
      */
@@ -341,9 +335,9 @@ public class BotPlayer {
         if (tile.getShape() == ShapeEnum.RHOMBUS) return false;
         String coord = tile.getCoord();
         if (player == PlayerEnum.BLACK) {
-            // BLACK: bottom edge = row 11
+            // BLACK: bottom edge = row 1
             int row = Integer.parseInt(coord.substring(1));
-            return row == 11;
+            return row == 1;
         } else {
             // WHITE: right edge = col K
             return coord.charAt(0) == 'K';
@@ -356,11 +350,11 @@ public class BotPlayer {
      *
      * BLACK (top→bottom, row changes):
      *   Penalise distance from centre column F.
-     *   This keeps the vertical path running through the middle column.
+     *   Keeps vertical path through the middle column.
      *
      * WHITE (left→right, col changes):
      *   Penalise distance from centre row 6.
-     *   This keeps the horizontal path running through the middle row.
+     *   Keeps horizontal path through the middle row.
      *
      * Rhombuses get 0 penalty — never penalise shortcuts.
      */
@@ -368,11 +362,11 @@ public class BotPlayer {
         if (coord.contains("_")) return 0;
 
         if (player == PlayerEnum.BLACK) {
-            // BLACK goes top→bottom — prefer centre column F (ASCII 70)
+            // Prefer centre column F
             char col = coord.charAt(0);
             return Math.abs(col - 'F');
         } else {
-            // WHITE goes left→right — prefer centre row 6
+            // Prefer centre row 6
             int row = Integer.parseInt(coord.substring(1));
             return Math.abs(row - 6);
         }
@@ -396,24 +390,22 @@ public class BotPlayer {
      * Extracts the 4 corner octagons of a rhombus.
      *
      * Rhombus coord format: "AB_1_2"
-     *   c1 = 'A' (first col letter)
-     *   c2 = 'B' (second col letter)
-     *   r1 = "1" (first row number)
-     *   r2 = "2" (second row number)
+     *   c1 = 'A', c2 = 'B' (column letters)
+     *   r1 = "1", r2 = "2" (row numbers)
      *
      * Corners: [c1r1, c1r2, c2r2, c2r1]
      */
     private Tile[] getRhombusCorners(Tile rhombus, Map<String, Tile> tileMap) {
-        String id = rhombus.getCoord(); // e.g. "AB_1_2"
+        String id = rhombus.getCoord();
 
-        char c1 = id.charAt(0); // first col letter
-        char c2 = id.charAt(1); // second col letter
+        char c1 = id.charAt(0);
+        char c2 = id.charAt(1);
 
         int i1 = id.indexOf('_');
         int i2 = id.indexOf('_', i1 + 1);
 
-        String r1 = id.substring(i1 + 1, i2); // first row number
-        String r2 = id.substring(i2 + 1);     // second row number
+        String r1 = id.substring(i1 + 1, i2);
+        String r2 = id.substring(i2 + 1);
 
         return new Tile[]{
                 tileMap.get("" + c1 + r1),
@@ -433,11 +425,34 @@ public class BotPlayer {
                 .count();
     }
 
+    public StrategyResult getLastExecutedStrategy() {
+        return lastExecutedStrategy;
+    }
+
+
+    /**
+     * Strategy result wrapper.
+     * path        = full path to highlight in Show Strategy
+     * isBlocking  = true if bot is blocking opponent, false if advancing
+     * chosenTile  = exact tile the bot will play (shown in yellow)
+     */
+    public static class StrategyResult {
+        public final List<Tile> path;
+        public final boolean isBlocking;
+        public final Tile chosenTile;
+
+        public StrategyResult(List<Tile> path, boolean isBlocking, Tile chosenTile) {
+            this.path       = path;
+            this.isBlocking = isBlocking;
+            this.chosenTile = chosenTile;
+        }
+    }
+
 
     /**
      * Priority queue entry.
-     * cost          = Dijkstra cost so far.
-     * centrePenalty = tiebreaker to prefer centre-running paths.
+     * cost          = Dijkstra cost so far
+     * centrePenalty = tiebreaker to prefer centre-running paths
      */
     private static class CoordCost {
         String coord;
@@ -450,4 +465,35 @@ public class BotPlayer {
             this.centrePenalty = centrePenalty;
         }
     }
+
+    private boolean isRhombusValidForPlayer(Tile rhombus, Map<String, Tile> tileMap, PlayerEnum player) {
+
+        Tile[] corners = getRhombusCorners(rhombus, tileMap);
+
+        Tile t1 = corners[0];
+        Tile t2 = corners[1];
+        Tile t3 = corners[2];
+        Tile t4 = corners[3];
+
+        boolean diag1 = t1 != null && t3 != null
+                && !t1.isEmpty() && !t3.isEmpty()
+                && t1.getOwner() == player
+                && t3.getOwner() == player;
+
+        boolean diag2 = t2 != null && t4 != null
+                && !t2.isEmpty() && !t4.isEmpty()
+                && t2.getOwner() == player
+                && t4.getOwner() == player;
+
+        return diag1 || diag2;
+    }
+
+    public void setLastExecutedStrategy(StrategyResult strategy) {
+        this.lastExecutedStrategy = strategy;
+    }
+
+    public void cacheStrategy(StrategyResult strategy) {
+        this.cachedStrategy = strategy;
+    }
+
 }

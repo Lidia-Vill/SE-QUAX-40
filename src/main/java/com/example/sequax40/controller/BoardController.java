@@ -81,6 +81,8 @@ public class BoardController {
     private boolean botThinking = false;
 
 
+
+
     //initialise method 
     @FXML
     public void initialize() {
@@ -204,7 +206,7 @@ public class BoardController {
         // check if the move made is valid with the rules in game manager
         boolean movePlayed = gameManager.makeMove(tile);
         if (!movePlayed) {
-            return; // if invalid move, return
+            return;
         }
 
         // colour the tile immediately, including the winning tile
@@ -454,23 +456,35 @@ public class BoardController {
 
     private void makeBotMove() {
 
-        // Use BotPlayer hybrid strategy instead of random
-        Tile chosenTile = botPlayer.chooseTile(tileMap, botColor, gameManager.getMoveCount());
+        // 1. compute strategy ONCE
+        BotPlayer.StrategyResult strategy =
+                botPlayer.computeStrategy(tileMap, botColor, gameManager.getMoveCount());
 
-        if (chosenTile == null) return;
+        if (strategy == null || strategy.chosenTile == null) {
+            botThinking = false;
+            return;
+        }
 
+        // 2. cache it for "SHOW STRATEGY"
+        botPlayer.cacheStrategy(strategy);
+
+        Tile chosenTile = strategy.chosenTile;
+
+        // 3. play move
         boolean movePlayed = gameManager.makeMove(chosenTile);
+        if (!movePlayed) {
+            botThinking = false;
+            return;
+        }
 
-        if (!movePlayed) return; // invalid move — strategy returned bad tile
+        // 4. THIS is the actual executed move
+        botPlayer.setLastExecutedStrategy(strategy);
 
-        // Update UI for the chosen tile
+        // 5. UI update
         Polygon polygon = polygonMap.get(chosenTile.getCoord());
         if (polygon != null) {
             updateTileUI(chosenTile, polygon);
         }
-
-        // Clear strategy highlight after bot plays
-        hideStrategy();
 
         if (gameManager.isGameOver()) {
             turnLabel.setText(gameManager.getCurrentTurn() + " WINS!");
@@ -485,29 +499,34 @@ public class BoardController {
         Platform.runLater(this::triggerBotIfNeeded);
     }
 
+
     @FXML
     public void showStrat(ActionEvent event) {
+
         if (strategyVisible) {
             hideStrategy();
             return;
         }
 
-        // Get the bot's planned path from BotPlayer
-        currentStrategyPath = botPlayer.getStrategyPath(tileMap, botColor, gameManager.getMoveCount());
+        // ALWAYS use last executed strategy (correct fix)
+        BotPlayer.StrategyResult strategy = botPlayer.getLastExecutedStrategy();
 
-        boolean firstEmpty = true;
+        if (strategy == null) return;
+
+        currentStrategyPath = strategy.path;
+        Tile chosenTile = strategy.chosenTile;
 
         for (Tile tile : currentStrategyPath) {
-            if (!tile.isEmpty()) continue; // skip already-placed tiles
+
+            if (tile == null) continue;
 
             Polygon poly = polygonMap.get(tile.getCoord());
             if (poly == null) continue;
 
-            if (firstEmpty) {
-                poly.setFill(STRATEGY_NEXT_COLOR);  // yellow = next move
-                firstEmpty = false;
+            if (tile.getCoord().equals(chosenTile.getCoord())) {
+                poly.setFill(STRATEGY_NEXT_COLOR); // yellow = executed move
             } else {
-                poly.setFill(STRATEGY_PATH_COLOR);  // orange = planned path
+                poly.setFill(STRATEGY_PATH_COLOR); // orange = explanation
             }
         }
 
@@ -518,18 +537,19 @@ public class BoardController {
 
     private void hideStrategy() {
         for (Tile tile : currentStrategyPath) {
-            if (!tile.isEmpty()) continue;
 
             Polygon poly = polygonMap.get(tile.getCoord());
             if (poly == null) continue;
 
-            // Restore default colour
-            poly.setFill(getDefaultFill(tile));
+            // Restore correct colour based on current owner
+            if (!tile.isEmpty()) {
+                updateTileUI(tile, poly);
+            } else {
+                poly.setFill(getDefaultFill(tile));
+            }
         }
 
-        if (showStratButton != null) {
-            showStratButton.setText("SHOW STRATEGY");
-        }
+        showStratButton.setText("SHOW STRATEGY");
 
         currentStrategyPath = new ArrayList<>();
         strategyVisible = false;
