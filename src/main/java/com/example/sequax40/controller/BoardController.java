@@ -351,6 +351,7 @@ public class BoardController {
         }
     }
     
+ 
 
     // setters used for testing so UI fields are not null (Sprint2 Features 1 and 3 test)
     public void setTurnLabel(Label label) {
@@ -549,8 +550,10 @@ public class BoardController {
             }
  
             // Rhombus tiles in path: highlight in orange (even if already owned)
-            if (tile.getShape() == com.example.sequax40.enums.ShapeEnum.RHOMBUS) {
-                poly.setFill(STRATEGY_PATH_COLOR);
+            if (tile.getShape() == ShapeEnum.RHOMBUS) {
+                if(tile.isEmpty()) {
+                	poly.setFill(STRATEGY_PATH_COLOR);
+                }
                 continue;
             }
  
