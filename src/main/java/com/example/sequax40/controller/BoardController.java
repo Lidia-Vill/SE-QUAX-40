@@ -43,7 +43,8 @@ public class BoardController {
     @FXML private Button pieRuleButton;
 
     @FXML private Button showStratButton;
-    @FXML private Label strategyLabel;
+    @FXML private Label strategyLabel1;
+    @FXML private Label strategyLabel2;
 
     @FXML private Label timerLabel;
     private javafx.animation.Timeline gameTimer;
@@ -566,10 +567,19 @@ public class BoardController {
         
         String explanation = "";
         
-        strategyLabel.setText(explanation);
-        strategyLabel.setVisible(true);
-        strategyLabel.setManaged(true);
+        if(strategy.isBlocking) {
+        	explanation = "Using Dijkstras Algorithm and a blocking technique to prevent WHITE from creating their chain";
+        }
+        else {
+        	explanation = "Using Dijkstras Algorithm to connect a chain from top to bottom in the shortest path possible from those available.";
+        }
         
+        if (strategyLabel1 != null) strategyLabel1.setVisible(true);
+        if (strategyLabel2 != null) {
+            strategyLabel2.setText(explanation);
+            strategyLabel2.setVisible(true);
+            strategyLabel2.setManaged(true);
+        }
  
         showStratButton.setText("HIDE STRATEGY");
         strategyVisible = true;
@@ -590,9 +600,12 @@ public class BoardController {
             }
         }
         
-        strategyLabel.setVisible(false);
-        strategyLabel.setText("");
-        strategyLabel.setManaged(true);
+        if (strategyLabel1 != null) strategyLabel1.setVisible(false);
+        if (strategyLabel2 != null) {
+            strategyLabel2.setVisible(false);
+            strategyLabel2.setText("");
+            strategyLabel2.setManaged(true);
+        }
 
         showStratButton.setText("SHOW STRATEGY");
 
