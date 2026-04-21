@@ -323,7 +323,6 @@ public class BoardController {
 
         
         pieRuleUsed = false;
-
         updatePieRuleButtonVisibility();
 
         for (Map.Entry<String, Polygon> entry : polygonMap.entrySet()) {
@@ -700,4 +699,5 @@ public class BoardController {
 	public void setGameTimer(javafx.animation.Timeline timer) {
 		this.gameTimer = timer;
 	}
+
 }

@@ -35,6 +35,7 @@ public class S4Feature3 {
     @FXML private Polygon turnOct;
     @FXML private Polygon turnRhom;
     @FXML private Button pieRuleButton;
+    @FXML private Button stratButton;
 	
 	@BeforeAll
     static void initToolkit() {
@@ -56,6 +57,7 @@ public class S4Feature3 {
         timerLabel = new Label();
         turnOct = new Polygon();
         turnRhom = new Polygon();
+        stratButton = new Button();
         //set the timers
         timerLabel = new Label();
  
@@ -68,6 +70,7 @@ public class S4Feature3 {
         controller.setTurnOct(turnOct);
         controller.setTurnRhom(turnRhom);
         controller.setPieRuleButton(pieRuleButton);
+        controller.setShowStratButton(stratButton);
         
         controller.setTimerLabel(timerLabel);   
         controller.startTimerForTest();
