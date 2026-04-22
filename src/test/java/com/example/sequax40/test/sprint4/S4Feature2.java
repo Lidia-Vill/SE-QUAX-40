@@ -47,7 +47,6 @@ public class S4Feature2 {
         Map<String, Tile> tileMap = board.getAllTiles();
         manager = new GameManager(board, tileMap);
 
-        // Basic UI setup
         controller.setMainContainer(new StackPane());
         controller.setWindowContainer(new HBox());
         controller.setMasterGroup(new Group());
@@ -56,7 +55,6 @@ public class S4Feature2 {
         controller.setBoard(board);
         controller.setGameManager(manager);
 
-        // Strategy UI elements
         strategyLabel1 = new Label();
         strategyLabel2 = new Label();
         showStratButton = new Button();
@@ -64,10 +62,15 @@ public class S4Feature2 {
         controller.setStrategyLabel1(strategyLabel1);
         controller.setStrategyLabel2(strategyLabel2);
         controller.setShowStratButton(showStratButton);
+
+        // prevents NullPointerException on pieRuleButton.isVisible()
+        Button pieRuleButton = new Button();
+        pieRuleButton.setVisible(false);
+        controller.setPieRuleButton(pieRuleButton);
     }
 
 
-    // Test that show Strategy button
+    // Test that show strategy button toggles correctly
     @Test
     void testShowStrategyTogglesVisibility() {
 
@@ -81,7 +84,7 @@ public class S4Feature2 {
     }
 
 
-    // Path is cleared when show strategy button is not clicked
+    // Path is cleared when strategy is hidden
     @Test
     void testStrategyPathClearedOnHide() {
 
@@ -105,7 +108,7 @@ public class S4Feature2 {
         controller.polygonMap.put("A1", new Polygon());
 
         BotPlayer.StrategyResult cached =
-                new BotPlayer.StrategyResult(List.of(t), false, t);
+                new BotPlayer.StrategyResult(List.of(t), Collections.emptyList(), false, t);
 
         bot.cacheStrategy(cached);
         controller.setBotPlayer(bot);
@@ -127,7 +130,7 @@ public class S4Feature2 {
         controller.polygonMap.put("A1", new Polygon());
 
         BotPlayer.StrategyResult strategy =
-                new BotPlayer.StrategyResult(List.of(t), false, t);
+                new BotPlayer.StrategyResult(List.of(t), Collections.emptyList(), false, t);
 
         bot.setLastExecutedStrategy(strategy);
         controller.setBotPlayer(bot);
@@ -138,7 +141,7 @@ public class S4Feature2 {
     }
 
 
-    // Strategy explanation (blocking)
+    // Strategy explanation contains "blocking" when isBlocking is true
     @Test
     void testStrategyExplanationBlocking() {
 
@@ -148,8 +151,12 @@ public class S4Feature2 {
         controller.tileMap.put("A1", t);
         controller.polygonMap.put("A1", new Polygon());
 
+        Tile opp = new Tile("B1", ShapeEnum.OCTAGON);
+        controller.tileMap.put("B1", opp);
+        controller.polygonMap.put("B1", new Polygon());
+
         BotPlayer.StrategyResult strategy =
-                new BotPlayer.StrategyResult(List.of(t), true, t);
+                new BotPlayer.StrategyResult(List.of(t), List.of(opp), true, t);
 
         bot.setLastExecutedStrategy(strategy);
         controller.setBotPlayer(bot);
@@ -160,7 +167,7 @@ public class S4Feature2 {
     }
 
 
-    //  Labels become visible
+    // Labels become visible when strategy is shown
     @Test
     void testStrategyLabelsBecomeVisible() {
 
@@ -173,8 +180,7 @@ public class S4Feature2 {
     }
 
 
-    //  Labels hidden after hide
-
+    // Labels are hidden after strategy is hidden
     @Test
     void testStrategyLabelsHiddenAfterHide() {
 
@@ -188,7 +194,7 @@ public class S4Feature2 {
     }
 
 
-    //Chosen tile highlighted (yellow)
+    // Chosen tile is highlighted in yellow
     @Test
     void testChosenTileHighlighted() {
 
@@ -200,7 +206,7 @@ public class S4Feature2 {
 
         BotPlayer bot = new BotPlayer();
         BotPlayer.StrategyResult strategy =
-                new BotPlayer.StrategyResult(List.of(t), false, t);
+                new BotPlayer.StrategyResult(List.of(t), Collections.emptyList(), false, t);
 
         bot.setLastExecutedStrategy(strategy);
         controller.setBotPlayer(bot);
@@ -211,7 +217,99 @@ public class S4Feature2 {
     }
 
 
-    // Helper method to reduce repetition
+    // Opponent path tiles are highlighted in red
+    @Test
+    void testOpponentPathHighlightedRed() {
+
+        Tile botTile = new Tile("A1", ShapeEnum.OCTAGON);
+        Tile oppTile = new Tile("B1", ShapeEnum.OCTAGON);
+
+        Polygon botPoly = new Polygon();
+        Polygon oppPoly = new Polygon();
+
+        controller.tileMap.put("A1", botTile);
+        controller.tileMap.put("B1", oppTile);
+        controller.polygonMap.put("A1", botPoly);
+        controller.polygonMap.put("B1", oppPoly);
+
+        BotPlayer bot = new BotPlayer();
+        BotPlayer.StrategyResult strategy =
+                new BotPlayer.StrategyResult(List.of(botTile), List.of(oppTile), true, botTile);
+
+        bot.setLastExecutedStrategy(strategy);
+        controller.setBotPlayer(bot);
+
+        controller.showStrat(null);
+
+        assertEquals(Color.web("#e53935"), oppPoly.getFill());
+    }
+
+
+    // Bot path tiles are highlighted in orange
+    @Test
+    void testBotPathHighlightedOrange() {
+
+        Tile botTile = new Tile("A2", ShapeEnum.OCTAGON);
+        Tile chosenTile = new Tile("A1", ShapeEnum.OCTAGON);
+
+        Polygon botPoly = new Polygon();
+        Polygon chosenPoly = new Polygon();
+
+        controller.tileMap.put("A2", botTile);
+        controller.tileMap.put("A1", chosenTile);
+        controller.polygonMap.put("A2", botPoly);
+        controller.polygonMap.put("A1", chosenPoly);
+
+        BotPlayer bot = new BotPlayer();
+        BotPlayer.StrategyResult strategy =
+                new BotPlayer.StrategyResult(
+                        List.of(botTile, chosenTile), Collections.emptyList(), false, chosenTile);
+
+        bot.setLastExecutedStrategy(strategy);
+        controller.setBotPlayer(bot);
+
+        controller.showStrat(null);
+
+        assertEquals(Color.web("#ff9800"), botPoly.getFill());
+    }
+
+
+    // Both paths shown simultaneously — bot orange, opponent red
+    @Test
+    void testBothPathsHighlightedSimultaneously() {
+
+        Tile botTile  = new Tile("A2", ShapeEnum.OCTAGON);
+        Tile oppTile  = new Tile("B2", ShapeEnum.OCTAGON);
+        Tile chosen   = new Tile("A1", ShapeEnum.OCTAGON);
+
+        Polygon botPoly  = new Polygon();
+        Polygon oppPoly  = new Polygon();
+        Polygon chosenPoly = new Polygon();
+
+        controller.tileMap.put("A2", botTile);
+        controller.tileMap.put("B2", oppTile);
+        controller.tileMap.put("A1", chosen);
+        controller.polygonMap.put("A2", botPoly);
+        controller.polygonMap.put("B2", oppPoly);
+        controller.polygonMap.put("A1", chosenPoly);
+
+        BotPlayer bot = new BotPlayer();
+        BotPlayer.StrategyResult strategy =
+                new BotPlayer.StrategyResult(
+                        List.of(botTile, chosen), List.of(oppTile), true, chosen);
+
+        bot.setLastExecutedStrategy(strategy);
+        controller.setBotPlayer(bot);
+
+        controller.showStrat(null);
+
+        assertEquals(Color.web("#ff9800"), botPoly.getFill());
+        assertEquals(Color.web("#e53935"), oppPoly.getFill());
+        assertEquals(Color.web("#ffeb3b"), chosenPoly.getFill());
+    }
+
+
+    // Helper method
     private void setupFakeStrategy() {
 
         Tile t1 = new Tile("A1", ShapeEnum.OCTAGON);
@@ -226,10 +324,10 @@ public class S4Feature2 {
         BotPlayer bot = new BotPlayer();
 
         BotPlayer.StrategyResult strategy =
-                new BotPlayer.StrategyResult(Arrays.asList(t1, t2), false, t2);
+                new BotPlayer.StrategyResult(
+                        Arrays.asList(t1, t2), Collections.emptyList(), false, t2);
 
         bot.setLastExecutedStrategy(strategy);
-
         controller.setBotPlayer(bot);
     }
 }

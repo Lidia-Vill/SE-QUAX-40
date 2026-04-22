@@ -23,6 +23,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.NumberBinding;
 import javafx.event.ActionEvent;
 
+
 import java.util.*;
 
 
@@ -33,6 +34,7 @@ public class BoardController {
     @FXML public Group masterGroup;
 
     @FXML public StackPane gameBoardStackPane;
+    @FXML private javafx.scene.control.ScrollPane strategyScrollPane;
     @FXML public Group boardGroup;
     @FXML public HBox windowContainer;
 
@@ -58,6 +60,7 @@ public class BoardController {
     // Highlight colours for strategy display
     private static final Color STRATEGY_PATH_COLOR  = Color.web("#ff9800"); // orange
     private static final Color STRATEGY_NEXT_COLOR  = Color.web("#ffeb3b"); // yellow
+    private static final Color STRATEGY_BLOCK_COLOR = Color.web("#e53935"); // red
     
     
    
@@ -544,73 +547,84 @@ public class BoardController {
         this.botPlayer = botPlayer;
     }
 
+    public void setStrategyScrollPane(javafx.scene.control.ScrollPane pane) {
+        this.strategyScrollPane = pane;
+    }
 
 
     @FXML
     public void showStrat(ActionEvent event) {
- 
+
         if (strategyVisible) {
             hideStrategy();
             return;
         }
- 
-        // Prefer cached (current turn) over last executed
+
         BotPlayer.StrategyResult strategy = botPlayer.getCachedStrategy();
         if (strategy == null) strategy = botPlayer.getLastExecutedStrategy();
         if (strategy == null) return;
- 
-        currentStrategyPath = strategy.path;
-        Tile chosenTile     = strategy.chosenTile;
- 
+
+        // build combined path for hideStrategy to restore later
+        currentStrategyPath = new ArrayList<>(strategy.path);
+        for (Tile t : strategy.opponentPath) {
+            if (!currentStrategyPath.contains(t)) {
+                currentStrategyPath.add(t);
+            }
+        }
+
+        Tile chosenTile = strategy.chosenTile;
+        Set<String> opponentCoords = new HashSet<>();
+        for (Tile t : strategy.opponentPath) {
+            opponentCoords.add(t.getCoord());
+        }
+        Set<String> botCoords = new HashSet<>();
+        for (Tile t : strategy.path) {
+            botCoords.add(t.getCoord());
+        }
+
         for (Tile tile : currentStrategyPath) {
- 
             Polygon poly = polygonMap.get(tile.getCoord());
             if (poly == null) continue;
- 
-            boolean isChosen = chosenTile != null
-                    && tile.getCoord().equals(chosenTile.getCoord());
- 
-            // Chosen tile always shown in yellow, regardless of shape
-            if (isChosen) {
+
+            // chosen tile always yellow
+            if (chosenTile != null && tile.getCoord().equals(chosenTile.getCoord())) {
                 poly.setFill(STRATEGY_NEXT_COLOR);
                 continue;
             }
- 
-            // Rhombus tiles in path: highlight in orange (even if already owned)
-            if (tile.getShape() == ShapeEnum.RHOMBUS) {
-                if(tile.isEmpty()) {
-                	poly.setFill(STRATEGY_PATH_COLOR);
-                }
-                continue;
-            }
- 
-            // Octagon: highlight only empty tiles (owned tiles keep their player colour)
-            if (tile.isEmpty()) {
+
+            if (!tile.isEmpty()) continue; // owned tiles keep their player colour
+
+            // tile on both paths → bot colour (orange) takes priority
+            if (botCoords.contains(tile.getCoord())) {
                 poly.setFill(STRATEGY_PATH_COLOR);
+            } else if (opponentCoords.contains(tile.getCoord())) {
+                poly.setFill(STRATEGY_BLOCK_COLOR);
             }
         }
-        
-        String explanation = "";
-        
-        if(pieRuleButton.isVisible()) {
-        	explanation="Bot chooses centre tile on its first move as it is generally seen as an optimal starting position.";
+
+        String explanation;
+        if (pieRuleButton.isVisible()) {
+            explanation = "Bot chooses centre tile on its first move as it is generally seen as an optimal starting position.";
+        } else {
+            explanation = "The bot uses Dijkstra's Algorithm to calculate the best path, "
+                    + "treating all tiles as connected nodes with different costs: connected tiles (0), "
+                    + "empty rhombuses (1)(so they're preferred), empty octagons (2), and opponent tiles are blocked. "
+                    + "It follows the lowest-cost path, but if the opponent is close to winning, it switches to a blocking "
+                    + "strategy by placing a tile on the opponent's best path to slow them down. "
+                    + "Otherwise, it focuses on completing its own path as efficiently as possible. "
+                    + "Orange: BLACK's path. Red: WHITE's path. Yellow: last move.";
         }
-        else {
-        	explanation = "The bot uses Dijkstra's Algorithm to calculate the best path, "
-            		+ "treating all tiles as connected nodes with different costs: connected tiles (0), "
-            		+ "empty rhombuses (1)(so they’re preferred), empty octagons (2), and opponent tiles are blocked. "
-            		+ "It follows the lowest-cost path, but if the opponent is close to winning, it switches to a blocking "
-            		+ "strategy by placing a tile on the opponent’s best path to slow them down. "
-            		+ "Otherwise, it focuses on completing its own path as efficiently as possible. ";
-        }
-        
+
         if (strategyLabel1 != null) strategyLabel1.setVisible(true);
         if (strategyLabel2 != null) {
             strategyLabel2.setText(explanation);
-            strategyLabel2.setVisible(true);
-            strategyLabel2.setManaged(true);
+            strategyLabel2.setWrapText(true);
         }
- 
+        if (strategyScrollPane != null) {
+            strategyScrollPane.setVisible(true);
+            strategyScrollPane.setManaged(true);
+        }
+
         showStratButton.setText("HIDE STRATEGY");
         strategyVisible = true;
     }
@@ -631,10 +645,12 @@ public class BoardController {
         }
         
         if (strategyLabel1 != null) strategyLabel1.setVisible(false);
+        if (strategyScrollPane != null) {
+            strategyScrollPane.setVisible(false);
+            strategyScrollPane.setManaged(false);
+        }
         if (strategyLabel2 != null) {
-            strategyLabel2.setVisible(false);
             strategyLabel2.setText("");
-            strategyLabel2.setManaged(true);
         }
 
         showStratButton.setText("SHOW STRATEGY");
