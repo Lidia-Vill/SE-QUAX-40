@@ -72,6 +72,11 @@
                     blocking   = false;
                 }
                 
+                if (chosenTile == null) {
+                    chosenTile = bestTileFromPath(botPath, tileMap, botColor);
+                    blocking   = false;
+                }
+                
             } 
             else {
                 chosenTile = bestTileFromPath(botPath, tileMap, botColor);
@@ -85,7 +90,8 @@
             }
             
             if (chosenTile == null) {
-                cachedStrategy = new StrategyResult(Collections.emptyList(), Collections.emptyList(), false, null);                return cachedStrategy;
+                cachedStrategy = new StrategyResult(Collections.emptyList(), Collections.emptyList(), false, null);   
+                return cachedStrategy;
             }
         
             // HAS CAMBIADOO VUELVE SINO
