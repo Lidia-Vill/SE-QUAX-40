@@ -265,6 +265,10 @@ public class BoardController {
     	}
 
         gameManager.switchTurn(); //switch the turn back to black
+        
+        if (strategyVisible) {
+            hideStrategy();
+        }
  
         updateTurnLabel(); //update the turn label to say blacks turn
         
@@ -588,11 +592,16 @@ public class BoardController {
         
         String explanation = "";
         
-        if(strategy.isBlocking) {
-        	explanation = "Using Dijkstras Algorithm and a blocking technique to prevent WHITE from creating their chain";
+        if(pieRuleButton.isVisible()) {
+        	explanation="Bot chooses centre tile on its first move as it is generally seen as an optimal starting position.";
         }
         else {
-        	explanation = "Using Dijkstras Algorithm to connect a chain from top to bottom in the shortest path possible from those available.";
+        	explanation = "The bot uses Dijkstra's Algorithm to calculate the best path, "
+            		+ "treating all tiles as connected nodes with different costs: connected tiles (0), "
+            		+ "empty rhombuses (1)(so they’re preferred), empty octagons (2), and opponent tiles are blocked. "
+            		+ "It follows the lowest-cost path, but if the opponent is close to winning, it switches to a blocking "
+            		+ "strategy by placing a tile on the opponent’s best path to slow them down. "
+            		+ "Otherwise, it focuses on completing its own path as efficiently as possible. ";
         }
         
         if (strategyLabel1 != null) strategyLabel1.setVisible(true);
