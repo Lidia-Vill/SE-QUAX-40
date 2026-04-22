@@ -4038,23 +4038,19 @@
                         <Font name="System Bold" size="30.0" />
                      </font>
                   </Label>
-                  <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9e9bec" height="50.0" stroke="TRANSPARENT" strokeType="INSIDE" strokeWidth="0.0" width="200.0" />
-                  <VBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0">
+                  <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9e9bec" height="30.0" stroke="TRANSPARENT" strokeType="INSIDE" strokeWidth="0.0" width="200.0" />
+                  <VBox alignment="CENTER" prefHeight="300.0" prefWidth="200.0">
                      <children>
-                        <Label id="strategyLabel1" fx:id="strategyLabel1" alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="43.0" prefWidth="210.0" style="-fx-alignment: center; -fx-background-color: #e8e9eb; -fx-background-radius: 8; -fx-font-size: 18; -fx-padding: 8; -fx-font-weight: bold;" text="STRATEGY: " visible="false">
+                        <Label id="strategyLabel1" fx:id="strategyLabel1" alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="210.0" style="-fx-alignment: center; -fx-background-color: #e8e9eb; -fx-background-radius: 8; -fx-font-size: 15; -fx-padding: 5; -fx-font-weight: bold;" text="STRATEGY: " visible="false">
                            <font>
                               <Font name="System Bold" size="12.0" />
                            </font>
                         </Label>
                         <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9e9bec" height="5.0" stroke="TRANSPARENT" strokeType="INSIDE" strokeWidth="0.0" width="200.0" />
-                        <Label id="strategyLabel2" fx:id="strategyLabel2" alignment="CENTER" contentDisplay="CENTER" managed="false" prefHeight="150.0" prefWidth="210.0" style="-fx-font-size: 16; -fx-background-color: #e8e9eb; -fx-padding: 5; -fx-background-radius: 8; -fx-alignment: center;" text="STRATEGY:&#10;&#10;" visible="false" wrapText="true">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                        </Label>
+                        <Label id="strategyLabel2" fx:id="strategyLabel2" alignment="CENTER" contentDisplay="CENTER" managed="false" prefHeight="250.0" prefWidth="210.0" style="-fx-font-size: 12; -fx-background-color: #e8e9eb; -fx-padding: 5; -fx-background-radius: 8; -fx-alignment: center;" text="STRATEGY:&#10;&#10;" wrapText="true" />
                      </children>
                   </VBox>
-                  <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9e9bec" height="90.0" stroke="#9e9bec" strokeType="INSIDE" width="200.0" />
+                  <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9e9bec" height="50.0" stroke="#9e9bec" strokeType="INSIDE" width="200.0" />
                   <Button id="pieRuleButton" fx:id="pieRuleButton" mnemonicParsing="false" onAction="#handlePieRule" prefHeight="45.0" prefWidth="210.0" style="-fx-background-color: #e8e9eb;" text="ACTIVATE PIE RULE" visible="false">
                      <font>
                         <Font name="System Bold" size="20.0" />
