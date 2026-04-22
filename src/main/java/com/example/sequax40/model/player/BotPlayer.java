@@ -89,11 +89,13 @@ public class BotPlayer {
 			return cachedStrategy;
 		}
 	
+        // HAS CAMBIADOO VUELVE SINO
 
-		List<Tile> displayPath = new ArrayList<>(botPath);
+        List<Tile> displayPath = new ArrayList<>(botPath);
 		if (!displayPath.contains(chosenTile)) {
 			displayPath.add(chosenTile);
 		}
+
 		
 		cachedStrategy = new StrategyResult(displayPath, blocking, chosenTile);
 		
