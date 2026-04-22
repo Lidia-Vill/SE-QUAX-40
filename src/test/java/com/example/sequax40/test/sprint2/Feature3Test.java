@@ -10,6 +10,7 @@ import com.example.sequax40.model.game.GameManager;
 
 import javafx.fxml.FXML;
 import javafx.scene.Group;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -33,6 +34,7 @@ public class Feature3Test {
     @FXML private Label turnLabel;
     @FXML private Polygon turnOct;
     @FXML private Polygon turnRhom;
+    @FXML private Button showStrat;
 
 
     // board dumps
@@ -76,6 +78,7 @@ public class Feature3Test {
         turnLabel = new Label();
         turnOct = new Polygon();
         turnRhom = new Polygon();
+        showStrat = new Button();
 
         controller.setMainContainer(mainContainer);
         controller.setWindowContainer(windowContainer);
@@ -85,6 +88,7 @@ public class Feature3Test {
         controller.setTurnLabel(turnLabel);
         controller.setTurnOct(turnOct);
         controller.setTurnRhom(turnRhom);
+        controller.setShowStratButton(showStrat);
 
         controller.setBoard(board);
         controller.setGameManager(manager);
