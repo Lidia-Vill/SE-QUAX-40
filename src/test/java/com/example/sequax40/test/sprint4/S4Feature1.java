@@ -1,10 +1,13 @@
-package com.example.sequax40.model.player;
+package com.example.sequax40.test.sprint4;
 
 import com.example.sequax40.enums.PlayerEnum;
 import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Tile;
+import com.example.sequax40.model.player.BotPlayer;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
 import java.util.List;

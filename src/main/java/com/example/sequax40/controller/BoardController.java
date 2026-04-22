@@ -323,7 +323,6 @@ public class BoardController {
 
         
         pieRuleUsed = false;
-
         updatePieRuleButtonVisibility();
 
         for (Map.Entry<String, Polygon> entry : polygonMap.entrySet()) {
@@ -521,6 +520,28 @@ public class BoardController {
     }
 
 
+    public void setStrategyLabel1(Label label) {
+        this.strategyLabel1 = label;
+    }
+
+    public void setStrategyLabel2(Label label) {
+        this.strategyLabel2 = label;
+    }
+
+    public void setShowStratButton(Button button) {
+        this.showStratButton = button;
+    }
+
+    public List<Tile> getCurrentStrategyPath() {
+        return currentStrategyPath;
+    }
+
+    public void setBotPlayer(BotPlayer botPlayer) {
+        this.botPlayer = botPlayer;
+    }
+
+
+
     @FXML
     public void showStrat(ActionEvent event) {
  
@@ -678,4 +699,5 @@ public class BoardController {
 	public void setGameTimer(javafx.animation.Timeline timer) {
 		this.gameTimer = timer;
 	}
+
 }
