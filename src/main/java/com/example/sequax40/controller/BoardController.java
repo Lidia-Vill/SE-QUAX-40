@@ -8,10 +8,10 @@ import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.player.BotPlayer;
 
 import javafx.animation.*;
+import javafx.fxml.FXML;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
