@@ -97,7 +97,7 @@ public class BoardController {
     private int elapsedSeconds = 0;
 
     
-    // - Initialisation -----------------------------------------------------------------------------------------------------
+    // - Initialisation ---------------------------------------------------------------------------------------------
 
     @FXML
     public void initialize() {
@@ -146,8 +146,7 @@ public class BoardController {
     }
     
     
-    // - Tile Setup ------------------------------------------------------------------------------------------------------
-
+    // - Tile Setup -------------------------------------------------------------------------------------------------
     
     public void setupTiles() {
     	if (boardGroup == null) return; 
@@ -183,7 +182,7 @@ public class BoardController {
     }
 
      
-    // - Handle Human Move -------------------------------------------------------------------------------------------
+    // - Handle Human Move ------------------------------------------------------------------------------------------
     
     @FXML
     public void handleTileClick(MouseEvent event) {
@@ -202,7 +201,7 @@ public class BoardController {
     }
     
     
-    // - Pie Rule ---------------------------------------------------------------------------------------------------------
+    // - Pie Rule ---------------------------------------------------------------------------------------------------
     
     /*
      * Handles the pie rule: transfers Black's first tile to White 
@@ -239,8 +238,7 @@ public class BoardController {
     }
 
 
-    // - Turn Display ------------------------------------------------------------------------------------------------------
-
+    // - Turn Display -----------------------------------------------------------------------------------------------
     
     private void updateTurnLabel() {
     	PlayerEnum currentTurn = gameManager.getCurrentTurn();
@@ -281,8 +279,7 @@ public class BoardController {
     }
     
     
-    // - Bot Move ------------------------------------------------------------------------------------------------------
-
+    // - Bot Move ---------------------------------------------------------------------------------------------------
 
     private void triggerBotIfNeeded() {
         if (shouldShowPieRuleButton()) return;
@@ -346,7 +343,8 @@ public class BoardController {
     			.orElse(null);
     }
     
-    // - Strategy Overlay ----------------------------------------------------------------------------------------------
+    
+    // - Strategy Overlay -------------------------------------------------------------------------------------------
 
     @FXML
     public void showStrat(ActionEvent event) {
@@ -445,7 +443,8 @@ public class BoardController {
         strategyVisible = false;
     }
     
-    // - Timer ---------------------------------------------------------------------------------------------------------
+    
+    // - Timer ------------------------------------------------------------------------------------------------------
 
     private void startTimer() {
     	elapsedSeconds = 0;
@@ -472,7 +471,8 @@ public class BoardController {
         timerLabel.setText(String.format("%02d:%02d", minutes, seconds));
     }
     
-    // - Private Helpers -----------------------------------------------------------------------------------------------
+    
+    // - Private Helpers --------------------------------------------------------------------------------------------
 
     private boolean checkAndHandleGameOver() {
     	if(!gameManager.isGameOver()) return false;
@@ -511,7 +511,7 @@ public class BoardController {
     }
     
     
-    // - Getters / Setters ----------------------------------------------------------------------------------------------
+    // - Getters / Setters ------------------------------------------------------------------------------------------
 
     public void setBoard(Board board) {
     	this.board = board;
@@ -590,8 +590,6 @@ public class BoardController {
 		this.elapsedSeconds = seconds;
 	}
 	
-	
-    
 	public static double getDESIGN_WIDTH() {
 		return DESIGN_WIDTH;
 	}
@@ -627,9 +625,8 @@ public class BoardController {
 	boolean isBotTurn() {
         return gameManager.getCurrentTurn() == BOT_COLOUR;
     }
-
 	
-	// Test only timer methods
+	// Test only - timer methods
 	
 	public void updateTimerLabelForTest() {
 		updateTimerLabel();
