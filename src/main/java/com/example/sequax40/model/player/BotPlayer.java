@@ -351,6 +351,7 @@
         	}
         }
         
+        
         private static class DijkstraState {
         	final Map<String, Tile> tileMap;
         	final PlayerEnum player;
@@ -404,8 +405,7 @@
         		return path;
         	}
         }
-        
-        
+                
         
         public static class StrategyResult {
         	public final List<Tile> path;
@@ -420,6 +420,7 @@
         		this.chosenTile = chosenTile;
         	}
         }
+        
         
         private static class CoordCost { 
         	final String coord;
