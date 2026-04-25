@@ -5,504 +5,434 @@
     import com.example.sequax40.model.board.Tile;
      
     import java.util.*;
+    
+    /*
+     * Computes and caches the BOT's move strategy each turn
+     * 	Uses Dijkstra's algorithm to find the optimal path across the board
+     * 	switching to a blocking strategy when the opponent is closer to winning 
+     * 
+     * Coordinate System (letter = col A-K, number = row 1-11
+     * 	BLACK connects row 11 (top) to row 1 (bottom)
+     * 	WHITE connects col A (left) to col K (right)
+     */
      
     public class BotPlayer {
         
-        // Cached strategy so Show Strategy and actual move are always in sync
+    	// Constants
+    	
+    	private static final String CENTRE_TILE_COORD = "F6";
+    	private static final int BLOCKING_THRESHOLD = 4;
+    	
+    	// State
+    	
         private StrategyResult cachedStrategy = null;
-     
-        // Strategy that was actually executed in the last bot move
         private StrategyResult lastExecutedStrategy = null;
      
-        /*
-         * Uses cached strategy if available, otherwise computes fresh.
-         * Guarantees the move matches what Show Strategy displayed.
-         */
-        public Tile chooseTile(Map<String, Tile> tileMap, PlayerEnum botColor, int moveCount) {
-            if (cachedStrategy != null && cachedStrategy.chosenTile != null) {
-                return cachedStrategy.chosenTile;
-            }
-            return computeStrategy(tileMap, botColor, moveCount).chosenTile;
-        }
-     
-     
-        /*
-         * Computes the bot's strategy for this turn and caches it.
-         *
-         * Coordinate system (letter = col A-K, number = row 1-11):
-         *   BLACK connects row 11 (top) → row 1 (bottom)
-         *   WHITE connects col A (left) → col K (right)
-         */
-        public StrategyResult computeStrategy(Map<String, Tile> tileMap, PlayerEnum botColor, int moveCount) {
-    
-            if (tileMap == null || botColor == null) {
-                throw new IllegalStateException("Invalid strategy input");
-            }
-    
-            PlayerEnum opponent = (botColor == PlayerEnum.BLACK)
-                    ? PlayerEnum.WHITE : PlayerEnum.BLACK;
-    
-            // Opening move: take centre
-            if (moveCount == 0) {
-                Tile centre = tileMap.get("F6");
-                if (centre != null && centre.isEmpty()) {
-                    cachedStrategy = new StrategyResult(List.of(centre), Collections.emptyList(), false, centre);
-                    return cachedStrategy;
-                }
-            }
-            
-            List<Tile> botPath = findShortestPath(tileMap, botColor);
-            List<Tile> opponentPath = findShortestPath(tileMap, opponent);
-            
-            int botCost = countEmptyTiles(botPath);
-            int opponentCost = countEmptyTiles(opponentPath);
-            
-            boolean blocking = opponentCost <= botCost + 4;
-            
-    
-            Tile chosenTile;
-            
-            if (blocking && !opponentPath.isEmpty()) {
-                chosenTile = bestTileFromPath(opponentPath, tileMap, botColor);
-            
-                // If the blocking tile is an invalid rhombus, fall back to own path
-                if (chosenTile != null && chosenTile.getShape() == ShapeEnum.RHOMBUS
-                        && !isRhombusValidForPlayer(chosenTile, tileMap, botColor)) {
-                    chosenTile = bestTileFromPath(botPath, tileMap, botColor);
-                    blocking   = false;
-                }
-                
-                if (chosenTile == null) {
-                    chosenTile = bestTileFromPath(botPath, tileMap, botColor);
-                    blocking   = false;
-                }
-                
-            } 
-            else {
-                chosenTile = bestTileFromPath(botPath, tileMap, botColor);
-            }
-            
-            if (chosenTile == null) {
-                chosenTile = tileMap.values().stream()
-                .filter(t -> t.isEmpty() && t.getShape() == ShapeEnum.OCTAGON)
-                .findFirst()
-                .orElse(null);
-            }
-            
-            if (chosenTile == null) {
-                cachedStrategy = new StrategyResult(Collections.emptyList(), Collections.emptyList(), false, null);   
-                return cachedStrategy;
-            }
         
-            // HAS CAMBIADOO VUELVE SINO
-    
-            List<Tile> displayPath = new ArrayList<>(botPath);
-            if (!displayPath.contains(chosenTile)) {
-                displayPath.add(chosenTile);
-            }
-
-
-            cachedStrategy = new StrategyResult(displayPath, opponentPath, blocking, chosenTile);
-            return cachedStrategy;
+        public StrategyResult computeStrategy(Map<String, Tile> tileMap, 
+        										PlayerEnum botColour, 
+        										int moveCount) {
+        	if(tileMap == null || botColour == null) {
+        		throw new IllegalStateException("Invalid Strategy Input");
+        	}
+        	StrategyContext context = new StrategyContext(tileMap, botColour);
+        	if(isOpeningMove(moveCount)) {
+        		return computeOpeningStrategy(context);
+        	}
+        	return computeNormalStrategy(context);
         }
-     
-     
-        /* Returns the cached strategy — must call computeStrategy first */
+        
         public StrategyResult getCachedStrategy() {
-            return cachedStrategy;
+        	return cachedStrategy;
         }
-     
-        /* Clears the cache after the bot has played */
+        
         public void clearCache() {
-            cachedStrategy = null;
+        	cachedStrategy = null;
         }
-     
-     
-        /*
-         * Picks the best tile to play from a path.
-         *
-         * Priority 1 – a valid EMPTY RHOMBUS (diagonal shortcut whose placement
-         *              is legal, i.e. two of the player's own tiles already occupy
-         *              one diagonal of that rhombus).
-         * Priority 2 – the first empty OCTAGON closest to the board centre.
-         */
-        private Tile bestTileFromPath(List<Tile> path,
-                                      Map<String, Tile> tileMap,
-                                      PlayerEnum player) {
-
-            // PASS 1: strict rhombus priority
-            for (Tile tile : path) {
-                if (tile == null || !tile.isEmpty()) continue;
-                if (tile.getShape() == ShapeEnum.RHOMBUS
-                        && isRhombusValidForPlayer(tile, tileMap, player)) {
-                    return tile;
-                }
-            }
-
-            // PASS 2: octagon fallback — prefer tiles near the centre
-            return path.stream()
-                    .filter(t -> t != null
-                            && t.isEmpty()
-                            && t.getShape() == ShapeEnum.OCTAGON)
-                    .min(Comparator.comparingInt(
-                            t -> centrePenalty(t.getCoord(), player)))
-                    .orElse(null);
+        
+              
+        // - Strategy Selection  ----------------------------------------------------------------------------------------
+        
+        private boolean isOpeningMove(int moveCount) {
+        	return moveCount == 0;
         }
-     
-     
-        /*
-         * Dijkstra's algorithm to find the shortest path for a player.
-         *
-         * Rhombuses are treated as FIRST-CLASS NODES in the graph so that:
-         *   • they appear in the returned path (enabling correct UI highlighting)
-         *   • their diagonal connectivity is properly accounted for
-         *
-         * Graph edges:
-         *   Octagon   adjacent octagons (up/down/left/right)
-         *   Octagon  → every rhombus for which this octagon is a corner
-         *   Rhombus  → its 4 corner octagons
-         *
-         * Cost:
-         *   Own tile already placed = 0   (free to traverse)
-         *   Empty rhombus           = 1   (cheaper than octagon → preferred)
-         *   Empty octagon           = 2
-         *   Opponent tile           = ∞   (impassable / skipped)
-         */
+        
+        private StrategyResult computeOpeningStrategy(StrategyContext context) {
+        	Tile centre = context.tileMap.get(CENTRE_TILE_COORD);
+        	if(centre != null && centre.isEmpty()) {
+        		return cacheAndReturn(new StrategyResult(List.of(centre), Collections.emptyList(), false, centre));
+        	}
+        	return computeNormalStrategy(context);
+        }
+        
+        private StrategyResult computeNormalStrategy(StrategyContext context) {
+        	List<Tile> botPath = findShortestPath(context.tileMap, context.botColour);
+        	List<Tile> opponentPath = findShortestPath(context.tileMap, context.opponent);
+        	boolean blocking = shouldBlock(botPath, opponentPath);
+        	Tile chosenTile = selectTile(context, botPath, opponentPath, blocking);
+        	
+        	if(chosenTile == null) chosenTile = anyEmptyOctagon(context.tileMap);
+        	if(chosenTile == null) {
+        		return cacheAndReturn(new StrategyResult(Collections.emptyList(), Collections.emptyList(), false, null));
+        	}
+        	
+        	List<Tile> displayPath = buildDisplayPath(botPath, chosenTile);
+    		return cacheAndReturn(new StrategyResult(displayPath, opponentPath, blocking, chosenTile));
+
+        }
+        
+        private boolean shouldBlock(List<Tile> botPath, List<Tile> opponentPath) {
+        	return countEmptyTiles(opponentPath) <= countEmptyTiles(botPath) + BLOCKING_THRESHOLD;
+        }
+        
+        private Tile selectTile(StrategyContext context, List<Tile> botPath, List<Tile> opponentPath, boolean blocking) {
+        	if(!blocking || opponentPath.isEmpty()) {
+        		return bestTileFromPath(context, botPath);
+        	}
+        	return selectBlockingTile(context, botPath, opponentPath);
+        }
+        
+        private Tile selectBlockingTile(StrategyContext context, List<Tile> botPath, List<Tile> opponentPath) {
+        	Tile chosenTile = bestTileFromPath(context, opponentPath);
+        	if(chosenTile == null || isInvalidBlockingRhombus(context, chosenTile)) {
+        		return bestTileFromPath(context, botPath);
+        	}
+        	return chosenTile;
+        }
+        
+        private boolean isInvalidBlockingRhombus(StrategyContext context, Tile tile) {
+        	return tile.getShape() == ShapeEnum.RHOMBUS && !isRhombusValidForPlayer(context, tile);
+        }
+        
+        private List<Tile> buildDisplayPath(List<Tile> botPath, Tile chosenTile) {
+        	List<Tile> displayPath = new ArrayList<>(botPath);
+        	if(!displayPath.contains(chosenTile)) displayPath.add(chosenTile);
+        	return displayPath;
+        }
+        
+        private StrategyResult cacheAndReturn(StrategyResult result) {
+        	cachedStrategy = result;
+        	return result;
+        }
+        
+        
+        // - Tile Selection ---------------------------------------------------------------------------------------------
+        
+        private Tile bestTileFromPath(StrategyContext context, List<Tile> path) {
+        	Tile rhombus = firstValidRhombus(context, path);
+        	if(rhombus != null) return rhombus;
+        	return closestEmptyOctagon(context.botColour, path);
+        }
+        
+        private Tile firstValidRhombus(StrategyContext context, List<Tile> path) {
+        	for(Tile tile : path) {
+        		if(tile == null || !tile.isEmpty()) continue;
+        		if(tile.getShape() == ShapeEnum.RHOMBUS && isRhombusValidForPlayer(context, tile)) {
+        			return tile;
+        		}
+        	}
+        	return null;
+        }
+        
+        private Tile closestEmptyOctagon(PlayerEnum player, List<Tile> path) {
+        	return path.stream()
+        			.filter(t-> t != null && t.isEmpty() && t.getShape() == ShapeEnum.OCTAGON)
+        			.min(Comparator.comparingInt(t -> centrePenalty(t.getCoord(), player)))
+        			.orElse(null);
+        }
+        
+        private Tile anyEmptyOctagon(Map<String, Tile> tileMap) {
+        	return tileMap.values().stream()
+        			.filter(t -> t.isEmpty() && t.getShape() == ShapeEnum.OCTAGON)
+        			.findFirst()
+        			.orElse(null);
+        }
+        
+        
+        // - Dijkstra Path Finding --------------------------------------------------------------------------------------
+        
         public List<Tile> findShortestPath(Map<String, Tile> tileMap, PlayerEnum player) {
-     
-            // Pre-build octagon → adjacent rhombus list for performance
-            Map<String, List<Tile>> octToRhombus = buildOctagonRhombusIndex(tileMap);
-     
-            Map<String, Integer> dist = new HashMap<>();
-            Map<String, String>  prev = new HashMap<>();
-     
-            PriorityQueue<CoordCost> pq = new PriorityQueue<>(
-                    Comparator.comparingInt((CoordCost c) -> c.cost)
-                              .thenComparingInt(c -> c.centrePenalty)
-            );
-     
-            for (String coord : tileMap.keySet()) {
-                dist.put(coord, Integer.MAX_VALUE);
-            }
-     
-            // Seed starting-edge tiles (only octagons are ever on the edge)
-            for (Tile tile : tileMap.values()) {
-                if (!isStartEdge(tile, player)) continue;
-                if (isBlockedBy(tile, player))  continue;
-     
-                int cost = tileCost(tile, player);
-                if (cost < dist.get(tile.getCoord())) {
-                    dist.put(tile.getCoord(), cost);
-                    prev.put(tile.getCoord(), null);
-                    pq.offer(new CoordCost(
-                            tile.getCoord(),
-                            cost,
-                            centrePenalty(tile.getCoord(), player)
-                    ));
-                }
-            }
-     
-            // Dijkstra main loop
-            while (!pq.isEmpty()) {
-                CoordCost current = pq.poll();
-     
-                if (current.cost > dist.getOrDefault(current.coord, Integer.MAX_VALUE)) continue;
-     
-                Tile currentTile = tileMap.get(current.coord);
-                if (currentTile == null) continue;
-     
-                if (isGoalEdge(currentTile, player)) {
-                    return reconstructPath(prev, current.coord, tileMap);
-                }
-     
-                for (Tile neighbor : getPathNeighbors(currentTile, tileMap, player, octToRhombus)) {
-                    if (isBlockedBy(neighbor, player)) continue;
-     
-                    int newCost = current.cost + tileCost(neighbor, player);
-                    if (newCost < dist.getOrDefault(neighbor.getCoord(), Integer.MAX_VALUE)) {
-                        dist.put(neighbor.getCoord(), newCost);
-                        prev.put(neighbor.getCoord(), current.coord);
-                        pq.offer(new CoordCost(
-                                neighbor.getCoord(),
-                                newCost,
-                                centrePenalty(neighbor.getCoord(), player)
-                        ));
-                    }
-                }
-            }
-     
-            return Collections.emptyList();
+        	Map<String, List<Tile>> octToRhombus = buildOctagonRhombusIndex(tileMap);
+        	DijkstraState state = new DijkstraState(tileMap, player, octToRhombus);
+        	seedStartEdge(state, player);
+        	return runDijkstra(state, player, octToRhombus);
         }
-     
-     
-        /*
-         * Pre-builds a map of octagon coord → list of rhombuses that share that octagon
-         * as a corner.  Called once per findShortestPath invocation to avoid O(n²) lookups
-         * inside the hot loop.
-         */
+        
+        private void seedStartEdge(DijkstraState state, PlayerEnum player) {
+        	for(Tile tile : state.tileMap.values()) {
+        		if(!isStartEdge(tile, player)) continue;
+        		if(isBlockedBy(tile, player)) continue;
+        		state.tryRelax(tile.getCoord(), tileCost(tile, player), centrePenalty(tile.getCoord(), player), null);
+        	}
+        }
+        
+        
+        private List<Tile> runDijkstra(DijkstraState state, PlayerEnum player, Map<String, List<Tile>> octToRhombus) {
+        	while(!state.isEmpty()) {
+        		CoordCost current = state.poll();
+        		if(state.isStale(current)) continue;
+        		Tile currentTile = state.tileMap.get(current.coord);
+        		if(currentTile == null) continue;
+        		if(isGoalEdge(currentTile, state.player)) {
+        			return state.reconstructPath(current.coord);
+        		}
+        		relaxNeighbours(state, current, currentTile);
+        	}
+        	return Collections.emptyList();
+        }
+        
+        private void relaxNeighbours(DijkstraState state, CoordCost current, Tile currentTile) {
+        	for(Tile neighbour : getPathNeighbours(currentTile, state)) {
+        		if(isBlockedBy(neighbour, state.player)) continue;
+        		int newCost = current.cost + tileCost(neighbour, state.player);
+        		state.tryRelax(neighbour.getCoord(), newCost, centrePenalty(neighbour.getCoord(), state.player), current.coord);
+        	}
+        }
+        
+        
+        // - Graph Construction -----------------------------------------------------------------------------------------
+
         private Map<String, List<Tile>> buildOctagonRhombusIndex(Map<String, Tile> tileMap) {
-            Map<String, List<Tile>> index = new HashMap<>();
-     
-            for (Tile rhombus : tileMap.values()) {
-                if (rhombus.getShape() != ShapeEnum.RHOMBUS) continue;
-     
-                Tile[] corners = getRhombusCorners(rhombus, tileMap);
-                for (Tile corner : corners) {
-                    if (corner == null) continue;
-                    index.computeIfAbsent(corner.getCoord(), k -> new ArrayList<>()).add(rhombus);
-                }
-            }
-            return index;
+        	Map<String, List<Tile>> index = new HashMap<>();
+        	for(Tile rhombus : tileMap.values()) {
+        		if(rhombus.getShape() != ShapeEnum.RHOMBUS) continue;
+        		addRhombusToCornerIndex(index, rhombus, tileMap);
+        	}
+        	return index;
         }
-     
-     
-        /* Reconstructs the path by walking prev map from goal → start. */
-        private List<Tile> reconstructPath(Map<String, String> prev,
-                                           String goalCoord,
-                                           Map<String, Tile> tileMap) {
-            List<Tile> path = new ArrayList<>();
-            String current = goalCoord;
-     
-            while (current != null) {
-                Tile t = tileMap.get(current);
-                if (t != null) path.add(t);
-                current = prev.get(current);
-            }
-     
-            Collections.reverse(path);
-            return path;
+        
+        private void addRhombusToCornerIndex(Map<String, List<Tile>> index, Tile rhombus, Map<String, Tile> tileMap) {
+        	for(Tile corner : getRhombusCorners(rhombus, tileMap)) {
+        		if(corner != null) {
+        			index.computeIfAbsent(corner.getCoord(), k -> new ArrayList<>()).add(rhombus);
+        		}
+        	}
         }
-     
-     
-        /*
-         * Returns traversable neighbours for pathfinding.
-         *
-         * OCTAGONS connect to:
-         *   • up / down / left / right adjacent octagons
-         *   • every rhombus of which this octagon is a corner
-         *     (the rhombus is an intermediate node — we do NOT jump straight to the
-         *      diagonal octagon; that jump now goes octagon→rhombus→octagon, which
-         *      causes rhombuses to appear in the reconstructed path and be highlighted)
-         *
-         * RHOMBUSES connect to their 4 corner octagons.
-         */
-        private List<Tile> getPathNeighbors(Tile tile,
-                                            Map<String, Tile> tileMap,
-                                            PlayerEnum player,
-                                            Map<String, List<Tile>> octToRhombus) {
-            List<Tile> neighbors = new ArrayList<>();
-     
-            if (isOctagonTile(tile)) {
-                char col = tile.getCoord().charAt(0);
-                int  row = Integer.parseInt(tile.getCoord().substring(1));
-     
-                // Cardinal neighbours
-                addTile(neighbors, tileMap, "" + col + (row + 1)); // up
-                addTile(neighbors, tileMap, "" + col + (row - 1)); // down
-                addTile(neighbors, tileMap, "" + (char)(col - 1) + row); // left
-                addTile(neighbors, tileMap, "" + (char)(col + 1) + row); // right
-     
-                // Rhombuses that share this octagon as a corner
-                List<Tile> adjacentRhombuses = octToRhombus.getOrDefault(tile.getCoord(), Collections.emptyList());
-                for (Tile rhombus : adjacentRhombuses) {
-                    if (!isBlockedBy(rhombus, player)) {
-                        neighbors.add(rhombus);
-                    }
-                }
-     
-            } else {
-                // Rhombus → connect to all 4 corner octagons
-                Tile[] corners = getRhombusCorners(tile, tileMap);
-                for (Tile c : corners) {
-                    if (c != null) neighbors.add(c);
-                }
-            }
-     
-            return neighbors;
+        
+        private List<Tile> getPathNeighbours(Tile tile, DijkstraState state) {
+        	if(isOctagonTile(tile)) {
+        		return getOctagonNeighbours(tile, state);
+        	}
+        	return getRhombusNeighbours(tile, state.tileMap);
         }
-     
-     
-        /*
-         * Cost to enter a tile.
-         *
-         *   Own tile    = 0  (already claimed, free)
-         *   Empty rhombus = 1  (diagonal shortcut — cheaper than octagon)
-         *   Empty octagon = 2
-         */
+        
+        private List<Tile> getOctagonNeighbours(Tile tile, DijkstraState state) {
+        	List<Tile> neighbours = new ArrayList<>();
+        	char col = tile.getCoord().charAt(0);
+        	int row = Integer.parseInt(tile.getCoord().substring(1));
+        	
+        	addTile(neighbours, state, "" + col + (row+1));
+        	addTile(neighbours, state, "" + col + (row-1));
+        	addTile(neighbours, state, "" + (char)(col-1) + row);
+        	addTile(neighbours, state, "" + (char)(col+1) + row);
+
+        	for(Tile rhombus : state.octToRhombus.getOrDefault(tile.getCoord(), Collections.emptyList())) {
+        		if(!isBlockedBy(rhombus, state.player)) neighbours.add(rhombus);
+        	}
+        	return neighbours;
+        }
+        
+        private List<Tile> getRhombusNeighbours(Tile tile, Map<String, Tile> tileMap) {
+        	List<Tile> neighbours = new ArrayList<>();
+        	for(Tile corner : getRhombusCorners(tile, tileMap)) {
+        		if(corner != null) neighbours.add(corner);
+        	}
+        	return neighbours;
+        }
+        
+        // - Tile Cost and Edge Logic -----------------------------------------------------------------------------------
+
         private int tileCost(Tile tile, PlayerEnum player) {
-            if (!tile.isEmpty() && tile.getOwner() == player) return 0;
-            if (tile.getShape() == ShapeEnum.RHOMBUS)         return 1;
-            return 2; // empty octagon
+        	if(!tile.isEmpty() && tile.getOwner() == player) return 0;
+        	if(tile.getShape() == ShapeEnum.RHOMBUS) return 1;
+        	return 2;
         }
-     
-     
-        /* True if the tile is owned by the opponent — impassable. */
+        
         private boolean isBlockedBy(Tile tile, PlayerEnum player) {
-            return !tile.isEmpty() && tile.getOwner() != player;
+        	return !tile.isEmpty() && tile.getOwner() != player;
         }
-     
-     
-        /*
-         * Start edge for Dijkstra seeding.
-         * BLACK: row 11 (top).  WHITE: col A (left).
-         * Rhombuses are never on the board edge.
-         */
+        
         private boolean isStartEdge(Tile tile, PlayerEnum player) {
-            if (tile.getShape() == ShapeEnum.RHOMBUS) return false;
-            String coord = tile.getCoord();
-            if (player == PlayerEnum.BLACK) {
-                return Integer.parseInt(coord.substring(1)) == 11;
-            } else {
-                return coord.charAt(0) == 'A';
-            }
+        	if(tile.getShape() == ShapeEnum.RHOMBUS) return false;
+        	String coord = tile.getCoord();
+        	return player == PlayerEnum.BLACK 
+        			? Integer.parseInt(coord.substring(1)) == 11 
+        			: coord.charAt(0) == 'A';
         }
-     
-     
-        /*
-         * Goal edge for Dijkstra termination.
-         * BLACK: row 1 (bottom).  WHITE: col K (right).
-         * Rhombuses are never on the board edge.
-         */
+        
         private boolean isGoalEdge(Tile tile, PlayerEnum player) {
-            if (tile.getShape() == ShapeEnum.RHOMBUS) return false;
-            String coord = tile.getCoord();
-            if (player == PlayerEnum.BLACK) {
-                return Integer.parseInt(coord.substring(1)) == 1;
-            } else {
-                return coord.charAt(0) == 'K';
-            }
+        	if(tile.getShape() == ShapeEnum.RHOMBUS) return false;
+        	String coord = tile.getCoord();
+        	return player == PlayerEnum.BLACK 
+        			? Integer.parseInt(coord.substring(1)) == 1
+        			: coord.charAt(0) == 'K';
         }
-     
-     
-        /*
-         * Centre-column / centre-row tiebreaker.
-         * BLACK → prefer column F.  WHITE → prefer row 6.
-         * Rhombuses (coord contains '_') get penalty 0 — never penalise shortcuts.
-         */
+        
         private int centrePenalty(String coord, PlayerEnum player) {
-            if (coord.contains("_")) return 0;
-     
-            if (player == PlayerEnum.BLACK) {
-                return Math.abs(coord.charAt(0) - 'F');
-            } else {
-                return Math.abs(Integer.parseInt(coord.substring(1)) - 6);
-            }
+        	if(coord.contains("_")) return 0;
+        	return player == PlayerEnum.BLACK
+        			? Math.abs(coord.charAt(0) - 'F')
+        			: Math.abs(Integer.parseInt(coord.substring(1)) - 6);
         }
-     
-     
-        /** True if the tile is an octagon (coord has no underscore). */
-        private boolean isOctagonTile(Tile tile) {
-            return !tile.getCoord().contains("_");
+        
+        
+        // - Rhombus Helpers --------------------------------------------------------------------------------------------
+        
+        private boolean isRhombusValidForPlayer(StrategyContext context, Tile rhombus) {
+        	
+			Tile[] corners = getRhombusCorners(rhombus, context.tileMap);
+			return ownsBoth(corners[0], corners[2], context.botColour) 
+					|| ownsBoth(corners[1], corners[3], context.botColour);
+		}
+        
+        private boolean ownsBoth(Tile a, Tile b, PlayerEnum player) {
+        	return a != null & b != null
+        			&& !a.isEmpty() && !b.isEmpty()
+        			&& a.getOwner() == player
+        			&& b.getOwner() == player;
         }
-     
-        /** Adds a tile to the list if it exists in the tileMap. */
-        private void addTile(List<Tile> list, Map<String, Tile> tileMap, String coord) {
-            Tile t = tileMap.get(coord);
-            if (t != null) list.add(t);
-        }
-     
-     
-        /*
-         * Extracts the 4 corner octagons of a rhombus.
-         *
-         * Rhombus coord format: "AB_1_2"
-         *   c1='A', c2='B' (columns),  r1="1", r2="2" (rows)
-         * Corners: [c1r1, c1r2, c2r2, c2r1]
-         * Diagonals: (t1,t3) and (t2,t4).
-         */
+        
         private Tile[] getRhombusCorners(Tile rhombus, Map<String, Tile> tileMap) {
-            String id = rhombus.getCoord();
-            char c1 = id.charAt(0);
-            char c2 = id.charAt(1);
-            int  i1 = id.indexOf('_');
-            int  i2 = id.indexOf('_', i1 + 1);
-            String r1 = id.substring(i1 + 1, i2);
-            String r2 = id.substring(i2 + 1);
-     
-            return new Tile[]{
-                    tileMap.get("" + c1 + r1),
-                    tileMap.get("" + c1 + r2),
-                    tileMap.get("" + c2 + r2),
-                    tileMap.get("" + c2 + r1)
-            };
+        	String id = rhombus.getCoord();
+        	char c1 = id.charAt(0);
+        	char c2 = id.charAt(1);
+        	int i1 = id.indexOf('_');
+        	int i2 = id.indexOf('_', i1 + 1);
+        	String r1 = id.substring(i1 + 1, i2);
+        	String r2 = id.substring(i2 + 1);
+        	
+        	return new Tile[] {
+        		tileMap.get("" + c1 + r1),
+        		tileMap.get("" + c1 + r2),
+        		tileMap.get("" + c2 + r2),
+        		tileMap.get("" + c2 + r1)
+        	};
         }
-     
-     
-        /*
-         * Counts empty octagons in a path = number of moves still needed.
-         * Rhombuses are counted separately since they too require a move.
-         */
-        private int countEmptyTiles(List<Tile> path) {
-            return (int) path.stream()
-                    .filter(t -> t.isEmpty())
-                    .count();
+        
+
+        // - Utility ----------------------------------------------------------------------------------------------------
+        
+        private static boolean isOctagonTile(Tile tile) {
+        	return !tile.getCoord().contains("_");
         }
-     
-     
-        public StrategyResult getLastExecutedStrategy() { return lastExecutedStrategy; }
-        public void setLastExecutedStrategy(StrategyResult strategy) { this.lastExecutedStrategy = strategy; }
-        public void cacheStrategy(StrategyResult strategy) { this.cachedStrategy = strategy; }
-     
-     
-        /*
-         * Validates whether placing on this rhombus is legal for the given player.
-         * Legal iff the player already owns BOTH octagons on one diagonal of the rhombus.
-         */
-        private boolean isRhombusValidForPlayer(Tile rhombus,
-                                                Map<String, Tile> tileMap,
-                                                PlayerEnum player) {
-            Tile[] corners = getRhombusCorners(rhombus, tileMap);
-            Tile t1 = corners[0], t2 = corners[1], t3 = corners[2], t4 = corners[3];
-     
-            boolean diag1 = t1 != null && t3 != null
-                    && !t1.isEmpty() && !t3.isEmpty()
-                    && t1.getOwner() == player
-                    && t3.getOwner() == player;
-     
-            boolean diag2 = t2 != null && t4 != null
-                    && !t2.isEmpty() && !t4.isEmpty()
-                    && t2.getOwner() == player
-                    && t4.getOwner() == player;
-     
-            return diag1 || diag2;
+        
+        private static void addTile(List<Tile> list, DijkstraState state, String coord) {
+        	Tile t = state.tileMap.get(coord);
+        	if(t != null) list.add(t);
         }
-     
-     
-        /*
-         * Strategy result wrapper.
-         * path       = full path to highlight in Show Strategy
-         * isBlocking = true if bot is intercepting opponent, false if advancing
-         * chosenTile = exact tile the bot will play (shown in yellow)
-         */
+        
+        private static int countEmptyTiles(List<Tile> path) {
+        	return (int) path.stream().filter(Tile::isEmpty).count();
+        }
+        
+
+        // - Getters / Setters ------------------------------------------------------------------------------------------
+
+        public StrategyResult getLastExecutedStrategy() {
+        	return lastExecutedStrategy;
+        }
+        
+        public void setLastExecutedStrategy(StrategyResult s) {
+        	this.lastExecutedStrategy = s;
+        }
+        
+
+        // - Inner Types ------------------------------------------------------------------------------------------------
+
+        private static class StrategyContext {
+        	final Map<String, Tile> tileMap;
+        	final PlayerEnum botColour;
+        	final PlayerEnum opponent;
+        	
+        	StrategyContext(Map<String, Tile> tileMap, PlayerEnum botColour) {
+        		this.tileMap = tileMap;
+        		this.botColour = botColour;
+        		this.opponent = botColour == PlayerEnum.BLACK ? PlayerEnum.WHITE : PlayerEnum.BLACK;
+        	}
+        }
+        
+        private static class DijkstraState {
+        	final Map<String, Tile> tileMap;
+        	final PlayerEnum player;
+        	final Map<String, List<Tile>> octToRhombus;
+        	private final Map<String, Integer> dist;
+        	private final Map<String, String> prev;
+        	private final PriorityQueue<CoordCost> pq;
+        	
+        	DijkstraState(Map<String, Tile> tileMap, PlayerEnum player, Map<String, List<Tile>> octToRhombus) {
+        		this.tileMap = tileMap;
+        		this.player = player;
+        		this.octToRhombus = octToRhombus;
+        		dist = new HashMap<>();
+        		prev = new HashMap<>();
+        		pq = new PriorityQueue<>(Comparator.comparingInt((CoordCost c) -> c.cost).thenComparingInt(c -> c.centrePenalty));
+        	
+        		for(String coord : tileMap.keySet()) {
+        			dist.put(coord, Integer.MAX_VALUE);
+        		}
+        	}
+        	
+        	void tryRelax(String coord, int newCost, int penalty, String fromCoord) {
+        		if(newCost < dist.getOrDefault(coord, Integer.MAX_VALUE)) {
+        			dist.put(coord, newCost);
+        			prev.put(coord, fromCoord);
+        			pq.offer(new CoordCost(coord, newCost, penalty));
+        		}
+        	}
+        	
+        	boolean isStale(CoordCost entry) {
+        		return entry.cost > dist.getOrDefault(entry.coord, Integer.MAX_VALUE);
+        	}
+        	
+        	boolean isEmpty() {
+        		return pq.isEmpty();
+        	}
+        	
+        	CoordCost poll() {
+        		return pq.poll();
+        	}
+        	
+        	List<Tile> reconstructPath(String goalCoord) {
+        		List<Tile> path = new ArrayList<>();
+        		String current = goalCoord;
+        		while(current != null) {
+        			Tile t = tileMap.get(current);
+        			if(t != null) path.add(t);
+        			current = prev.get(current);
+        		}
+        		Collections.reverse(path);
+        		return path;
+        	}
+        }
+        
+        
+        
         public static class StrategyResult {
-            public final List<Tile> path;
-            public final List<Tile> opponentPath;
-            public final boolean isBlocking;
-            public final Tile chosenTile;
-
-            public StrategyResult(List<Tile> path, List<Tile> opponentPath,
-                                  boolean isBlocking, Tile chosenTile) {
-                this.path         = path;
-                this.opponentPath = opponentPath;
-                this.isBlocking   = isBlocking;
-                this.chosenTile   = chosenTile;
-            }
+        	public final List<Tile> path;
+        	public final List<Tile> opponentPath;
+        	public final boolean isBlocking;
+        	public final Tile chosenTile;
+        	
+        	public StrategyResult(List<Tile> path, List<Tile> opponentPath, boolean isBlocking, Tile chosenTile) {
+        		this.path = path;
+        		this.opponentPath = opponentPath;
+        		this.isBlocking = isBlocking;
+        		this.chosenTile = chosenTile;
+        	}
         }
-     
-        /* Priority queue entry for Dijkstra. */
-        private static class CoordCost {
-            final String coord;
-            final int cost;
-            final int centrePenalty;
-     
-            CoordCost(String coord, int cost, int centrePenalty) {
-                this.coord         = coord;
-                this.cost          = cost;
-                this.centrePenalty = centrePenalty;
-            }
+        
+        private static class CoordCost { 
+        	final String coord;
+        	final int cost;
+        	final int centrePenalty;
+        	
+        	CoordCost(String coord, int cost, int centrePenalty) {
+        		this.coord = coord;
+        		this.cost = cost;
+        		this.centrePenalty = centrePenalty;
+        	}
         }
-
-
-
+        
+        
 
     }
