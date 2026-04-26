@@ -2,25 +2,22 @@ package com.example.sequax40.model.move;
 
 import com.example.sequax40.enums.ShapeEnum;
 
+/*
+ * Represents a single move made on the board.
+ * A move records the coordinates and shape of the tile played.
+ */
 public class Move {
 
-    private final String coord;       // e.g., "A1" or "AB_1_2"
-    private final ShapeEnum shape;    // OCTAGON or RHOMBUS
+    private final String coord;       
+    private final ShapeEnum shape;    
 
     public Move(String coord, ShapeEnum shape) {
         this.coord = coord;
         this.shape = shape;
     }
 
-    // --- Getter for coordinate ---
-    public String getCoord() {
-        return coord;
-    }
-
-    // --- Getter for shape ---
-    public ShapeEnum getShape() {
-        return shape;
-    }
+    public String getCoord() { return coord; }
+    public ShapeEnum getShape() { return shape; }
 
     @Override
     public String toString() {
