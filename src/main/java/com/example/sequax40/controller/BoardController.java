@@ -6,6 +6,7 @@ import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
 import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.player.BotPlayer;
+import com.example.sequax40.model.move.Move;
 
 import javafx.animation.*;
 import javafx.fxml.FXML;
@@ -190,7 +191,7 @@ public class BoardController {
         if (!(event.getSource() instanceof Polygon clicked)) return;
         Tile tile = tileFromPolygon(clicked);
         if (tile == null || !tile.isEmpty()) return;
-        boolean movePlayed = gameManager.makeMove(tile);
+        boolean movePlayed = gameManager.makeMove(new Move(tile.getCoord(), tile.getShape()));
         if (!movePlayed) return;
         if (strategyVisible) hideStrategy();
         updateTileUI(tile, clicked);
@@ -309,7 +310,7 @@ public class BoardController {
     		botThinking = false;
     		return;
     	}
-    	boolean movePlayed = gameManager.makeMove(chosenTile);
+    	boolean movePlayed = gameManager.makeMove(new Move(chosenTile.getCoord(), chosenTile.getShape()));
     	if(!movePlayed) {
     		botThinking = false;
     		Platform.runLater(this::triggerBotIfNeeded);

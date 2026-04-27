@@ -21,9 +21,6 @@ public class Move {
 
     @Override
     public String toString() {
-        return "Move{" +
-                "coord='" + coord + '\'' +
-                ", shape=" + shape +
-                '}';
+        return "Move{" +  "coord='" + coord + '\'' + ", shape=" + shape + '}';
     }
 }

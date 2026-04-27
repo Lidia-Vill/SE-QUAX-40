@@ -6,6 +6,7 @@ import com.example.sequax40.enums.PlayerEnum;
 import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
+import com.example.sequax40.model.move.Move;
 
 /*
  * Manages game rules and state: move validation, turn switching,
@@ -35,9 +36,9 @@ public class GameManager {
 	private final Board board;
 	private final Map<String, Tile> tileMap;
 
-	private Tile firstMove; 
-    private boolean gameOver = false;
+	private String firstMoveCoord; 
     private PlayerEnum currentTurn = PlayerEnum.BLACK;
+    private boolean gameOver = false;
     private int moveCount = 0;
 
 
@@ -51,35 +52,33 @@ public class GameManager {
 
     // - Move Handling ----------------------------------------------------------------------------------------------
 
-	public boolean makeMove(Tile tile) {
-		if (gameOver || tile == null || !tile.isEmpty()) { return false; }
-		if(firstMove == null) { firstMove = tile; }
-        if (tile.getShape() == ShapeEnum.RHOMBUS && !isRhombusValid(tile, currentTurn)) { return false; }
+	public boolean makeMove(Move move) {
+		Tile tile = tileMap.get(move.getCoord());
+		if (gameOver || tile == null || !tile.isEmpty()) return false; 
+		if (firstMoveCoord == null) firstMoveCoord = move.getCoord(); 
+        if (tile.getShape() == ShapeEnum.RHOMBUS && !isRhombusValid(tile, currentTurn)) return false;
 
 	    tile.setOwner(currentTurn);
         tileMap.put(tile.getCoord(), tile);
 
         if (checkWin(currentTurn)) {
-            System.out.println(currentTurn + " wins!");
             gameOver = true;
         } else {
             moveCount++;
             switchTurn();
         }
-            return true;
-	    }
+        return true;
+	}
 
-	    public void switchTurn() {
-	        currentTurn = (currentTurn == PlayerEnum.BLACK)
+	public void switchTurn() {
+		currentTurn = (currentTurn == PlayerEnum.BLACK)
 	                ? PlayerEnum.WHITE
 	                : PlayerEnum.BLACK;
-	    }
+	}
 
 
     private boolean isRhombusValid(Tile rhombusTile, PlayerEnum player) {
-
         Tile[] corners = getRhombusCorners(rhombusTile);
-
         return ownsBothOnDiagonal(corners[0], corners[2], player)
                 || ownsBothOnDiagonal(corners[1], corners[3], player);
     }
@@ -97,9 +96,9 @@ public class GameManager {
     public boolean checkWin(PlayerEnum player) {
         Set<String> visited = new HashSet<>();
         for (Tile tile : tileMap.values()) {
-            if (tile == null || tile.isEmpty()) { continue; }
+            if (tile == null || tile.isEmpty()) continue; 
             if (tile.getOwner() == player && !visited.contains(tile.getCoord())) {
-                if (dfs(new DfsState(visited), tile, player)) { return true; }
+                if (dfs(new DfsState(visited), tile, player)) return true; 
             }
         }
         return false;
@@ -115,14 +114,14 @@ public class GameManager {
             if (neighbor != null
                     && neighbor.getOwner() == player
                     && !state.visited.contains(neighbor.getCoord())) {
-                if (dfs(state, neighbor, player)) { return true; }
+                if (dfs(state, neighbor, player)) return true;
             }
         }
         return false;
     }
 
     private void markEdges(DfsState state, Tile tile, PlayerEnum player) {
-    	if (tile.getShape() == ShapeEnum.RHOMBUS) { return; }
+    	if (tile.getShape() == ShapeEnum.RHOMBUS) return;
         int row = getRow(tile.getCoord());
         char col = getCol(tile.getCoord());
 
@@ -242,8 +241,8 @@ public class GameManager {
         board.reset();
         moveCount = 0;
         currentTurn = PlayerEnum.BLACK;
-        firstMove = null;
-        gameOver = false;  // reset the stop flag
+        firstMoveCoord = null;
+        gameOver = false;  
     }
 
     
@@ -252,7 +251,7 @@ public class GameManager {
     public PlayerEnum getCurrentTurn()   { return currentTurn; }
     public int        getMoveCount()     { return moveCount; }
     public boolean    isGameOver()       { return gameOver; }
-    public Tile       getFirstMoveTile() { return firstMove; }
+    public Tile       getFirstMoveTile() { return firstMoveCoord != null ?tileMap.get(firstMoveCoord) : null; }
     public void       setMoveCount(int i){ this.moveCount = i; }
     
 
