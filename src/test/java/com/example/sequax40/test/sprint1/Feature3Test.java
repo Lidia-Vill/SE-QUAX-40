@@ -9,21 +9,21 @@ import com.example.sequax40.model.game.GameManager;
 
 import javafx.application.Platform;
 import javafx.scene.Group;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.MouseButton;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Feature3Test {
 
@@ -39,12 +39,11 @@ public class Feature3Test {
         } catch (IllegalStateException ignored) {
         }
     }
-    
+
     @BeforeEach
     void setUp() {
         controller = new BoardController();
 
-        // mock FXML-injected fields
         controller.masterGroup = new Group();
         controller.mainContainer = new StackPane();
         controller.boardGroup = new Group();
@@ -52,8 +51,13 @@ public class Feature3Test {
         controller.setTurnLabel(new Label());
         controller.setTurnOct(new Polygon());
         controller.setTurnRhom(new Polygon());
+        controller.setPieRuleButton(new Button());
+        controller.setTimerLabel(new Label());
+        controller.setShowStratButton(new Button());
+        controller.setStrategyLabelTitle(new Label());
+        controller.setStrategyLabelText(new Label());
+        controller.setStrategyScrollPane(new ScrollPane());
 
-        // assign to polygon class field and give the tile an id 
         octagonPolygon = new Polygon();
         octagonPolygon.setId("A1");
 
@@ -62,21 +66,17 @@ public class Feature3Test {
 
         controller.boardGroup.getChildren().addAll(octagonPolygon, rhombusPolygon);
 
-        // create board and setup tiles so userData is set
         controller.board = new Board(11, 11);
         controller.setupTiles();
 
-        GameManager gm = new GameManager(board, controller.tileMap);
+        GameManager gm = new GameManager(controller.board, controller.tileMap);
         controller.setGameManager(gm);
 
         board = controller.board;
 
-        // create board for Board Tests
         board = new Board(11, 11);
     }
 
-
-    //ensure that when an octagon is clicked, the colour is changed to white for first click, and reverted to its original after a second click
     @Test
     void testOctagonClickTogglesSelection() {
         Tile tile = (Tile) octagonPolygon.getUserData();
@@ -87,64 +87,44 @@ public class Feature3Test {
         assertEquals(Color.web("#2f2f2f"), octagonPolygon.getFill());
     }
 
-    //THIS TEST FAILS AS RHOMBUSES CANNOT BE CLICKED WITHOUT JOINING A DIAGONAL OCTAGON LINE OF THE SAME COLOUR
-    /*@Test
-    void testRhombusClickTogglesSelection() {
-
-        Polygon rhombusPolygon = controller.polygonMap.get("AB_10_11");
-        Tile tile = controller.tileMap.get("AB_10_11");
-
-        controller.handleTileClick(mockClickEvent(rhombusPolygon));
-
-        assertEquals(PlayerEnum.BLACK, tile.getOwner());
-        assertEquals(Color.web("#2f2f2f"), rhombusPolygon.getFill());
-    }*/
-
-    // helper function to simulate a MouseEvent for testing
     private MouseEvent mockClickEvent(Polygon polygon) {
         return new MouseEvent(MouseEvent.MOUSE_CLICKED,
                 0, 0, 0, 0,
-                javafx.scene.input.MouseButton.PRIMARY,
+                MouseButton.PRIMARY,
                 1, false, false, false, false,
                 true, false, false, true, false, false, null
         ) {
             @Override
             public Object getSource() {
-                return  polygon;
+                return polygon;
             }
         };
     }
 
     @Test
     void testSetupTiles() {
-        // Call setupTiles directly
         controller.board = new Board(11, 11);
         controller.setupTiles();
 
-        // testing tileMap
         Tile octTile = controller.tileMap.get("A1");
         Tile rhombTile = controller.tileMap.get("AB_10_11");
 
         assertNotNull(octTile, "Octagon tile should exist in tileMap");
         assertNotNull(rhombTile, "Rhombus tile should exist in tileMap");
 
-        // verify that the shape is correct
         assertEquals(ShapeEnum.OCTAGON, octTile.getShape());
         assertEquals(ShapeEnum.RHOMBUS, rhombTile.getShape());
 
-        // test polygonMap 
         assertEquals(octTile, controller.polygonMap.get("A1").getUserData());
         assertEquals(rhombTile, controller.polygonMap.get("AB_10_11").getUserData());
 
-        // verify its the default fill colour
         assertEquals(Color.web("#4d44ff"), controller.polygonMap.get("A1").getFill());
         assertEquals(Color.web("#9e9bec"), controller.polygonMap.get("AB_10_11").getFill());
     }
 
     @Test
     void testHandleTileClickTogglesSelection() {
-
-    	controller.board = new Board(11, 11);
+        controller.board = new Board(11, 11);
         controller.setupTiles();
         GameManager manager = new GameManager(controller.board, controller.tileMap);
         controller.setGameManager(manager);
@@ -152,15 +132,12 @@ public class Feature3Test {
         Polygon octagonPolygon = controller.polygonMap.get("A1");
         Tile octTile = controller.tileMap.get("A1");
 
-        // First click
         controller.handleTileClick(mockClickEvent(octagonPolygon));
 
         assertEquals(PlayerEnum.BLACK, octTile.getOwner());
         assertEquals(Color.web("#2f2f2f"), octagonPolygon.getFill());
     }
 
-
-    // constructor validation
     @Test
     void constructor_shouldThrowExceptionIfCoordIsNull() {
         try {
@@ -196,7 +173,6 @@ public class Feature3Test {
         assertEquals(ShapeEnum.OCTAGON, tile.getShape());
     }
 
-    // default state Tests
     @Test
     void tile_shouldNotBeSelectedByDefault() {
         Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
@@ -204,7 +180,6 @@ public class Feature3Test {
         assertFalse(tile.isSelected());
     }
 
-    // selection logic
     @Test
     void toggleSelected_shouldSetSelectedToTrue() {
         Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
@@ -234,9 +209,6 @@ public class Feature3Test {
         assertFalse(tile.isSelected());
     }
 
-    // addTile tests
-    
-    //test for octagon
     @Test
     void addTile_shouldStoreTileCorrectly() {
         Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
@@ -248,10 +220,9 @@ public class Feature3Test {
         assertNotNull(result);
         assertEquals("A1", result.getCoord());
         assertEquals(ShapeEnum.OCTAGON, result.getShape());
-        assertFalse(result.isSelected()); // default selection
+        assertFalse(result.isSelected());
     }
 
-    //test for rhombus
     @Test
     void addTile_shouldStoreRhombusTile() {
         Tile tile = new Tile("B2", ShapeEnum.RHOMBUS);
@@ -264,7 +235,6 @@ public class Feature3Test {
         assertEquals(ShapeEnum.RHOMBUS, result.getShape());
     }
 
-    // getTile tests
     @Test
     void getTile_shouldReturnTileIfExists() {
         Tile tile = new Tile("D4", ShapeEnum.OCTAGON);
@@ -273,7 +243,7 @@ public class Feature3Test {
         Tile result = board.getTile("D4");
 
         assertNotNull(result);
-        assertEquals(tile, result); 
+        assertEquals(tile, result);
     }
 
     @Test
@@ -282,8 +252,4 @@ public class Feature3Test {
 
         assertNull(result);
     }
-
-
-
-
 }

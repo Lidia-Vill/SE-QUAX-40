@@ -10,7 +10,7 @@ import java.io.IOException;
 public class QuaxApplication extends Application {
 	
 	private static final String FXML_PATH = "/com/example/sequax40/board-view.fxml";
-	private static final String WINDOW_TITLE = "WElcome to QUAX-11!";
+	private static final String WINDOW_TITLE = "Welcome to QUAX-11!";
 	
     @Override
     public void start(Stage stage) throws IOException {
