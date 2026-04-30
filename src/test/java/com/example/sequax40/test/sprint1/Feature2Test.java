@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
@@ -14,12 +15,9 @@ import org.junit.jupiter.api.Test;
 import com.example.sequax40.controller.BoardController;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 
 public class Feature2Test {
 
-    // Initialise the JavaFX Toolkit before running any tests
     @BeforeAll
     static void initToolkit() {
         try {
@@ -28,8 +26,6 @@ public class Feature2Test {
         }
     }
 
-   
-    
     private BoardController createController() {
 
         BoardController controller = new BoardController();
@@ -48,12 +44,17 @@ public class Feature2Test {
         controller.setTurnOct(new Polygon());
         controller.setTurnRhom(new Polygon());
         controller.setPieRuleButton(new Button());
+        controller.setTimerLabel(new Label());
+        controller.setShowStratButton(new Button());
+        controller.setStrategyLabelTitle(new Label());
+        controller.setStrategyLabelText(new Label());
+        controller.setStrategyScrollPane(new ScrollPane());
 
         controller.initialize();
 
         return controller;
     }
-    
+
     @Test
     void testScalingZeroContainerReturnsOne() {
 
@@ -84,7 +85,7 @@ public class Feature2Test {
 
         controller.mainContainer.resize(450, 425);
         controller.mainContainer.layout();
-        
+
         assertEquals(0.4090909, controller.windowContainer.getScaleX(), 0.001);
         assertEquals(0.4090909, controller.windowContainer.getScaleY(), 0.001);
     }
