@@ -8,12 +8,16 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class QuaxApplication extends Application {
+	
+	private static final String FXML_PATH = "/com/example/sequax40/board-view.fxml";
+	private static final String WINDOW_TITLE = "WElcome to QUAX-11!";
+	
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(QuaxApplication.class.getResource("/com/example/sequax40/board-view.fxml")); //load the board made in our fxml file
+        FXMLLoader fxmlLoader = new FXMLLoader(QuaxApplication.class.getResource(FXML_PATH)); //load the board made in our fxml file
         Scene scene = new Scene(fxmlLoader.load());
         stage.setMaximized(true);
-        stage.setTitle("Welcome to QUAX-11!"); //set the title
+        stage.setTitle(WINDOW_TITLE); 
         stage.setScene(scene);
         stage.show();
     }

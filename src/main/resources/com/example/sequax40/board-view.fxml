@@ -4042,7 +4042,7 @@
                   <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9e9bec" height="30.0" stroke="TRANSPARENT" strokeType="INSIDE" strokeWidth="0.0" width="200.0" />
                   <VBox alignment="CENTER" prefHeight="300.0" prefWidth="200.0">
                      <children>
-                        <Label id="strategyLabel1" fx:id="strategyLabel1" alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="210.0" style="-fx-alignment: center; -fx-background-color: #e8e9eb; -fx-background-radius: 8; -fx-font-size: 15; -fx-padding: 5; -fx-font-weight: bold;" text="STRATEGY: " visible="false">
+                        <Label id="strategyLabelTitle" fx:id="strategyLabelTitle" alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="210.0" style="-fx-alignment: center; -fx-background-color: #e8e9eb; -fx-background-radius: 8; -fx-font-size: 15; -fx-padding: 5; -fx-font-weight: bold;" text="STRATEGY: " visible="false">
                            <font>
                               <Font name="System Bold" size="12.0" />
                            </font>
@@ -4050,7 +4050,7 @@
                         <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#9e9bec" height="5.0" stroke="TRANSPARENT" strokeType="INSIDE" strokeWidth="0.0" width="200.0" />
                          <ScrollPane fx:id="strategyScrollPane" fitToWidth="true" managed="false" maxWidth="210.0" prefHeight="250.0" prefViewportWidth="210.0" prefWidth="210.0" style="-fx-background-color: #e8e9eb; -fx-background: #e8e9eb; -fx-border-color: transparent; -fx-background-radius: 5;" visible="false">
                              <content>
-                                 <Label id="strategyLabel2" fx:id="strategyLabel2" alignment="TOP_LEFT" contentDisplay="CENTER" prefWidth="195.0" style="-fx-font-size: 14; -fx-background-color: #e8e9eb; -fx-padding: 8; -fx-background-radius: 8; -fx-alignment: top-left;" wrapText="true">
+                                 <Label id="strategyLabelText" fx:id="strategyLabelText" alignment="TOP_LEFT" contentDisplay="CENTER" prefWidth="195.0" style="-fx-font-size: 14; -fx-background-color: #e8e9eb; -fx-padding: 8; -fx-background-radius: 8; -fx-alignment: top-left;" wrapText="true">
                                  <font>
                                     <Font size="14.0" />
                                  </font></Label>
