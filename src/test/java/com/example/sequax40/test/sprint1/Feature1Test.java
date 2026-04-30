@@ -23,47 +23,50 @@ import com.example.sequax40.controller.BoardController;
 
 class Feature1Test extends ApplicationTest{
 
-	private Stage stage; //initialise a stage to use for the tests 
+    private Stage stage;
 
-    @Override //called by testfx before each test to launch javafx app
+    @Override
     public void start(Stage stage) throws Exception {
-        this.stage = stage; 
-        new QuaxApplication().start(stage); //start the main application
+        this.stage = stage;
+        new QuaxApplication().start(stage);
     }
 
     @Test
     void testAppLaunchesSuccessfully() {
-        assertTrue(stage.isShowing()); //check the stage is visible & window is showing
-        assertEquals("Welcome to QUAX-11!", stage.getTitle()); //ensure the title on the board matches the title we made
+        assertTrue(stage.isShowing());
+        assertEquals("Welcome to QUAX-11!", stage.getTitle());
     }
-	
-    @Test //make sure the setup process is less than 10 seconds
-    void testSetupLessThan10s() {
-    	long startTime = System.currentTimeMillis(); //record start time before setup 
-        
-        BoardController controller = new BoardController(); //create new controller
-                
-        StackPane mainContainer = new StackPane();
-    	HBox windowContainer = new HBox();
-    	Group masterGroup = new Group();
-    	Group boardGroup = new Group();
-    	
-    	controller.setMainContainer(mainContainer);
-    	controller.setWindowContainer(windowContainer);
-    	controller.setMasterGroup(masterGroup);
-    	controller.setMasterGroup(boardGroup);
 
-    	controller.setTurnLabel(new Label());
-    	controller.setTurnOct(new Polygon());
-    	controller.setTurnRhom(new Polygon());
-    	
-    	controller.setPieRuleButton(new Button());
-        
-        controller.initialize();  //run setup 
-        
-        long endTime = System.currentTimeMillis(); //record time after setup 
-        long timeTaken = endTime - startTime; //calculate duration 
-        
+    @Test
+    void testSetupLessThan10s() {
+        long startTime = System.currentTimeMillis();
+
+        BoardController controller = new BoardController();
+
+        StackPane mainContainer = new StackPane();
+        HBox windowContainer = new HBox();
+        Group masterGroup = new Group();
+        Group boardGroup = new Group();
+
+        controller.setMainContainer(mainContainer);
+        controller.setWindowContainer(windowContainer);
+        controller.setMasterGroup(masterGroup);
+        controller.setBoardGroup(boardGroup);
+
+        controller.setTurnLabel(new Label());
+        controller.setTurnOct(new Polygon());
+        controller.setTurnRhom(new Polygon());
+        controller.setPieRuleButton(new Button());
+        controller.setTimerLabel(new Label());
+        controller.setShowStratButton(new Button());
+        controller.setStrategyLabel1(new Label());
+        controller.setStrategyLabel2(new Label());
+
+        controller.initialize();
+
+        long endTime = System.currentTimeMillis();
+        long timeTaken = endTime - startTime;
+
         assertTrue(timeTaken < 10000, "The setup method took too long: " + timeTaken + "ms");
     }
 }
