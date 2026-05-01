@@ -6,17 +6,11 @@ import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
+import com.example.sequax40.test.helperMethods.HelperMethods;
 
 import javafx.application.Platform;
-import javafx.scene.Group;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.MouseButton;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class S1Feature3Test {
 
     private BoardController controller;
+    private HelperMethods helper;
     private Board board;
     private Polygon octagonPolygon;
     private Polygon rhombusPolygon;
@@ -42,20 +37,8 @@ public class S1Feature3Test {
     @BeforeEach
     void setUp() {
         controller = new BoardController();
-
-        controller.masterGroup = new Group();
-        controller.mainContainer = new StackPane();
-        controller.boardGroup = new Group();
-
-        controller.setTurnLabel(new Label());
-        controller.setTurnOct(new Polygon());
-        controller.setTurnRhom(new Polygon());
-        controller.setPieRuleButton(new Button());
-        controller.setTimerLabel(new Label());
-        controller.setShowStratButton(new Button());
-        controller.setStrategyLabelTitle(new Label());
-        controller.setStrategyLabelText(new Label());
-        controller.setStrategyScrollPane(new ScrollPane());
+        helper = new HelperMethods();
+        BoardController controller = helper.createController();
 
         octagonPolygon = new Polygon();
         octagonPolygon.setId("A1");
@@ -80,7 +63,7 @@ public class S1Feature3Test {
     void testOctagonClickTogglesSelection() {
         Tile tile = (Tile) octagonPolygon.getUserData();
 
-        controller.handleTileClick(mockClickEvent(octagonPolygon));
+        controller.handleTileClick(helper.mockClickEvent(octagonPolygon));
 
         assertEquals(PlayerEnum.BLACK, tile.getOwner());
         assertEquals(Color.web("#2f2f2f"), octagonPolygon.getFill());
@@ -118,7 +101,7 @@ public class S1Feature3Test {
         Polygon octagonPolygon = controller.polygonMap.get("A1");
         Tile octTile = controller.tileMap.get("A1");
 
-        controller.handleTileClick(mockClickEvent(octagonPolygon));
+        controller.handleTileClick(helper.mockClickEvent(octagonPolygon));
 
         assertEquals(PlayerEnum.BLACK, octTile.getOwner());
         assertEquals(Color.web("#2f2f2f"), octagonPolygon.getFill());
@@ -239,20 +222,5 @@ public class S1Feature3Test {
         assertNull(result);
     }
     
-    
-    // Helper method 
-    
-    private MouseEvent mockClickEvent(Polygon polygon) {
-        return new MouseEvent(MouseEvent.MOUSE_CLICKED,
-                0, 0, 0, 0,
-                MouseButton.PRIMARY,
-                1, false, false, false, false,
-                true, false, false, true, false, false, null
-        ) {
-            @Override
-            public Object getSource() {
-                return polygon;
-            }
-        };
-    }
+
 }
