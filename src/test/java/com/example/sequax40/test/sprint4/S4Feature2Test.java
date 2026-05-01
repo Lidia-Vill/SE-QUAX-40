@@ -14,6 +14,7 @@ import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
 import com.example.sequax40.model.player.BotPlayer;
+import com.example.sequax40.test.helperMethods.ControllerHelpers;
 
 import javafx.application.Platform;
 import javafx.scene.Group;
@@ -27,6 +28,7 @@ import javafx.scene.shape.Polygon;
 
 public class S4Feature2Test {
 
+	private ControllerHelpers helper;
     private BoardController controller;
     private Board board;
     private GameManager manager;
@@ -42,30 +44,14 @@ public class S4Feature2Test {
 
     @BeforeEach
     void setup() {
-        board = new Board(11, 11);
-        controller = new BoardController();
-        Map<String, Tile> tileMap = board.getAllTiles();
-        manager = new GameManager(board, tileMap);
+    	helper = new ControllerHelpers();
+        controller = helper.createController();
+        board = controller.board;
+        manager = controller.getGameManager();
 
-        controller.setMainContainer(new StackPane());
-        controller.setWindowContainer(new HBox());
-        controller.setMasterGroup(new Group());
-        controller.setBoardGroup(new Group());
-        controller.setBoard(board);
-        controller.setGameManager(manager);
-
-        strategyLabelTitle = new Label();
-        strategyLabelText  = new Label();
-        showStratButton    = new Button();
-
-        controller.setStrategyLabelTitle(strategyLabelTitle);
-        controller.setStrategyLabelText(strategyLabelText);
-        controller.setShowStratButton(showStratButton);
-
-        Button pieRuleButton = new Button();
-        pieRuleButton.setVisible(false);
-        controller.setPieRuleButton(pieRuleButton);
-        controller.setStrategyScrollPane(new ScrollPane());
+        strategyLabelTitle = controller.getStrategyLabelTitle();
+        strategyLabelText  = controller.getStrategyLabelText();
+        showStratButton    = controller.getShowStratButton();
     }
 
     @Test

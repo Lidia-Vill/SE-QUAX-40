@@ -30,7 +30,4 @@ public class HelperMethods {
         return map;
     }
 
-    public void playerOwns(String coord, PlayerEnum player) {
-        tileMap.get(coord).setOwner(player);
-    }
 }

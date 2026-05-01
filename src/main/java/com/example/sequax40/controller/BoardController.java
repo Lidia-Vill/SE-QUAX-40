@@ -631,6 +631,18 @@ public class BoardController {
 		return turnRhom;
 	}
     
+    public Label getStrategyLabelTitle() {
+    	return strategyLabelTitle;
+    }
+    
+    public Label getStrategyLabelText() {
+    	return strategyLabelText;
+    }
+    
+    public Button getShowStratButton() {
+    	return showStratButton;
+    }
+    
     public Board getBoard() {
 		return board;
 	}
