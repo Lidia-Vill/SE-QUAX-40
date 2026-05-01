@@ -643,6 +643,10 @@ public class BoardController {
     	return showStratButton;
     }
     
+    public Label getTimerLabel() {
+    	return timerLabel;
+    }
+    
     public Board getBoard() {
 		return board;
 	}

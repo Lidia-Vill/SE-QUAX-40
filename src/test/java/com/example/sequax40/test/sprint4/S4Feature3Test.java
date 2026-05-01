@@ -12,7 +12,8 @@ import com.example.sequax40.controller.BoardController;
 import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
- 
+import com.example.sequax40.test.helperMethods.ControllerHelpers;
+
 import javafx.animation.Animation;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -25,17 +26,13 @@ import javafx.scene.shape.Polygon;
 
 public class S4Feature3Test {
 	
+	private ControllerHelpers helper;
     private BoardController controller;
     private Board board;
     private GameManager manager;
  
-    @FXML private Label turnLabel;
     @FXML private Label timerLabel;
-    @FXML private Polygon turnOct;
-    @FXML private Polygon turnRhom;
-    @FXML private Button pieRuleButton;
-    @FXML private Button stratButton;
-	
+    
 	@BeforeAll
     static void initToolkit() {
         Platform.startup(() -> {});
@@ -43,39 +40,14 @@ public class S4Feature3Test {
 	
 	@BeforeEach
     void setup() throws Exception {
-        board = new Board(11, 11);
-        controller = new BoardController();
-        Map<String, Tile> tileMap = board.getAllTiles();
-        manager = new GameManager(board, tileMap);
-        StackPane mainContainer = new StackPane();
-        HBox windowContainer = new HBox();
-        Group masterGroup = new Group();
-        Group boardGroup = new Group();
-        Button pieRuleButton = new Button();
-        turnLabel = new Label();
-        timerLabel = new Label();
-        turnOct = new Polygon();
-        turnRhom = new Polygon();
-        stratButton = new Button();
-        //set the timers
-        timerLabel = new Label();
- 
-        controller.setMainContainer(mainContainer);
-        controller.setWindowContainer(windowContainer);
-        controller.setMasterGroup(masterGroup);
-        controller.setBoardGroup(boardGroup);
- 
-        controller.setTurnLabel(turnLabel);
-        controller.setTurnOct(turnOct);
-        controller.setTurnRhom(turnRhom);
-        controller.setPieRuleButton(pieRuleButton);
-        controller.setShowStratButton(stratButton);
-        
-        controller.setTimerLabel(timerLabel);   
+		helper = new ControllerHelpers();
+        controller = helper.createController();
+        board = controller.board;
+        manager = controller.getGameManager();
+
+        timerLabel = controller.getTimerLabel();
+
         controller.startTimerForTest();
- 
-        controller.setBoard(board);
-        controller.setGameManager(manager);
     }
 	
 	@Test
