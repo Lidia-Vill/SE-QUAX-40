@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeAll;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class S1Feature3Test {
-
     private BoardController controller;
     private HelperMethods helper;
     private Board board;
@@ -36,9 +35,8 @@ public class S1Feature3Test {
 
     @BeforeEach
     void setUp() {
-        controller = new BoardController();
         helper = new HelperMethods();
-        BoardController controller = helper.createController();
+            controller = helper.createController(); // FIX HERE
 
         octagonPolygon = new Polygon();
         octagonPolygon.setId("A1");
@@ -55,8 +53,6 @@ public class S1Feature3Test {
         controller.setGameManager(gm);
 
         board = controller.board;
-
-        board = new Board(11, 11);
     }
 
     @Test

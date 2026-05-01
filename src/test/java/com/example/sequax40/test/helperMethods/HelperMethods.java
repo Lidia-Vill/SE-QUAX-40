@@ -16,8 +16,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class HelperMethods {
-	
+
 	public BoardController createController() {
 
         BoardController controller = new BoardController();
@@ -42,11 +45,17 @@ public class HelperMethods {
         controller.setStrategyLabelText(new Label());
         controller.setStrategyScrollPane(new ScrollPane());
 
-        controller.initialize();
+        // controller.initialize();
+
+        controller.board = new Board(11, 11);
+        controller.tileMap = new HashMap<>();
+        controller.polygonMap = new HashMap<>();
+
+        controller.setupTiles();
 
         return controller;
     }
-	
+
 	public MouseEvent mockClickEvent(Polygon polygon) {
         return new MouseEvent(MouseEvent.MOUSE_CLICKED,
                 0, 0, 0, 0,
@@ -60,21 +69,26 @@ public class HelperMethods {
             }
         };
     }
-	
-	public void loadDump(int[][] dump) {
-		Board board = new Board(11, 11);
+
+    public void loadDump(Board board, Map<String, Tile> tileMap, int[][] dump) {
+
         for (int row = 0; row < dump.length; row++) {
             for (int col = 0; col < dump[row].length; col++) {
+
                 char colLetter = (char) ('A' + col);
                 String coord = "" + colLetter + (row + 1);
+
                 PlayerEnum owner = switch (dump[row][col]) {
                     case 1 -> PlayerEnum.BLACK;
                     case 2 -> PlayerEnum.WHITE;
                     default -> PlayerEnum.EMPTY;
                 };
+
                 Tile tile = new Tile(coord, ShapeEnum.OCTAGON);
                 tile.setOwner(owner);
+
                 board.addTile(tile);
+                tileMap.put(coord, tile);
             }
         }
     }
@@ -247,6 +261,6 @@ public class HelperMethods {
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     };
 
-    
+
     public static final int[][] EMPTY_BOARD = new int[11][11];
 }
