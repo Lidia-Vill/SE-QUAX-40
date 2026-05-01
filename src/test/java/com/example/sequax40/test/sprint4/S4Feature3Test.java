@@ -2,27 +2,20 @@ package com.example.sequax40.test.sprint4;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Map;
- 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
  
 import com.example.sequax40.controller.BoardController;
 import com.example.sequax40.model.board.Board;
-import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
 import com.example.sequax40.test.helperMethods.ControllerHelpers;
 
 import javafx.animation.Animation;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Group;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.shape.Polygon;
+
 
 public class S4Feature3Test {
 	

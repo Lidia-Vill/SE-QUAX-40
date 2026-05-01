@@ -17,12 +17,8 @@ import com.example.sequax40.model.player.BotPlayer;
 import com.example.sequax40.test.helperMethods.ControllerHelpers;
 
 import javafx.application.Platform;
-import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
@@ -50,8 +46,8 @@ public class S4Feature2Test {
         manager = controller.getGameManager();
 
         strategyLabelTitle = controller.getStrategyLabelTitle();
-        strategyLabelText  = controller.getStrategyLabelText();
-        showStratButton    = controller.getShowStratButton();
+        strategyLabelText = controller.getStrategyLabelText();
+        showStratButton = controller.getShowStratButton();
     }
 
     @Test

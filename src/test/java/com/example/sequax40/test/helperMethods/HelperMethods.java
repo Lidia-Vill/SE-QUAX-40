@@ -2,13 +2,67 @@ package com.example.sequax40.test.helperMethods;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.move.Move;
 
+import javafx.application.Platform;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.shape.Polygon;
+
 public class HelperMethods {
 
+	public MouseEvent mockClickEvent(Polygon polygon) {
+        return new MouseEvent(MouseEvent.MOUSE_CLICKED,
+                0, 0, 0, 0,
+                MouseButton.PRIMARY,
+                1, false, false, false, false,
+                true, false, false, true, false, false, null
+        ) {
+            @Override
+            public Object getSource() {
+                return polygon;
+            }
+        };
+    }
+
+    public MouseEvent mockClickEvent(Tile tile) {
+        Polygon dummy = new Polygon();
+        dummy.setUserData(tile);
+
+        return new MouseEvent(MouseEvent.MOUSE_CLICKED,
+                0, 0, 0, 0,
+                javafx.scene.input.MouseButton.PRIMARY,
+                1, false, false, false, false,
+                true, false, false, true, false, false, null
+        ) {
+            @Override
+            public Object getSource() {
+                return dummy;
+            }
+        };
+    }
+
+    public void runOnFxThreadAndWait(Runnable action) {
+        CountDownLatch latch = new CountDownLatch(1);
+        Platform.runLater(() -> {
+            try {
+                action.run();
+            } finally {
+                latch.countDown();
+            }
+        });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+    }
+	
 	public Map<String, Tile> buildFullBoard() {
         Map<String, Tile> map = new HashMap<>();
 

@@ -7,6 +7,7 @@ import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
 import com.example.sequax40.test.helperMethods.ControllerHelpers;
+import com.example.sequax40.test.helperMethods.HelperMethods;
 
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
@@ -20,7 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class S1Feature3Test {
     private BoardController controller;
-    private ControllerHelpers helper;
+    private ControllerHelpers controllerHelper;
+    private HelperMethods helper;
     private Board board;
     private Polygon octagonPolygon;
     private Polygon rhombusPolygon;
@@ -35,8 +37,9 @@ public class S1Feature3Test {
 
     @BeforeEach
     void setUp() {
-        helper = new ControllerHelpers();
-        controller = helper.createController();
+    	helper = new HelperMethods();
+        controllerHelper = new ControllerHelpers();
+        controller = controllerHelper.createController();
 
         octagonPolygon = new Polygon();
         octagonPolygon.setId("A1");

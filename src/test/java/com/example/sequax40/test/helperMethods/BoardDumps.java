@@ -10,13 +10,10 @@ import java.util.Map;
 public class BoardDumps {
 
     public void loadDump(Board board, Map<String, Tile> tileMap, int[][] dump) {
-
         for (int row = 0; row < dump.length; row++) {
             for (int col = 0; col < dump[row].length; col++) {
-
                 char colLetter = (char) ('A' + col);
                 String coord = "" + colLetter + (row + 1);
-
                 PlayerEnum owner = switch (dump[row][col]) {
                     case 1 -> PlayerEnum.BLACK;
                     case 2 -> PlayerEnum.WHITE;
@@ -25,7 +22,6 @@ public class BoardDumps {
 
                 Tile tile = new Tile(coord, ShapeEnum.OCTAGON);
                 tile.setOwner(owner);
-
                 board.addTile(tile);
                 tileMap.put(coord, tile);
             }

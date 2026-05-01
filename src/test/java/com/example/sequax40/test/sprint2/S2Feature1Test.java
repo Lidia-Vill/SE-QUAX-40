@@ -17,6 +17,7 @@ import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
 import com.example.sequax40.model.move.Move;
 import com.example.sequax40.test.helperMethods.ControllerHelpers;
+import com.example.sequax40.test.helperMethods.HelperMethods;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -30,7 +31,7 @@ import javafx.scene.shape.Polygon;
 
 public class S2Feature1Test {
 
-	private ControllerHelpers helper = new ControllerHelpers();
+	private HelperMethods helper;
     private BoardController controller;
     private Board board;
     private GameManager manager;
@@ -47,7 +48,8 @@ public class S2Feature1Test {
 
     @BeforeEach
     void setup() {
-    	board = new Board(11, 11);
+    	helper = new HelperMethods();
+        board = new Board(11, 11);
         controller = new BoardController();
         Map<String, Tile> tileMap = board.getAllTiles();
         manager = new GameManager(board, tileMap);
@@ -59,7 +61,6 @@ public class S2Feature1Test {
         turnOct = new Polygon();
         turnRhom = new Polygon();
         pieRuleButton = new Button();
-
         controller.setMainContainer(mainContainer);
         controller.setWindowContainer(windowContainer);
         controller.setMasterGroup(masterGroup);
@@ -82,7 +83,7 @@ public class S2Feature1Test {
     @Test
     void testAlternatingTurns1() {
         Tile tile1 = board.getTile("A1");
-        manager.makeMove(moveFor(tile1));
+        manager.makeMove(helper.moveFor(tile1));
         assertEquals(PlayerEnum.WHITE, manager.getCurrentTurn());
     }
 
@@ -90,8 +91,8 @@ public class S2Feature1Test {
     void testAlternatingTurns2() {
         Tile tile1 = board.getTile("A1");
         Tile tile2 = board.getTile("B1");
-        manager.makeMove(moveFor(tile1));
-        manager.makeMove(moveFor(tile2));
+        manager.makeMove(helper.moveFor(tile1));
+        manager.makeMove(helper.moveFor(tile2));
         assertEquals(PlayerEnum.BLACK, manager.getCurrentTurn());
     }
 
@@ -155,14 +156,4 @@ public class S2Feature1Test {
         assertTrue(turnLabel.getText().contains("BLACK"));
     }
     
-
-    // Helper Methods
-
-    
-  
-        
-    private Move moveFor(Tile tile) {
-        ShapeEnum shape = tile.getCoord().contains("_") ? ShapeEnum.RHOMBUS : ShapeEnum.OCTAGON;
-        return new Move(tile.getCoord(), shape);
-    }
 }
