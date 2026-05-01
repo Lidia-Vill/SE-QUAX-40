@@ -87,4 +87,24 @@ public class HelperMethods {
 	public Move moveFor(Tile tile) {
         return new Move(tile.getCoord(), tile.getShape());
     }
+	
+	public boolean boardsAreEqual(int[][] a, int[][] b) {
+        if (a.length != b.length) return false;
+
+        for (int row = 0; row < a.length; row++) {
+            for (int col = 0; col < a[row].length; col++) {
+                if (a[row][col] != b[row][col]) return false;
+            }
+        }
+        return true;
+    }
+
+
+    public int[][] cloneBoardDump(int[][] original) {
+        int[][] copy = new int[original.length][original[0].length];
+        for (int row = 0; row < original.length; row++) {
+            System.arraycopy(original[row], 0, copy[row], 0, original[row].length);
+        }
+        return copy;
+    }
 }

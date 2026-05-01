@@ -5,6 +5,8 @@ import com.example.sequax40.enums.PlayerEnum;
 import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
+import com.example.sequax40.test.helperMethods.BoardDumps;
+import com.example.sequax40.test.helperMethods.HelperMethods;
 
 import javafx.fxml.FXML;
 import javafx.scene.Group;
@@ -24,6 +26,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 public class S2Feature3Test {
+	
+	private BoardDumps boardDump;
+	private HelperMethods helper;
     private Board board;
     private BoardController controller;
     private GameManager manager;
@@ -37,6 +42,8 @@ public class S2Feature3Test {
     @BeforeEach
     void setup() {
         board = new Board(3, 3);
+        boardDump = new BoardDumps();
+        helper = new HelperMethods();
         controller = new BoardController();
         Map<String, Tile> tileMap = board.getAllTiles();
         manager = new GameManager(board, tileMap);
@@ -75,18 +82,18 @@ public class S2Feature3Test {
 
     @Test
     void testBoardResetClearsBoard() {
-        board.loadFromDump(cloneBoardDump(BLACK_WIN_RESULT));
+        board.loadFromDump(helper.cloneBoardDump(BoardDumps.BLACK_WIN_RESULT));
         board.reset();
 
-        assertTrue(boardsAreEqual(board.dumpBoard(), EMPTY_BOARD));
+        assertTrue(helper.boardsAreEqual(board.dumpBoard(), BoardDumps.EMPTY_BOARD_SMALL));
     }
 
     @Test
     void testboardResetClearsMixedBoard() {
-        board.loadFromDump(cloneBoardDump(MIXED_BOARD));
+        board.loadFromDump(helper.cloneBoardDump(BoardDumps.MIXED_BOARD));
         board.reset();
 
-        assertTrue(boardsAreEqual(board.dumpBoard(), EMPTY_BOARD));
+        assertTrue(helper.boardsAreEqual(board.dumpBoard(), BoardDumps.EMPTY_BOARD_SMALL));
     }
 
     @Test
@@ -101,51 +108,6 @@ public class S2Feature3Test {
         assertEquals(PlayerEnum.BLACK, manager.getCurrentTurn());
     }
     
-    
-    // Helper Methods 
-    
-    private boolean boardsAreEqual(int[][] a, int[][] b) {
-        if (a.length != b.length) return false;
 
-        for (int row = 0; row < a.length; row++) {
-            for (int col = 0; col < a[row].length; col++) {
-                if (a[row][col] != b[row][col]) return false;
-            }
-        }
-        return true;
-    }
-
-
-    private int[][] cloneBoardDump(int[][] original) {
-        int[][] copy = new int[original.length][original[0].length];
-        for (int row = 0; row < original.length; row++) {
-            System.arraycopy(original[row], 0, copy[row], 0, original[row].length);
-        }
-        return copy;
-    }
-    
-    // Board Dumps
-    
-    // 0 = empty
-    // 1 = black (current turn)
-    // 2 = white
-
-    private static final int[][] EMPTY_BOARD = {
-            {0,0,0},
-            {0,0,0},
-            {0,0,0}
-    };
-
-    private static final int[][] BLACK_WIN_RESULT = {
-            {1,0,0},
-            {1,0,0},
-            {1,0,0}
-    };
-
-    private static final int[][] MIXED_BOARD = {
-            {1,2,0},
-            {0,1,2},
-            {2,0,1}
-    };
 }
 

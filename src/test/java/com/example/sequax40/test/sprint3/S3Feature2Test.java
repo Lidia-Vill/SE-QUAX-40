@@ -14,6 +14,7 @@ import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
 import com.example.sequax40.model.move.Move;
+import com.example.sequax40.test.helperMethods.ControllerHelpers;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -27,6 +28,7 @@ import javafx.scene.shape.Polygon;
 
 class S3Feature2Test {
 
+	private ControllerHelpers helper;
     private BoardController controller;
     private Board board;
     private GameManager manager;
