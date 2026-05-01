@@ -16,6 +16,7 @@ import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
+import com.example.sequax40.model.move.Move;
 
 import javafx.application.Platform;
 import javafx.scene.Group;
@@ -34,18 +35,14 @@ public class Feature2Test {
     private Polygon turnOct;
     private Polygon turnRhom;
 
-    // BOARD DUMPS
-    // 0 = EMPTY
-    // 1 = BLACK (current turn)
-    // 2 = WHITE
     private static final int[][] VALID_RHOMBUS_DIAG1 = {
-            {1,0,0},  // diagonal top-left to bottom-right
+            {1,0,0},
             {0,0,0},
             {0,0,1}
     };
 
     private static final int[][] VALID_RHOMBUS_DIAG2 = {
-            {0,0,1},  // diagonal top-right to bottom-left
+            {0,0,1},
             {0,0,0},
             {1,0,0}
     };
@@ -57,19 +54,17 @@ public class Feature2Test {
     };
 
     private static final int[][] INVALID_RHOMBUS_OTHER_OWNER = {
-            {2,0,0},  // WHITE owns diagonal
+            {2,0,0},
             {0,0,0},
             {0,0,2}
     };
 
     private static final int[][] OCCUPIED_TILE = {
-            {1,0,0},  // A1 already has BLACK
+            {1,0,0},
             {0,0,0},
             {0,0,0}
     };
 
-
-    // INITIALIZE JAVAFX
     @BeforeAll
     static void initJfx() {
         try {
@@ -77,10 +72,9 @@ public class Feature2Test {
         } catch (IllegalStateException ignored) {}
     }
 
-    // SETUP
     @BeforeEach
     void setup() {
-        board = new Board(3,3);
+        board = new Board(3, 3);
         controller = new BoardController();
         Map<String, Tile> tileMap = board.getAllTiles();
         manager = new GameManager(board, tileMap);
@@ -97,20 +91,22 @@ public class Feature2Test {
         controller.setWindowContainer(windowContainer);
         controller.setMasterGroup(masterGroup);
         controller.setMasterGroup(boardGroup);
-
         controller.setTurnLabel(turnLabel);
         controller.setTurnOct(turnOct);
         controller.setTurnRhom(turnRhom);
-
         controller.setBoard(board);
         controller.setGameManager(manager);
     }
 
-    // HELPER: load dump into board
+    // helper: construct a Move from a Tile
+    private Move moveFor(Tile tile) {
+        return new Move(tile.getCoord(), tile.getShape());
+    }
+
     private void loadDump(int[][] dump) {
         for (int row = 0; row < dump.length; row++) {
             for (int col = 0; col < dump[row].length; col++) {
-                String coord = "" + (char)('A'+col) + (row+1);
+                String coord = "" + (char)('A' + col) + (row + 1);
                 PlayerEnum owner = switch (dump[row][col]) {
                     case 1 -> PlayerEnum.BLACK;
                     case 2 -> PlayerEnum.WHITE;
@@ -123,16 +119,13 @@ public class Feature2Test {
         }
     }
 
-
-    // RHOMBUS TESTS USING DUMPS
     @Test
     void validRhombusDiagonal1() {
         loadDump(VALID_RHOMBUS_DIAG1);
         Tile rhombus = new Tile("AC_1_3", ShapeEnum.RHOMBUS);
         board.addTile(rhombus);
 
-        boolean moveMade = manager.makeMove(rhombus);
-        assertTrue(moveMade);
+        assertTrue(manager.makeMove(moveFor(rhombus)));
     }
 
     @Test
@@ -141,8 +134,7 @@ public class Feature2Test {
         Tile rhombus = new Tile("AC_1_3", ShapeEnum.RHOMBUS);
         board.addTile(rhombus);
 
-        boolean moveMade = manager.makeMove(rhombus);
-        assertTrue(moveMade);
+        assertTrue(manager.makeMove(moveFor(rhombus)));
     }
 
     @Test
@@ -151,8 +143,7 @@ public class Feature2Test {
         Tile rhombus = new Tile("AC_1_3", ShapeEnum.RHOMBUS);
         board.addTile(rhombus);
 
-        boolean moveMade = manager.makeMove(rhombus);
-        assertFalse(moveMade);
+        assertFalse(manager.makeMove(moveFor(rhombus)));
     }
 
     @Test
@@ -161,19 +152,15 @@ public class Feature2Test {
         Tile rhombus = new Tile("AC_1_3", ShapeEnum.RHOMBUS);
         board.addTile(rhombus);
 
-        boolean moveMade = manager.makeMove(rhombus);
-        assertFalse(moveMade);
+        assertFalse(manager.makeMove(moveFor(rhombus)));
     }
 
-
-    // OCCUPIED TILE TESTS USING DUMPS
     @Test
     void cannotPlaceOnOccupiedTile() {
         loadDump(OCCUPIED_TILE);
         Tile tile = board.getTile("A1");
 
-        boolean moveMade = manager.makeMove(tile);
-        assertFalse(moveMade);
+        assertFalse(manager.makeMove(moveFor(tile)));
     }
 
     @Test
@@ -182,7 +169,7 @@ public class Feature2Test {
         Tile tile = board.getTile("A1");
 
         PlayerEnum before = manager.getCurrentTurn();
-        boolean moveMade = manager.makeMove(tile);
+        boolean moveMade = manager.makeMove(moveFor(tile));
 
         assertFalse(moveMade);
         assertEquals(before, manager.getCurrentTurn());

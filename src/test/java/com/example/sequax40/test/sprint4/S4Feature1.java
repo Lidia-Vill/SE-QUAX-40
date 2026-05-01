@@ -57,18 +57,18 @@ class S4Feature1 {
 
     @Test
     void firstMove_alwaysPlacesCentre_F6() {
-        Tile chosen = botPlayer.chooseTile(tileMap, PlayerEnum.BLACK, 0);
-        assertNotNull(chosen, "Bot should always return a tile on move 0");
-        assertEquals("F6", chosen.getCoord(),
+        BotPlayer.StrategyResult result = botPlayer.computeStrategy(tileMap, PlayerEnum.BLACK, 0);
+        assertNotNull(result.chosenTile, "Bot should always return a tile on move 0");
+        assertEquals("F6", result.chosenTile.getCoord(),
                 "Bot's first move should always be F6 (centre of board)");
     }
 
     @Test
     void firstMove_fallsBackIfF6Taken() {
         own("F6", PlayerEnum.WHITE);
-        Tile chosen = botPlayer.chooseTile(tileMap, PlayerEnum.BLACK, 0);
-        assertNotNull(chosen, "Bot should return a fallback tile if F6 is taken");
-        assertNotEquals("F6", chosen.getCoord(),
+        BotPlayer.StrategyResult result = botPlayer.computeStrategy(tileMap, PlayerEnum.BLACK, 0);
+        assertNotNull(result.chosenTile, "Bot should return a fallback tile if F6 is taken");
+        assertNotEquals("F6", result.chosenTile.getCoord(),
                 "Bot should not choose an opponent-owned tile");
     }
 
@@ -131,22 +131,22 @@ class S4Feature1 {
                 "Cache should be null after clearCache()");
     }
 
-
     @Test
-    void chooseTile_usesCacheWhenAvailable() {
+    void cachedStrategy_matchesComputeResult() {
         BotPlayer.StrategyResult result =
                 botPlayer.computeStrategy(tileMap, PlayerEnum.BLACK, 5);
-        Tile chosen = botPlayer.chooseTile(tileMap, PlayerEnum.BLACK, 5);
-        assertEquals(result.chosenTile, chosen,
-                "chooseTile should return the cached tile when cache exists");
+        BotPlayer.StrategyResult cached = botPlayer.getCachedStrategy();
+        assertSame(result, cached,
+                "getCachedStrategy should return the same object returned by computeStrategy");
     }
 
     @Test
-    void chooseTile_computesFreshWhenCacheIsEmpty() {
+    void computeStrategy_afterClearCache_returnsFreshNonNullResult() {
         botPlayer.clearCache();
-        Tile chosen = botPlayer.chooseTile(tileMap, PlayerEnum.BLACK, 2);
-        assertNotNull(chosen,
-                "chooseTile should compute a fresh result when cache is empty");
+        BotPlayer.StrategyResult fresh =
+                botPlayer.computeStrategy(tileMap, PlayerEnum.BLACK, 2);
+        assertNotNull(fresh.chosenTile,
+                "computeStrategy should compute a fresh result when cache is empty");
     }
 
     // PATHFINDING – BLACK PLAYER
@@ -448,17 +448,5 @@ class S4Feature1 {
 
         assertSame(result, botPlayer.getLastExecutedStrategy(),
                 "getLastExecutedStrategy should return exactly what was set");
-    }
-
-    // MANUAL CACHE CONTROL
-    @Test
-    void cacheStrategy_canBeSetDirectly() {
-        BotPlayer.StrategyResult result =
-                botPlayer.computeStrategy(tileMap, PlayerEnum.BLACK, 0);
-        botPlayer.clearCache();
-        botPlayer.cacheStrategy(result);
-
-        assertSame(result, botPlayer.getCachedStrategy(),
-                "cacheStrategy should directly populate the cache");
     }
 }
