@@ -6,6 +6,7 @@ import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
 
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -18,6 +19,7 @@ import javafx.scene.shape.Polygon;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 public class HelperMethods {
 
@@ -68,6 +70,40 @@ public class HelperMethods {
                 return polygon;
             }
         };
+    }
+	
+	public MouseEvent mockClickEvent(Tile tile) {
+        Polygon dummy = new Polygon();
+        dummy.setUserData(tile);
+
+        return new MouseEvent(MouseEvent.MOUSE_CLICKED,
+                0, 0, 0, 0,
+                javafx.scene.input.MouseButton.PRIMARY,
+                1, false, false, false, false,
+                true, false, false, true, false, false, null
+        ) {
+            @Override
+            public Object getSource() {
+                return dummy;
+            }
+        };
+    }
+	
+	public void runOnFxThreadAndWait(Runnable action) {
+        CountDownLatch latch = new CountDownLatch(1);
+        Platform.runLater(() -> {
+            try {
+                action.run();
+            } finally {
+                latch.countDown();
+            }
+        });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
     }
 
     public void loadDump(Board board, Map<String, Tile> tileMap, int[][] dump) {

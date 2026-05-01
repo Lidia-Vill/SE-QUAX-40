@@ -19,8 +19,7 @@ public class S1Feature2Test {
         }
     }
 
-    
-
+ 
     @Test
     void testScalingZeroContainerReturnsOne() {
     	HelperMethods helper = new HelperMethods();

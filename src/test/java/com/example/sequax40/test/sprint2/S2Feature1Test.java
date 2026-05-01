@@ -17,13 +17,13 @@ import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
 import com.example.sequax40.model.move.Move;
+import com.example.sequax40.test.helperMethods.HelperMethods;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -31,6 +31,7 @@ import javafx.scene.shape.Polygon;
 
 public class S2Feature1Test {
 
+	private HelperMethods helper = new HelperMethods();
     private BoardController controller;
     private Board board;
     private GameManager manager;
@@ -99,7 +100,7 @@ public class S2Feature1Test {
 
     @Test
     void testTurnDisplayStartsBlack() throws Exception {
-        runOnFxThreadAndWait(() -> controller.initialize());
+    	helper.runOnFxThreadAndWait(() -> controller.initialize());
         Label currentTurnLabel = controller.getTurnLabel();
         assertTrue(currentTurnLabel.getText().contains("BLACK"));
         assertEquals(Color.web("#2f2f2f"), turnLabel.getTextFill());
@@ -112,10 +113,10 @@ public class S2Feature1Test {
         Tile tileA1 = board.getTile("A1");
         Tile tileA2 = board.getTile("A2");
 
-        runOnFxThreadAndWait(() -> controller.handleTileClick(mockClickEvent(tileA1)));
+        helper.runOnFxThreadAndWait(() -> controller.handleTileClick(helper.mockClickEvent(tileA1)));
         assertEquals(Color.WHITE, turnRhom.getFill());
 
-        runOnFxThreadAndWait(() -> controller.handleTileClick(mockClickEvent(tileA2)));
+        helper.runOnFxThreadAndWait(() -> controller.handleTileClick(helper.mockClickEvent(tileA2)));
         assertEquals(Color.web("#2f2f2f"), turnRhom.getFill());
     }
 
@@ -124,10 +125,10 @@ public class S2Feature1Test {
         Tile tileA1 = board.getTile("A1");
         Tile tileA2 = board.getTile("A2");
 
-        runOnFxThreadAndWait(() -> controller.handleTileClick(mockClickEvent(tileA1)));
+        helper.runOnFxThreadAndWait(() -> controller.handleTileClick(helper.mockClickEvent(tileA1)));
         assertEquals(Color.WHITE, turnOct.getFill());
 
-        runOnFxThreadAndWait(() -> controller.handleTileClick(mockClickEvent(tileA2)));
+        helper.runOnFxThreadAndWait(() -> controller.handleTileClick(helper.mockClickEvent(tileA2)));
         assertEquals(Color.web("#2f2f2f"), turnOct.getFill());
     }
 
@@ -136,10 +137,10 @@ public class S2Feature1Test {
         Tile tileA1 = board.getTile("A1");
         Tile tileA2 = board.getTile("A2");
 
-        runOnFxThreadAndWait(() -> controller.handleTileClick(mockClickEvent(tileA1)));
+        helper.runOnFxThreadAndWait(() -> controller.handleTileClick(helper.mockClickEvent(tileA1)));
         assertEquals(Color.WHITE, turnLabel.getTextFill());
 
-        runOnFxThreadAndWait(() -> controller.handleTileClick(mockClickEvent(tileA2)));
+        helper.runOnFxThreadAndWait(() -> controller.handleTileClick(helper.mockClickEvent(tileA2)));
         assertEquals(Color.web("#2f2f2f"), turnLabel.getTextFill());
     }
 
@@ -148,50 +149,19 @@ public class S2Feature1Test {
         Tile tileA1 = board.getTile("A1");
         Tile tileA2 = board.getTile("A2");
 
-        runOnFxThreadAndWait(() -> controller.handleTileClick(mockClickEvent(tileA1)));
+        helper.runOnFxThreadAndWait(() -> controller.handleTileClick(helper.mockClickEvent(tileA1)));
         assertTrue(turnLabel.getText().contains("WHITE"));
 
-        runOnFxThreadAndWait(() -> controller.handleTileClick(mockClickEvent(tileA2)));
+        helper.runOnFxThreadAndWait(() -> controller.handleTileClick(helper.mockClickEvent(tileA2)));
         assertTrue(turnLabel.getText().contains("BLACK"));
     }
     
 
     // Helper Methods
 
-    private void runOnFxThreadAndWait(Runnable action) {
-        CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-                action.run();
-            } finally {
-                latch.countDown();
-            }
-        });
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
-        }
-    }
-  
-    private MouseEvent mockClickEvent(Tile tile) {
-        Polygon dummy = new Polygon();
-        dummy.setUserData(tile);
-
-        return new MouseEvent(MouseEvent.MOUSE_CLICKED,
-                0, 0, 0, 0,
-                javafx.scene.input.MouseButton.PRIMARY,
-                1, false, false, false, false,
-                true, false, false, true, false, false, null
-        ) {
-            @Override
-            public Object getSource() {
-                return dummy;
-            }
-        };
-    }
     
+  
+        
     private Move moveFor(Tile tile) {
         ShapeEnum shape = tile.getCoord().contains("_") ? ShapeEnum.RHOMBUS : ShapeEnum.OCTAGON;
         return new Move(tile.getCoord(), shape);
