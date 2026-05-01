@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import com.example.sequax40.controller.BoardController;
 import com.example.sequax40.model.board.Board;
-import com.example.sequax40.model.game.GameManager;
 
 import javafx.application.Platform;
 import javafx.scene.Group;
@@ -19,12 +18,9 @@ import javafx.scene.shape.Polygon;
 public class ControllerHelpers {
 
     static {
-        // Ensures JavaFX toolkit is started once
         try {
             Platform.startup(() -> {});
-        } catch (IllegalStateException ignored) {
-            // already started
-        }
+        } catch (IllegalStateException ignored) {}
     }
 
     public BoardController createController() {

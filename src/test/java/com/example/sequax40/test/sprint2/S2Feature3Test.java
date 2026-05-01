@@ -106,6 +106,5 @@ public class S2Feature3Test {
         assertEquals(PlayerEnum.BLACK, manager.getCurrentTurn());
     }
     
-
 }
 

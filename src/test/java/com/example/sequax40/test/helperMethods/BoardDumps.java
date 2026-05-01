@@ -1,11 +1,9 @@
 package com.example.sequax40.test.helperMethods;
 
 import com.example.sequax40.enums.PlayerEnum;
-import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
 
-import java.util.Map;
 
 public class BoardDumps {
 
