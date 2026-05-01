@@ -35,7 +35,7 @@ public class S2Feature2Test {
     }
 
     private void loadDump(int[][] dump) {
-        boardDumps.loadDump(board, board.getAllTiles(), dump);
+        boardDumps.loadDump(board, dump);
     }
 
     private Move moveFor(Tile tile) {
