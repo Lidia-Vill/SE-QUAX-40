@@ -75,25 +75,23 @@ public class S2Feature3Test {
     static void initJfx() {
         try {
             Platform.startup(() -> {});
-        } catch (IllegalStateException ignored) {
-            // already started
-        }
+        } catch (IllegalStateException ignored) {}
     }
 
     @Test
     void testBoardResetClearsBoard() {
-        board.loadFromDump(helper.cloneBoardDump(BoardDumps.BLACK_WIN_RESULT));
+        boardDump.loadDump(board, helper.cloneBoardDump(BoardDumps.BLACK_WIN_RESULT));
         board.reset();
 
-        assertTrue(helper.boardsAreEqual(board.dumpBoard(), BoardDumps.EMPTY_BOARD_SMALL));
+        assertTrue(helper.boardsAreEqual(boardDump.dumpBoard(board), BoardDumps.EMPTY_BOARD_SMALL));
     }
 
     @Test
-    void testboardResetClearsMixedBoard() {
-        board.loadFromDump(helper.cloneBoardDump(BoardDumps.MIXED_BOARD));
+    void testBoardResetClearsMixedBoard() {
+        boardDump.loadDump(board, helper.cloneBoardDump(BoardDumps.MIXED_BOARD));
         board.reset();
 
-        assertTrue(helper.boardsAreEqual(board.dumpBoard(), BoardDumps.EMPTY_BOARD_SMALL));
+        assertTrue(helper.boardsAreEqual(boardDump.dumpBoard(board), BoardDumps.EMPTY_BOARD_SMALL));
     }
 
     @Test
