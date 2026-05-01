@@ -16,7 +16,7 @@ import com.example.sequax40.controller.BoardController;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class Feature2Test {
+public class S1Feature2Test {
 
     @BeforeAll
     static void initToolkit() {

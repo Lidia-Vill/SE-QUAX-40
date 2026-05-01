@@ -25,7 +25,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
-public class S4Feature2 {
+public class S4Feature2Test {
 
     private BoardController controller;
     private Board board;

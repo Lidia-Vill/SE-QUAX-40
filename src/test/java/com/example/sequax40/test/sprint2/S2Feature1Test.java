@@ -29,9 +29,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
-public class Feature1Test {
-
-    // INITIALISING
+public class S2Feature1Test {
 
     private BoardController controller;
     private Board board;
@@ -74,14 +72,8 @@ public class Feature1Test {
         controller.setGameManager(manager);
     }
 
-    // helper: build a Move from a tile (coord determines shape)
-    private Move moveFor(Tile tile) {
-        ShapeEnum shape = tile.getCoord().contains("_") ? ShapeEnum.RHOMBUS : ShapeEnum.OCTAGON;
-        return new Move(tile.getCoord(), shape);
-    }
-
-    // GAME MANAGER TESTS
-
+    // Game Manager Tests
+    
     @Test
     void testGameStartsWithBlack() {
         assertEquals(PlayerEnum.BLACK, manager.getCurrentTurn());
@@ -103,7 +95,7 @@ public class Feature1Test {
         assertEquals(PlayerEnum.BLACK, manager.getCurrentTurn());
     }
 
-    // BOARD CONTROLLER TESTS
+    // Board Controller Tests
 
     @Test
     void testTurnDisplayStartsBlack() throws Exception {
@@ -162,8 +154,9 @@ public class Feature1Test {
         runOnFxThreadAndWait(() -> controller.handleTileClick(mockClickEvent(tileA2)));
         assertTrue(turnLabel.getText().contains("BLACK"));
     }
+    
 
-    // HELPER METHODS
+    // Helper Methods
 
     private void runOnFxThreadAndWait(Runnable action) {
         CountDownLatch latch = new CountDownLatch(1);
@@ -181,7 +174,7 @@ public class Feature1Test {
             throw new RuntimeException(e);
         }
     }
-
+  
     private MouseEvent mockClickEvent(Tile tile) {
         Polygon dummy = new Polygon();
         dummy.setUserData(tile);
@@ -197,5 +190,10 @@ public class Feature1Test {
                 return dummy;
             }
         };
+    }
+    
+    private Move moveFor(Tile tile) {
+        ShapeEnum shape = tile.getCoord().contains("_") ? ShapeEnum.RHOMBUS : ShapeEnum.OCTAGON;
+        return new Move(tile.getCoord(), shape);
     }
 }

@@ -14,6 +14,7 @@ import org.testfx.framework.junit5.ApplicationTest;
 
 import com.example.sequax40.app.QuaxApplication;
 import com.example.sequax40.controller.BoardController;
+
 // paste this line below
 
 //  --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
@@ -21,7 +22,7 @@ import com.example.sequax40.controller.BoardController;
 //	into run configurations, to allow testfx to access internal javafx class (have to manually access it)
 //	due to encapsulation in newer versions of java fx
 
-class Feature1Test extends ApplicationTest{
+class S1Feature1Test extends ApplicationTest{
 
     private Stage stage;
 
@@ -59,8 +60,8 @@ class Feature1Test extends ApplicationTest{
         controller.setPieRuleButton(new Button());
         controller.setTimerLabel(new Label());
         controller.setShowStratButton(new Button());
-        controller.setStrategyLabel1(new Label());
-        controller.setStrategyLabel2(new Label());
+        controller.setStrategyLabelText(new Label());
+        controller.setStrategyLabelTitle(new Label());
 
         controller.initialize();
 

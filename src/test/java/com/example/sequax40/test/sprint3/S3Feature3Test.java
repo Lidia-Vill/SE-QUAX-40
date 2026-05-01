@@ -8,13 +8,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.example.sequax40.enums.PlayerEnum;
-import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
 import com.example.sequax40.model.move.Move;
 
-public class S3Feature3 {
+public class S3Feature3Test {
 
     private Board board;
     private GameManager manager;
@@ -31,17 +30,10 @@ public class S3Feature3 {
         return new Move(tile.getCoord(), tile.getShape());
     }
 
-    private long countTiles(PlayerEnum player) {
-        return tileMap.values().stream()
-                .filter(t -> t.getOwner() == player)
-                .count();
-    }
-
     @Test
-    void botFirstMoveIsCentre() {
+    void testBotFirstMoveIsCentre() {
         Tile centre = tileMap.get("F6");
         assertNotNull(centre);
-
         boolean move = manager.makeMove(moveFor(centre));
 
         assertTrue(move);
@@ -50,10 +42,9 @@ public class S3Feature3 {
     }
 
     @Test
-    void moveCountIncrementsCorrectly() {
+    void testMoveCountIncrementsCorrectly() {
         Tile t1 = tileMap.get("F6");
         Tile t2 = tileMap.get("F7");
-
         manager.makeMove(moveFor(t1));
         manager.makeMove(moveFor(t2));
 
@@ -61,7 +52,7 @@ public class S3Feature3 {
     }
 
     @Test
-    void cannotPlaySameTileTwice() {
+    void testCannotPlaySameTileTwice() {
         Tile tile = tileMap.get("F6");
 
         assertTrue(manager.makeMove(moveFor(tile)));
@@ -69,20 +60,17 @@ public class S3Feature3 {
     }
 
     @Test
-    void turnSwitchesAfterValidMove() {
+    void testTurnSwitchesAfterValidMove() {
         Tile t1 = tileMap.get("F6");
-
         manager.makeMove(moveFor(t1));
 
         assertEquals(PlayerEnum.WHITE, manager.getCurrentTurn());
     }
 
     @Test
-    void turnDoesNotChangeOnInvalidMove() {
+    void testTurnDoesNotChangeOnInvalidMove() {
         Tile tile = tileMap.get("F6");
-
         manager.makeMove(moveFor(tile));
-
         PlayerEnum before = manager.getCurrentTurn();
         boolean move = manager.makeMove(moveFor(tile));
 
@@ -91,19 +79,17 @@ public class S3Feature3 {
     }
 
     @Test
-    void botAlwaysFindsValidMoveWhenAvailable() {
+    void testBotAlwaysFindsValidMoveWhenAvailable() {
         int attempts = 0;
 
         while (!manager.isGameOver() && attempts < 50) {
             boolean movePlayed = false;
-
             for (Tile tile : tileMap.values()) {
                 if (tile.isEmpty()) {
                     movePlayed = manager.makeMove(moveFor(tile));
                     if (movePlayed) break;
                 }
             }
-
             if (!movePlayed) break;
             attempts++;
         }
@@ -112,11 +98,10 @@ public class S3Feature3 {
     }
 
     @Test
-    void noInfiniteLoopWhenNoValidMoves() {
+    void testNoInfiniteLoopWhenNoValidMoves() {
         for (Tile tile : tileMap.values()) {
             tile.setOwner(PlayerEnum.BLACK);
         }
-
         boolean movePlayed = false;
 
         for (Tile tile : tileMap.values()) {
@@ -125,7 +110,6 @@ public class S3Feature3 {
                 break;
             }
         }
-
         assertFalse(movePlayed);
     }
 }

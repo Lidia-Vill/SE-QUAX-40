@@ -73,9 +73,6 @@ public class BoardController {
     @FXML private ScrollPane strategyScrollPane;
     @FXML private Label timerLabel;
 
-    @FXML private Label strategyLabel1;
-    @FXML private Label strategyLabel2;
-
     // Model
     
     public Board board;
@@ -594,13 +591,7 @@ public class BoardController {
 		this.elapsedSeconds = seconds;
 	}
 
-    public void setStrategyLabel1(Label label) { this.strategyLabel1 = label;
-    }
-
-    public void setStrategyLabel2(Label label) { this.strategyLabel2 = label;
-    }
-	
-	public static double getDESIGN_WIDTH() {
+    public static double getDESIGN_WIDTH() {
 		return DESIGN_WIDTH;
 	}
 	

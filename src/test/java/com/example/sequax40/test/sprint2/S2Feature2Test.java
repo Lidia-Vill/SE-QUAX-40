@@ -25,7 +25,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
 
-public class Feature2Test {
+public class S2Feature2Test {
 
     private Board board;
     private BoardController controller;
@@ -34,37 +34,7 @@ public class Feature2Test {
     private Label turnLabel;
     private Polygon turnOct;
     private Polygon turnRhom;
-
-    private static final int[][] VALID_RHOMBUS_DIAG1 = {
-            {1,0,0},
-            {0,0,0},
-            {0,0,1}
-    };
-
-    private static final int[][] VALID_RHOMBUS_DIAG2 = {
-            {0,0,1},
-            {0,0,0},
-            {1,0,0}
-    };
-
-    private static final int[][] INVALID_RHOMBUS_EMPTY = {
-            {0,0,0},
-            {0,0,0},
-            {0,0,0}
-    };
-
-    private static final int[][] INVALID_RHOMBUS_OTHER_OWNER = {
-            {2,0,0},
-            {0,0,0},
-            {0,0,2}
-    };
-
-    private static final int[][] OCCUPIED_TILE = {
-            {1,0,0},
-            {0,0,0},
-            {0,0,0}
-    };
-
+    
     @BeforeAll
     static void initJfx() {
         try {
@@ -97,28 +67,7 @@ public class Feature2Test {
         controller.setBoard(board);
         controller.setGameManager(manager);
     }
-
-    // helper: construct a Move from a Tile
-    private Move moveFor(Tile tile) {
-        return new Move(tile.getCoord(), tile.getShape());
-    }
-
-    private void loadDump(int[][] dump) {
-        for (int row = 0; row < dump.length; row++) {
-            for (int col = 0; col < dump[row].length; col++) {
-                String coord = "" + (char)('A' + col) + (row + 1);
-                PlayerEnum owner = switch (dump[row][col]) {
-                    case 1 -> PlayerEnum.BLACK;
-                    case 2 -> PlayerEnum.WHITE;
-                    default -> PlayerEnum.EMPTY;
-                };
-                Tile tile = new Tile(coord, ShapeEnum.OCTAGON);
-                tile.setOwner(owner);
-                board.addTile(tile);
-            }
-        }
-    }
-
+    
     @Test
     void validRhombusDiagonal1() {
         loadDump(VALID_RHOMBUS_DIAG1);
@@ -174,4 +123,59 @@ public class Feature2Test {
         assertFalse(moveMade);
         assertEquals(before, manager.getCurrentTurn());
     }
+    
+
+    // Helper Methods
+    
+    private Move moveFor(Tile tile) {
+        return new Move(tile.getCoord(), tile.getShape());
+    }
+
+    private void loadDump(int[][] dump) {
+        for (int row = 0; row < dump.length; row++) {
+            for (int col = 0; col < dump[row].length; col++) {
+                String coord = "" + (char)('A' + col) + (row + 1);
+                PlayerEnum owner = switch (dump[row][col]) {
+                    case 1 -> PlayerEnum.BLACK;
+                    case 2 -> PlayerEnum.WHITE;
+                    default -> PlayerEnum.EMPTY;
+                };
+                Tile tile = new Tile(coord, ShapeEnum.OCTAGON);
+                tile.setOwner(owner);
+                board.addTile(tile);
+            }
+        }
+    }
+    
+    // Board Dumps 
+    
+    private static final int[][] VALID_RHOMBUS_DIAG1 = {
+            {1,0,0},
+            {0,0,0},
+            {0,0,1}
+    };
+
+    private static final int[][] VALID_RHOMBUS_DIAG2 = {
+            {0,0,1},
+            {0,0,0},
+            {1,0,0}
+    };
+
+    private static final int[][] INVALID_RHOMBUS_EMPTY = {
+            {0,0,0},
+            {0,0,0},
+            {0,0,0}
+    };
+
+    private static final int[][] INVALID_RHOMBUS_OTHER_OWNER = {
+            {2,0,0},
+            {0,0,0},
+            {0,0,2}
+    };
+
+    private static final int[][] OCCUPIED_TILE = {
+            {1,0,0},
+            {0,0,0},
+            {0,0,0}
+    };
 }

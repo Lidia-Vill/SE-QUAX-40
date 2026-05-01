@@ -25,7 +25,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
 
-class S3Feature2 {
+class S3Feature2Test {
 
     private BoardController controller;
     private Board board;

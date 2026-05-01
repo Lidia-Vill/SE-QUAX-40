@@ -23,9 +23,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
 
-public class S4Feature3 {
+public class S4Feature3Test {
 	
-	// initialise all the setups for the board
     private BoardController controller;
     private Board board;
     private GameManager manager;
@@ -118,9 +117,6 @@ public class S4Feature3 {
 		assertEquals("59:00", timerLabel.getText());
 	}
 	
-	
-	
-	
 	@Test
 	void testElapsedSecondsResetToZeroOnStart() {
 		assertEquals(0, controller.getElapsedSeconds());
@@ -145,14 +141,12 @@ public class S4Feature3 {
 		assertEquals(Animation.Status.STOPPED, firstTimer.getStatus());
 	}
 	
-	
 	@Test
 	void testStopTimerStopsTimer() {
 		controller.stopTimerForTest();
 		
 		assertEquals(Animation.Status.STOPPED, controller.getGameTimer().getStatus());
 	}
-	
 	
 	@Test
 	void testResetGameResetsElapsedSeconds() {

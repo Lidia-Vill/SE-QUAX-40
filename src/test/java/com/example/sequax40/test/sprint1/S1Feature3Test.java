@@ -12,7 +12,6 @@ import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
@@ -25,7 +24,7 @@ import org.junit.jupiter.api.BeforeAll;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class Feature3Test {
+public class S1Feature3Test {
 
     private BoardController controller;
     private Board board;
@@ -87,20 +86,7 @@ public class Feature3Test {
         assertEquals(Color.web("#2f2f2f"), octagonPolygon.getFill());
     }
 
-    private MouseEvent mockClickEvent(Polygon polygon) {
-        return new MouseEvent(MouseEvent.MOUSE_CLICKED,
-                0, 0, 0, 0,
-                MouseButton.PRIMARY,
-                1, false, false, false, false,
-                true, false, false, true, false, false, null
-        ) {
-            @Override
-            public Object getSource() {
-                return polygon;
-            }
-        };
-    }
-
+    
     @Test
     void testSetupTiles() {
         controller.board = new Board(11, 11);
@@ -139,7 +125,7 @@ public class Feature3Test {
     }
 
     @Test
-    void constructor_shouldThrowExceptionIfCoordIsNull() {
+    void testConstructorShouldThrowExceptionIfCoordIsNull() {
         try {
             new Tile(null, ShapeEnum.OCTAGON);
             fail("Expected IllegalArgumentException for null coordinate");
@@ -148,7 +134,7 @@ public class Feature3Test {
     }
 
     @Test
-    void constructor_shouldThrowExceptionIfCoordIsBlank() {
+    void testConstructorShouldThrowExceptionIfCoordIsBlank() {
         try {
             new Tile(" ", ShapeEnum.RHOMBUS);
             fail("Expected IllegalArgumentException for blank coordinate");
@@ -157,7 +143,7 @@ public class Feature3Test {
     }
 
     @Test
-    void constructor_shouldThrowExceptionIfShapeIsNull() {
+    void testConstructorShouldThrowExceptionIfShapeIsNull() {
         try {
             new Tile("A1", null);
             fail("Expected IllegalArgumentException for null shape");
@@ -166,7 +152,7 @@ public class Feature3Test {
     }
 
     @Test
-    void constructor_shouldCreateTileWithValidInput() {
+    void testConstructorShouldCreateTileWithValidInput() {
         Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
 
         assertEquals("A1", tile.getCoord());
@@ -174,14 +160,14 @@ public class Feature3Test {
     }
 
     @Test
-    void tile_shouldNotBeSelectedByDefault() {
+    void testTileShouldNotBeSelectedByDefault() {
         Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
 
         assertFalse(tile.isSelected());
     }
 
     @Test
-    void toggleSelected_shouldSetSelectedToTrue() {
+    void testToggleSelectedShouldSetSelectedToTrue() {
         Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
 
         tile.toggleSelected();
@@ -190,7 +176,7 @@ public class Feature3Test {
     }
 
     @Test
-    void toggleSelected_shouldToggleBackToFalse() {
+    void testToggleSelectedShouldToggleBackToFalse() {
         Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
 
         tile.toggleSelected();
@@ -200,7 +186,7 @@ public class Feature3Test {
     }
 
     @Test
-    void reset_shouldClearSelection() {
+    void testResetShouldClearSelection() {
         Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
 
         tile.toggleSelected();
@@ -210,7 +196,7 @@ public class Feature3Test {
     }
 
     @Test
-    void addTile_shouldStoreTileCorrectly() {
+    void testAddTileShouldStoreTileCorrectly() {
         Tile tile = new Tile("A1", ShapeEnum.OCTAGON);
 
         board.addTile(tile);
@@ -224,7 +210,7 @@ public class Feature3Test {
     }
 
     @Test
-    void addTile_shouldStoreRhombusTile() {
+    void testAddTileShouldStoreRhombusTile() {
         Tile tile = new Tile("B2", ShapeEnum.RHOMBUS);
 
         board.addTile(tile);
@@ -236,7 +222,7 @@ public class Feature3Test {
     }
 
     @Test
-    void getTile_shouldReturnTileIfExists() {
+    void testGetTileShouldReturnTileIfExists() {
         Tile tile = new Tile("D4", ShapeEnum.OCTAGON);
         board.addTile(tile);
 
@@ -247,9 +233,26 @@ public class Feature3Test {
     }
 
     @Test
-    void getTile_shouldReturnNullIfTileDoesNotExist() {
+    void testGetTileShouldReturnNullIfTileDoesNotExist() {
         Tile result = board.getTile("Z9");
 
         assertNull(result);
+    }
+    
+    
+    // Helper method 
+    
+    private MouseEvent mockClickEvent(Polygon polygon) {
+        return new MouseEvent(MouseEvent.MOUSE_CLICKED,
+                0, 0, 0, 0,
+                MouseButton.PRIMARY,
+                1, false, false, false, false,
+                true, false, false, true, false, false, null
+        ) {
+            @Override
+            public Object getSource() {
+                return polygon;
+            }
+        };
     }
 }
