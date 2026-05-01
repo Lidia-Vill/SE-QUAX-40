@@ -23,6 +23,15 @@ import java.util.concurrent.CountDownLatch;
 
 public class HelperMethods {
 
+    static {
+        // Ensures JavaFX toolkit is started once
+        try {
+            Platform.startup(() -> {});
+        } catch (IllegalStateException ignored) {
+            // already started
+        }
+    }
+
 	public BoardController createController() {
 
         BoardController controller = new BoardController();
@@ -47,7 +56,7 @@ public class HelperMethods {
         controller.setStrategyLabelText(new Label());
         controller.setStrategyScrollPane(new ScrollPane());
 
-        // controller.initialize();
+        controller.initialize();
 
         controller.board = new Board(11, 11);
         controller.tileMap = new HashMap<>();

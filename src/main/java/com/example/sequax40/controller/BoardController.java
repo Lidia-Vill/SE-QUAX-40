@@ -619,6 +619,8 @@ public class BoardController {
 		return gameTimer; 
 	}
 
+    public GameManager getGameManager() { return gameManager; }
+
 	public boolean isPieRuleUsed() {
 		return pieRuleUsed;
 	}
