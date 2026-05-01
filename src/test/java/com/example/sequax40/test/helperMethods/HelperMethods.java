@@ -3,9 +3,9 @@ package com.example.sequax40.test.helperMethods;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.example.sequax40.enums.PlayerEnum;
 import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Tile;
+import com.example.sequax40.model.move.Move;
 
 public class HelperMethods {
 
@@ -30,4 +30,7 @@ public class HelperMethods {
         return map;
     }
 
+	public Move moveFor(Tile tile) {
+        return new Move(tile.getCoord(), tile.getShape());
+    }
 }
