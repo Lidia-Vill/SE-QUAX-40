@@ -29,7 +29,7 @@ public class S3Feature1Test {
         Board board = new Board(11, 11);
         Map<String, Tile> tileMap = board.getAllTiles();
 
-        boardDumps.loadDump(board, tileMap, dump);
+        boardDumps.loadDump(board, dump);
 
         return new GameManager(board, tileMap);
     }
