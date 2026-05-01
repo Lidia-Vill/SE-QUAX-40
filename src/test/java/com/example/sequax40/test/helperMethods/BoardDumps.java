@@ -227,4 +227,22 @@ public class BoardDumps {
             {0,0,0},
             {0,0,0}
     };
+    
+    public static final int[][] EMPTY_BOARD_SMALL = {
+            {0,0,0},
+            {0,0,0},
+            {0,0,0}
+    };
+
+    public static final int[][] BLACK_WIN_RESULT = {
+            {1,0,0},
+            {1,0,0},
+            {1,0,0}
+    };
+
+    public static final int[][] MIXED_BOARD = {
+            {1,2,0},
+            {0,1,2},
+            {2,0,1}
+    };
 }
