@@ -76,7 +76,6 @@ public class S4Feature3Test {
  
         controller.setBoard(board);
         controller.setGameManager(manager);
- 
     }
 	
 	@Test

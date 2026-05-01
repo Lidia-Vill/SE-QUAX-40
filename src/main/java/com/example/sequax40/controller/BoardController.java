@@ -619,7 +619,21 @@ public class BoardController {
 		return gameTimer; 
 	}
 
-    public GameManager getGameManager() { return gameManager; }
+    public GameManager getGameManager() { 
+    	return gameManager; 
+    }
+    
+    public Polygon getTurnOct() {
+		return turnOct;
+	}
+    
+    public Polygon getTurnRhom() {
+		return turnRhom;
+	}
+    
+    public Board getBoard() {
+		return board;
+	}
 
 	public boolean isPieRuleUsed() {
 		return pieRuleUsed;

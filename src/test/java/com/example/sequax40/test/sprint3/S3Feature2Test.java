@@ -2,8 +2,6 @@ package com.example.sequax40.test.sprint3;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Map;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,27 +12,18 @@ import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
 import com.example.sequax40.model.move.Move;
+import com.example.sequax40.test.helperMethods.ControllerHelpers;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.Group;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.shape.Polygon;
+
 
 class S3Feature2Test {
 
+	private ControllerHelpers helper;
     private BoardController controller;
     private Board board;
     private GameManager manager;
-
-    @FXML private Label turnLabel;
-    @FXML private Polygon turnOct;
-    @FXML private Polygon turnRhom;
-    @FXML private Button pieRuleButton;
 
     @BeforeAll
     static void initToolkit() {
@@ -43,29 +32,10 @@ class S3Feature2Test {
 
     @BeforeEach
     void setup() {
-        board = new Board(11, 11);
-        controller = new BoardController();
-        Map<String, Tile> tileMap = board.getAllTiles();
-        manager = new GameManager(board, tileMap);
-        StackPane mainContainer = new StackPane();
-        HBox windowContainer = new HBox();
-        Group masterGroup = new Group();
-        Group boardGroup = new Group();
-        Button pieRuleButton = new Button();
-        turnLabel = new Label();
-        turnOct = new Polygon();
-        turnRhom = new Polygon();
-
-        controller.setMainContainer(mainContainer);
-        controller.setWindowContainer(windowContainer);
-        controller.setMasterGroup(masterGroup);
-        controller.setBoardGroup(boardGroup);
-        controller.setTurnLabel(turnLabel);
-        controller.setTurnOct(turnOct);
-        controller.setTurnRhom(turnRhom);
-        controller.setPieRuleButton(pieRuleButton);
-        controller.setBoard(board);
-        controller.setGameManager(manager);
+    	helper = new ControllerHelpers();
+        controller = helper.createController();
+        board = controller.board;
+        manager = controller.getGameManager();
     }
 
     private Move moveFor(Tile tile) {

@@ -4,6 +4,7 @@ import com.example.sequax40.enums.PlayerEnum;
 import com.example.sequax40.enums.ShapeEnum;
 import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.player.BotPlayer;
+import com.example.sequax40.test.helperMethods.HelperMethods;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,16 +19,16 @@ import static org.junit.jupiter.api.Assertions.*;
 class S4Feature1Test {
 
     private BotPlayer botPlayer;
+    private HelperMethods helper;
     private Map<String, Tile> tileMap;
 
     @BeforeEach
     void setUp() {
+    	helper = new HelperMethods();
         botPlayer = new BotPlayer();
-        tileMap   = buildFullBoard();
+        tileMap   = helper.buildFullBoard();
     }
 
-    
-    // OPENING MOVE BEHAVIOUR
 
     @Test
     void testFirstMoveAlwaysPlacesCentreF6() {
@@ -407,29 +408,7 @@ class S4Feature1Test {
                 "getLastExecutedStrategy should return exactly what was set");
     }
     
-    // Helper Methods 
     
-    private Map<String, Tile> buildFullBoard() {
-        Map<String, Tile> map = new HashMap<>();
-
-        for (char col = 'A'; col <= 'K'; col++) {
-            for (int row = 1; row <= 11; row++) {
-                String coord = "" + col + row;
-                map.put(coord, new Tile(coord, ShapeEnum.OCTAGON));
-            }
-        }
-
-        for (char col = 'A'; col < 'K'; col++) {
-            char nextCol = (char)(col + 1);
-            for (int row = 1; row < 11; row++) {
-                String coord = "" + col + nextCol + "_" + row + "_" + (row + 1);
-                map.put(coord, new Tile(coord, ShapeEnum.RHOMBUS));
-            }
-        }
-
-        return map;
-    }
-
     private void playerOwns(String coord, PlayerEnum player) {
         tileMap.get(coord).setOwner(player);
     }

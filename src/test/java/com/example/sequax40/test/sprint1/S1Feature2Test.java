@@ -22,7 +22,7 @@ public class S1Feature2Test {
  
     @Test
     void testScalingZeroContainerReturnsOne() {
-    	HelperMethods helper = new HelperMethods();
+    	ControllerHelpers helper = new ControllerHelpers();
         BoardController controller = helper.createController();
 
         controller.mainContainer.resize(0, 0);
@@ -33,7 +33,7 @@ public class S1Feature2Test {
 
     @Test
     void testScalingAtDesignSize() {
-    	HelperMethods helper = new HelperMethods();
+    	ControllerHelpers helper = new ControllerHelpers();
         BoardController controller = helper.createController();
 
         controller.mainContainer.resize(900, 850);
@@ -45,7 +45,7 @@ public class S1Feature2Test {
 
     @Test
     void testScalingHalfSize() {
-    	HelperMethods helper = new HelperMethods();
+    	ControllerHelpers helper = new ControllerHelpers();
         BoardController controller = helper.createController();
 
         controller.mainContainer.resize(450, 425);
@@ -57,7 +57,7 @@ public class S1Feature2Test {
 
     @Test
     void testScalingExtraWideWindow() {
-    	HelperMethods helper = new HelperMethods();
+    	ControllerHelpers helper = new ControllerHelpers();
         BoardController controller = helper.createController();
 
         controller.mainContainer.resize(1800, 850);

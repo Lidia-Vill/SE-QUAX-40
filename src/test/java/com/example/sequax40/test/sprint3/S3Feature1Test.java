@@ -11,111 +11,110 @@ import com.example.sequax40.enums.PlayerEnum;
 import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
-import com.example.sequax40.test.helperMethods.HelperMethods;
+import com.example.sequax40.test.helperMethods.BoardDumps;
+
 
 public class S3Feature1Test {
 
-    private HelperMethods helper;
+	BoardDumps boardDumps;
 
     @BeforeEach
     void setup() {
-        helper = new HelperMethods();
+    	boardDumps = new BoardDumps();
     }
 
-    /**
-     * Rebuild board + manager EVERY TIME so state is clean
-     */
+    
     private GameManager initWithDump(int[][] dump) {
 
         Board board = new Board(11, 11);
         Map<String, Tile> tileMap = board.getAllTiles();
 
-        helper.loadDump(board, tileMap, dump);
+        boardDumps.loadDump(board, tileMap, dump);
 
         return new GameManager(board, tileMap);
     }
 
     @Test
     void testBlackWinsStraightColumnPath() {
-        GameManager manager = initWithDump(HelperMethods.BLACK_WINS_STRAIGHT_COLUMN);
+        GameManager manager = initWithDump(BoardDumps.BLACK_WINS_STRAIGHT_COLUMN);
         assertTrue(manager.checkWin(PlayerEnum.BLACK));
     }
 
     @Test
     void testBlackWinsZigZagAcrossAdjacentColumns() {
-        GameManager manager = initWithDump(HelperMethods.BLACK_WINS_ZIGZAG);
+        GameManager manager = initWithDump(BoardDumps.BLACK_WINS_ZIGZAG);
         assertTrue(manager.checkWin(PlayerEnum.BLACK));
     }
 
     @Test
     void testBlackLoseMissingBottom() {
-        GameManager manager = initWithDump(HelperMethods.BLACK_MISSING_BOTTOM);
+        GameManager manager = initWithDump(BoardDumps.BLACK_MISSING_BOTTOM);
         assertFalse(manager.checkWin(PlayerEnum.BLACK));
     }
 
     @Test
     void testBlackLosesMissingTop() {
-        GameManager manager = initWithDump(HelperMethods.BLACK_MISSING_TOP);
+        GameManager manager = initWithDump(BoardDumps.BLACK_MISSING_TOP);
         assertFalse(manager.checkWin(PlayerEnum.BLACK));
     }
 
     @Test
     void testBlackLosesDisconnectedSequences() {
-        GameManager manager = initWithDump(HelperMethods.BLACK_DISCONNECTED);
+        GameManager manager = initWithDump(BoardDumps.BLACK_DISCONNECTED);
         assertFalse(manager.checkWin(PlayerEnum.BLACK));
     }
 
     @Test
     void testBlackLosesBlockedByWhite() {
-        GameManager manager = initWithDump(HelperMethods.BLACK_BLOCKED_BY_WHITE);
+        GameManager manager = initWithDump(BoardDumps.BLACK_BLOCKED_BY_WHITE);
         assertFalse(manager.checkWin(PlayerEnum.BLACK));
     }
 
     @Test
     void testBlackLosesEmptyBoard() {
-        GameManager manager = initWithDump(HelperMethods.EMPTY_BOARD);
+        GameManager manager = initWithDump(BoardDumps.EMPTY_BOARD);
         assertFalse(manager.checkWin(PlayerEnum.BLACK));
     }
 
     @Test
     void testWhiteWinsStraightRowPath() {
-        GameManager manager = initWithDump(HelperMethods.WHITE_WINS_STRAIGHT_ROW);
+        GameManager manager = initWithDump(BoardDumps.WHITE_WINS_STRAIGHT_ROW);
         assertTrue(manager.checkWin(PlayerEnum.WHITE));
     }
 
     @Test
     void testWhiteWinsZigZagAcrossAdjacentRows() {
-        GameManager manager = initWithDump(HelperMethods.WHITE_WINS_ZIGZAG);
+        GameManager manager = initWithDump(BoardDumps.WHITE_WINS_ZIGZAG);
         assertTrue(manager.checkWin(PlayerEnum.WHITE));
     }
 
     @Test
     void testWhiteLosesMissingRight() {
-        GameManager manager = initWithDump(HelperMethods.WHITE_MISSING_RIGHT);
+        GameManager manager = initWithDump(BoardDumps.WHITE_MISSING_RIGHT);
         assertFalse(manager.checkWin(PlayerEnum.WHITE));
     }
 
     @Test
     void testWhiteLosesMissingLeft() {
-        GameManager manager = initWithDump(HelperMethods.WHITE_MISSING_LEFT);
+        GameManager manager = initWithDump(BoardDumps.WHITE_MISSING_LEFT);
         assertFalse(manager.checkWin(PlayerEnum.WHITE));
     }
 
     @Test
     void testWhiteLosesDisconnectedSequences() {
-        GameManager manager = initWithDump(HelperMethods.WHITE_DISCONNECTED);
+        GameManager manager = initWithDump(BoardDumps.WHITE_DISCONNECTED);
         assertFalse(manager.checkWin(PlayerEnum.WHITE));
     }
 
     @Test
     void testWhiteLosesBlockedByBlack() {
-        GameManager manager = initWithDump(HelperMethods.WHITE_BLOCKED_BY_BLACK);
+        GameManager manager = initWithDump(BoardDumps.WHITE_BLOCKED_BY_BLACK);
         assertFalse(manager.checkWin(PlayerEnum.WHITE));
     }
 
     @Test
     void testWhiteLosesEmptyBoard() {
-        GameManager manager = initWithDump(HelperMethods.EMPTY_BOARD);
+        GameManager manager = initWithDump(BoardDumps.EMPTY_BOARD);
         assertFalse(manager.checkWin(PlayerEnum.WHITE));
     }
 }

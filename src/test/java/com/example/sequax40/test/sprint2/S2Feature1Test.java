@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +16,7 @@ import com.example.sequax40.model.board.Board;
 import com.example.sequax40.model.board.Tile;
 import com.example.sequax40.model.game.GameManager;
 import com.example.sequax40.model.move.Move;
-import com.example.sequax40.test.helperMethods.HelperMethods;
+import com.example.sequax40.test.helperMethods.ControllerHelpers;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -31,7 +30,7 @@ import javafx.scene.shape.Polygon;
 
 public class S2Feature1Test {
 
-	private HelperMethods helper = new HelperMethods();
+	private ControllerHelpers helper = new ControllerHelpers();
     private BoardController controller;
     private Board board;
     private GameManager manager;
@@ -48,7 +47,7 @@ public class S2Feature1Test {
 
     @BeforeEach
     void setup() {
-        board = new Board(11, 11);
+    	board = new Board(11, 11);
         controller = new BoardController();
         Map<String, Tile> tileMap = board.getAllTiles();
         manager = new GameManager(board, tileMap);
